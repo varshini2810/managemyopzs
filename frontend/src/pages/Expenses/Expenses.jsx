@@ -9,6 +9,8 @@ import {
   Layers, Users, Building2, CreditCard, Receipt, Banknote, PieChart, Activity
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 /* ══════════════════════════════════════════════════════════════════
    CONSTANTS & HELPERS
@@ -209,7 +211,7 @@ function ActionMenu({ row, onView, onEdit, onDuplicate, onApprove, onReject, onD
     { label: 'Approve',       icon: CheckCircle,   fn: onApprove,   cls: 'text-green-700' },
     { label: 'Reject',        icon: Ban,           fn: onReject,    cls: 'text-orange-600' },
     null,
-    { label: 'Download PDF',  icon: Download,      fn: () => toast.success('PDF downloaded'), cls: 'text-gray-700' },
+    { label: 'Download PDF',  icon: Download,      fn: () => handleDownloadPDF(row), cls: 'text-gray-700' },
     { label: 'Print',         icon: Printer,       fn: () => window.print(), cls: 'text-gray-700' },
     null,
     { label: 'Delete',        icon: Trash2,        fn: onDelete,    cls: 'text-red-600' },
@@ -531,6 +533,106 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   PDF DOWNLOAD
+══════════════════════════════════════════════════════════════════ */
+const handleDownloadPDF = (exp) => {
+  try {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(33, 33, 33);
+    doc.text('Opz Billing Tool', 20, 25);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(79, 70, 229);
+    doc.text('Expense Report', 20, 35);
+    
+    // Right side header
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Expense ID: ${exp.id}`, pageWidth - 20, 25, { align: 'right' });
+    doc.text(`Status: ${(exp.status || '').toUpperCase()}`, pageWidth - 20, 32, { align: 'right' });
+    doc.text(`Date: ${fmtDate(exp.date)}`, pageWidth - 20, 39, { align: 'right' });
+    
+    // Horizontal line
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 45, pageWidth - 20, 45);
+    
+    // Details Table
+    autoTable(doc, {
+      startY: 55,
+      head: [['Expense Details', '']],
+      body: [
+        ['Description', exp.description || '—'],
+        ['Vendor', exp.vendor || '—'],
+        ['Employee', exp.employee || '—'],
+        ['Department', exp.department || '—'],
+        ['Payment Method', exp.paymentMethod || '—'],
+        ['Currency', exp.currency || 'USD'],
+        ['Invoice #', exp.invoiceNum || '—'],
+        ['Approved By', exp.approvedBy || '—'],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [248, 250, 252], textColor: [71, 85, 105], fontStyle: 'bold' },
+      styles: { fontSize: 10, cellPadding: 5 },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 } },
+      margin: { left: 20, right: 20 }
+    });
+    
+    // Financials Table
+    const finalY = doc.lastAutoTable.finalY + 15;
+    
+    autoTable(doc, {
+      startY: finalY,
+      head: [['Financial Breakdown', 'Amount']],
+      body: [
+        ['Subtotal', fmt(exp.amount, exp.currency)],
+        ['Tax', fmt(exp.tax || 0, exp.currency)],
+        ['Total Amount', fmt((exp.amount || 0) + (exp.tax || 0), exp.currency)],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 10, cellPadding: 5 },
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'right' } },
+      margin: { left: pageWidth / 2, right: 20 }
+    });
+    
+    let nextY = doc.lastAutoTable.finalY + 15;
+    
+    // Notes
+    if (exp.notes) {
+      doc.setFontSize(11);
+      doc.setTextColor(50, 50, 50);
+      doc.text('Internal Notes', 20, nextY);
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const splitNotes = doc.splitTextToSize(exp.notes, pageWidth - 40);
+      doc.text(splitNotes, 20, nextY + 7);
+      nextY += (splitNotes.length * 5) + 15;
+    }
+    
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      const footerY = doc.internal.pageSize.getHeight() - 15;
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, footerY);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth - 20, footerY, { align: 'right' });
+    }
+    
+    doc.save(`Expense_${exp.id}.pdf`);
+    toast.success('PDF generated successfully!');
+  } catch (error) {
+    console.error('PDF Generation Error:', error);
+    toast.error('Failed to generate PDF');
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════
    VIEW DETAILS MODAL
 ══════════════════════════════════════════════════════════════════ */
 function ViewModal({ open, expense: exp, onClose, onEdit, onApprove, onReject }) {
@@ -650,7 +752,7 @@ function ViewModal({ open, expense: exp, onClose, onEdit, onApprove, onReject })
             )}
           </div>
           <div className="flex gap-2">
-            <button onClick={() => toast.success('PDF downloaded')}
+            <button onClick={() => handleDownloadPDF(exp)}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center gap-1.5 transition-all">
               <Download size={14} />PDF
             </button>

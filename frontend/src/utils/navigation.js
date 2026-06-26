@@ -22,6 +22,7 @@ const billingNavItems = [
       { label: 'Third Party Configurations', id: 'third-party', icon: Blocks, to: '/settings/third-party' },
       { label: 'Import and Export Data', id: 'import-export', icon: ArrowRightLeft, to: '/settings/import-export' },
       { label: 'Team Members', id: 'team-members', icon: Users, to: '/settings/team-members' },
+      { label: 'Access Control', id: 'access-control', icon: Key, to: '/settings/access-control' },
       { label: 'System Notifications', id: 'notifications', icon: Bell, to: '/settings/notifications' },
       { label: 'Security', id: 'security', icon: Shield, to: '/settings/security' },
     ]
@@ -115,6 +116,7 @@ export function getNavigationForRole(role, currentSuite, grantedModules = []) {
       'third-party': 'SETTINGS_THIRD_PARTY',
       'import-export': 'SETTINGS_IMPORT_EXPORT',
       'team-members': 'SETTINGS_TEAM_MEMBERS',
+      'access-control': 'SETTINGS_ACCESS_CONTROL',
       'notifications': 'SETTINGS_NOTIFICATIONS',
       'security': 'SETTINGS_SECURITY'
     };

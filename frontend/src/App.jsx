@@ -63,6 +63,7 @@ import AppsList from './pages/Apps/AppsList';
 import ConfigureOpz from './pages/Settings/ConfigureOpz';
 import ThirdPartyConfigurations from './pages/Settings/ThirdPartyConfigurations';
 import ImportExportData from './pages/Settings/ImportExportData';
+import AccessControl from './pages/Settings/AccessControl/AccessControl';
 import TeamMembers from './pages/Settings/TeamMembers/TeamMembers';
 import OpzNotifications from './pages/Settings/OpzNotifications';
 import Security from './pages/Settings/Security';
@@ -153,6 +154,7 @@ export default function App() {
                 <Route path="/settings/configure-opz" element={<ConfigureOpz />} />
                 <Route path="/settings/third-party" element={<ThirdPartyConfigurations />} />
                 <Route path="/settings/import-export" element={<ImportExportData />} />
+                <Route path="/settings/access-control" element={<AccessControl />} />
                 <Route path="/settings/team-members" element={<RequirePermission role="SUPERADMIN"><TeamMembers /></RequirePermission>} />
                 <Route path="/settings/notifications" element={<RequirePermission role="SUPERADMIN"><OpzNotifications /></RequirePermission>} />
                 <Route path="/settings/security" element={<RequirePermission role="SUPERADMIN"><Security /></RequirePermission>} />

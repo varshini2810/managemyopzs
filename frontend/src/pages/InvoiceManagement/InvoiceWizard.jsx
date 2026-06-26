@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ChevronRight, ChevronLeft, FileText, CheckCircle, Plus, Trash2, Save, Eye, Check, Calendar, User, DollarSign, Download, Printer, Mail } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, FileText, CheckCircle, Plus, Trash2, Save, Eye, Check, Calendar, User, DollarSign, Download, Printer, Mail, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { generateInvoicePdf } from '../../utils/generateInvoicePdf';
 
@@ -29,7 +29,7 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
 
   // ─── STEP 2: INVOICE INFO ─────────────────────────────────────────────────
   const [invoiceInfo, setInvoiceInfo] = useState({
-    id: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+    id: '',
     issueDate: new Date().toISOString().split('T')[0],
     dueDate: '', currency: 'USD', status: 'draft',
     referenceNo: '', poNumber: '', taxConfig: 'Exclusive',
@@ -49,10 +49,40 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
   });
 
   // Keep state when opening/closing
+  const [loadingId, setLoadingId] = useState(false);
+
   useEffect(() => {
     if (open) {
       setStep(1); setErrors({}); setShowPreview(false);
-      if (initial) {
+      
+      const generateNextId = () => {
+        return new Promise((resolve) => {
+          setLoadingId(true);
+          setTimeout(() => {
+            let nextId = 'INV-0001';
+            try {
+              const saved = localStorage.getItem('opz_invoices');
+              if (saved) {
+                const invoices = JSON.parse(saved);
+                if (invoices.length > 0) {
+                  let maxNum = 0;
+                  invoices.forEach(inv => {
+                    if (inv.id && inv.id.startsWith('INV-')) {
+                      const num = parseInt(inv.id.replace('INV-', ''), 10);
+                      if (!isNaN(num) && num > maxNum) maxNum = num;
+                    }
+                  });
+                  nextId = `INV-${String(maxNum + 1).padStart(4, '0')}`;
+                }
+              }
+            } catch(e) { console.error('Failed to parse invoices', e); }
+            setLoadingId(false);
+            resolve(nextId);
+          }, 400);
+        });
+      };
+
+      if (initial && initial.id) {
         setClientInfo({
           name: initial.client || '', companyName: initial.company || '', email: initial.email || '', phone: initial.phone || '',
           billingLine1: initial.billingAddr || '', billingCity: '', billingState: '', billingZip: '',
@@ -60,7 +90,7 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
           vatNumber: initial.gst || '', paymentTerms: initial.paymentTerms || 'Net 30', salesRep: initial.salesRep || ''
         });
         setInvoiceInfo({
-          id: initial.id || `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+          id: initial.id,
           issueDate: initial.issueDate || new Date().toISOString().split('T')[0],
           dueDate: initial.dueDate || '', currency: initial.currency || 'USD', status: initial.status || 'draft',
           referenceNo: initial.refNum || '', poNumber: initial.poNum || '', taxConfig: 'Exclusive',
@@ -68,7 +98,7 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
         });
         if (initial.items && initial.items.length > 0) {
           setLineItems(initial.items.map((it, idx) => ({
-            id: idx + 1, name: it.desc || '', description: it.desc || '',
+            id: idx + 1, name: it.desc || '', description: it.desc || '', hsnCode: it.hsnCode || '',
             quantity: it.qty || 1, price: it.price || 0, tax: it.tax || 0, discount: it.disc || 0, amount: it.amount || 0
           })));
         }
@@ -78,27 +108,28 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
           internalNotes: initial.internalNotes || ''
         });
       } else {
-        // Reset defaults
-        setClientInfo({
-          name: '', companyName: '', email: '', phone: '',
-          billingLine1: '', billingCity: '', billingState: '', billingZip: '',
-          shippingLine1: '', shippingCity: '', shippingState: '', shippingZip: '',
-          vatNumber: '', paymentTerms: 'Net 30', salesRep: ''
-        });
-        setLineItems([{ id: 1, name: '', description: '', quantity: 1, price: 0, tax: 18, discount: 0, amount: 0 }]);
-        const d = new Date();
-        d.setDate(d.getDate() + 30);
-        setInvoiceInfo({
-          id: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
-          issueDate: new Date().toISOString().split('T')[0],
-          dueDate: d.toISOString().split('T')[0], currency: 'USD', status: 'draft',
-          referenceNo: '', poNumber: '', taxConfig: 'Exclusive',
-          discount: 0, billingCycle: 'One-time', paymentMethod: 'Credit Card'
-        });
-        setNotes({
-          customerNotes: 'Thank you for your business.',
-          terms: 'Payment is due within the specified terms.',
-          internalNotes: ''
+        generateNextId().then(nextId => {
+          setClientInfo({
+            name: '', companyName: '', email: '', phone: '',
+            billingLine1: '', billingCity: '', billingState: '', billingZip: '',
+            shippingLine1: '', shippingCity: '', shippingState: '', shippingZip: '',
+            vatNumber: '', paymentTerms: 'Net 30', salesRep: ''
+          });
+          setLineItems([{ id: 1, name: '', description: '', hsnCode: '', quantity: 1, price: 0, tax: 18, discount: 0, amount: 0 }]);
+          const d = new Date();
+          d.setDate(d.getDate() + 30);
+          setInvoiceInfo({
+            id: nextId,
+            issueDate: new Date().toISOString().split('T')[0],
+            dueDate: d.toISOString().split('T')[0], currency: 'USD', status: 'draft',
+            referenceNo: '', poNumber: '', taxConfig: 'Exclusive',
+            discount: 0, billingCycle: 'One-time', paymentMethod: 'Credit Card'
+          });
+          setNotes({
+            customerNotes: 'Thank you for your business.',
+            terms: 'Payment is due within the specified terms.',
+            internalNotes: ''
+          });
         });
       }
     }
@@ -273,25 +304,27 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
   const renderStepIndicators = () => {
     const steps = ['Client Info', 'Invoice Info', 'Line Items', 'Notes & Terms'];
     return (
-      <div className="flex items-center justify-between w-full max-w-2xl mx-auto mb-8 relative">
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 rounded-full z-0" />
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-indigo-600 rounded-full z-0 transition-all duration-300" style={{ width: `${((step - 1) / 3) * 100}%` }} />
-        
-        {steps.map((s, i) => {
-          const sNum = i + 1;
-          const isPast = sNum < step;
-          const isActive = sNum === step;
-          return (
-            <div key={s} className="relative z-10 flex flex-col items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${isPast ? 'bg-indigo-600 text-white' : isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 ring-4 ring-white' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
-                {isPast ? <Check size={16} /> : sNum}
+      <div className="w-full max-w-2xl mx-auto mb-10 px-6 sm:px-10">
+        <div className="flex items-center justify-between relative">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 rounded-full z-0" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-indigo-600 rounded-full z-0 transition-all duration-300" style={{ width: `${((step - 1) / 3) * 100}%` }} />
+          
+          {steps.map((s, i) => {
+            const sNum = i + 1;
+            const isPast = sNum < step;
+            const isActive = sNum === step;
+            return (
+              <div key={s} className="relative z-10 flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${isPast ? 'bg-indigo-600 text-white' : isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 ring-4 ring-white' : 'bg-white text-gray-400 border-2 border-gray-200'}`}>
+                  {isPast ? <Check size={16} /> : sNum}
+                </div>
+                <span className={`text-[11px] font-bold uppercase tracking-wider absolute top-10 left-1/2 -translate-x-1/2 w-max text-center ${isActive ? 'text-indigo-600' : isPast ? 'text-gray-800' : 'text-gray-400'}`}>
+                  {s}
+                </span>
               </div>
-              <span className={`text-[11px] font-bold uppercase tracking-wider absolute -bottom-5 w-24 text-center ${isActive ? 'text-indigo-600' : isPast ? 'text-gray-800' : 'text-gray-400'}`}>
-                {s}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -363,7 +396,18 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
               <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
                 <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-4 border-b pb-2"><Calendar size={16} className="text-indigo-600"/> Invoice Details</div>
                 <div className="flex gap-4">
-                  {renderField('Invoice Number', invoiceInfo.id, 'id', invoiceInfo, setInvoiceInfo)}
+                  <div className={`flex flex-col gap-1.5 w-full`}>
+                    <label className="text-xs font-semibold text-gray-600">Invoice Number <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <input type="text" value={invoiceInfo.id} readOnly
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none bg-gray-50 text-gray-500 border-gray-200 cursor-not-allowed`} />
+                      {loadingId && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <RefreshCw size={14} className="animate-spin text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   {renderField('Reference / PO Number', invoiceInfo.poNumber, 'poNumber', invoiceInfo, setInvoiceInfo)}
                 </div>
                 <div className="flex gap-4">
@@ -410,16 +454,16 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                 </div>
                 
                 <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm table-fixed">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
-                        <th className="px-4 py-3 text-left">Product / Description</th>
-                        <th className="px-4 py-3 text-left w-28">HSN Code</th>
-                        <th className="px-4 py-3 text-right w-20">Qty</th>
-                        <th className="px-4 py-3 text-right w-28">Price</th>
-                        <th className="px-4 py-3 text-right w-24">Tax %</th>
-                        <th className="px-4 py-3 text-right w-32">Amount</th>
-                        <th className="px-4 py-3 text-center w-12"></th>
+                        <th className="px-3 py-3 text-left w-[30%]">Product / Description</th>
+                        <th className="px-3 py-3 text-left w-[14%]">HSN Code</th>
+                        <th className="px-3 py-3 text-right w-[10%]">Qty</th>
+                        <th className="px-3 py-3 text-right w-[15%]">Price</th>
+                        <th className="px-3 py-3 text-right w-[12%]">Tax %</th>
+                        <th className="px-3 py-3 text-right w-[15%]">Amount</th>
+                        <th className="px-3 py-3 text-center w-[4%]"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -427,10 +471,10 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                         const err = errors.lineItems?.[idx] || {};
                         return (
                           <tr key={item.id} className="group hover:bg-indigo-50/30 transition-colors">
-                            <td className="p-2">
-                              <div className="flex flex-col gap-1">
+                            <td className="p-2 align-top">
+                              <div className="flex flex-col gap-2">
                                 <select 
-                                  className="w-full px-2 py-1.5 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                                  className="h-[44px] w-full px-3 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                                   value={PRODUCT_LIST.find(p => p.name === item.name)?.id || ''}
                                   onChange={e => {
                                     const prod = PRODUCT_LIST.find(p => p.id === e.target.value);
@@ -444,7 +488,7 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                   {PRODUCT_LIST.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                 </select>
                                 <input type="text" placeholder="Or type custom description..."
-                                  className={`w-full px-2 py-1 text-xs rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none ${err.name ? 'border-red-400 bg-red-50' : ''}`}
+                                  className={`h-[44px] w-full px-3 text-xs rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none transition-all ${err.name ? 'border-red-400 bg-red-50' : ''}`}
                                   value={item.description}
                                   onChange={e => {
                                     const newItems = [...lineItems];
@@ -453,9 +497,9 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                   }} />
                               </div>
                             </td>
-                            <td className="p-2 align-top pt-3">
+                            <td className="p-2 align-top">
                               <input type="text" placeholder="Enter HSN Code" maxLength="8"
-                                className={`w-full text-left px-2 py-1.5 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none ${err.hsnCode ? 'border-red-400 bg-red-50 text-red-500' : ''}`}
+                                className={`h-[44px] w-full text-left px-3 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none transition-all ${err.hsnCode ? 'border-red-400 bg-red-50 text-red-500' : ''}`}
                                 value={item.hsnCode || ''}
                                 onChange={e => {
                                   const val = e.target.value.replace(/\D/g, ''); // only numeric
@@ -465,9 +509,9 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                 }} />
                                 {err.hsnCode && <p className="text-[10px] text-red-500 px-2 mt-0.5 leading-tight">{err.hsnCode}</p>}
                             </td>
-                            <td className="p-2 align-top pt-3">
+                            <td className="p-2 align-top">
                               <input type="number" min="1"
-                                className={`w-full text-right px-2 py-1.5 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none ${err.quantity ? 'text-red-500' : ''}`}
+                                className={`h-[44px] w-full text-right px-3 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none transition-all ${err.quantity ? 'text-red-500' : ''}`}
                                 value={item.quantity}
                                 onChange={e => {
                                   const newItems = [...lineItems];
@@ -475,9 +519,9 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                   setLineItems(newItems);
                                 }} />
                             </td>
-                            <td className="p-2 align-top pt-3">
+                            <td className="p-2 align-top">
                               <input type="number" min="0" step="0.01"
-                                className={`w-full text-right px-2 py-1.5 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none ${err.price ? 'text-red-500' : ''}`}
+                                className={`h-[44px] w-full text-right px-3 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none transition-all ${err.price ? 'text-red-500' : ''}`}
                                 value={item.price}
                                 onChange={e => {
                                   const newItems = [...lineItems];
@@ -485,9 +529,9 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                   setLineItems(newItems);
                                 }} />
                             </td>
-                            <td className="p-2 align-top pt-3">
+                            <td className="p-2 align-top">
                               <input type="number" min="0" max="100"
-                                className="w-full text-right px-2 py-1.5 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none"
+                                className="h-[44px] w-full text-right px-3 text-sm rounded bg-transparent border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-indigo-500 outline-none transition-all"
                                 value={item.tax}
                                 onChange={e => {
                                   const newItems = [...lineItems];
@@ -495,16 +539,18 @@ export default function InvoiceWizard({ open, initial, onClose, onSave }) {
                                   setLineItems(newItems);
                                 }} />
                             </td>
-                            <td className="p-2 align-top pt-3 text-right">
-                              <div className="px-2 py-1.5 font-bold text-gray-900 bg-gray-50 rounded tabular-nums border border-transparent">
+                            <td className="p-2 align-top text-right">
+                              <div className="h-[44px] flex items-center justify-end px-3 font-bold text-gray-900 bg-gray-50 rounded tabular-nums border border-transparent">
                                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: invoiceInfo.currency }).format((item.quantity || 0) * (item.price || 0))}
                               </div>
                             </td>
-                            <td className="p-2 align-top pt-3 text-center">
-                              <button onClick={() => setLineItems(lineItems.filter((_, i) => i !== idx))}
-                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                <Trash2 size={16} />
-                              </button>
+                            <td className="p-2 align-top text-center">
+                              <div className="h-[44px] flex items-center justify-center">
+                                <button onClick={() => setLineItems(lineItems.filter((_, i) => i !== idx))}
+                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
