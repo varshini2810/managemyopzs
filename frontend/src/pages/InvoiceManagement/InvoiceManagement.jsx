@@ -9,6 +9,9 @@ import {
   ArrowUpDown, Check, Minus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import InvoiceWizard from './InvoiceWizard';
+import { generateInvoicePdf, generateInvoiceListPdf } from '../../utils/generateInvoicePdf';
+import * as XLSX from 'xlsx';
 
 /* ══════════════════════════════════════════════════════════════════
    HELPERS & CONSTANTS
@@ -173,7 +176,7 @@ function ColVisMenu({ visible, onToggle, onClose }) {
 /* ══════════════════════════════════════════════════════════════════
    ROW ACTIONS DROPDOWN
 ══════════════════════════════════════════════════════════════════ */
-function ActionMenu({ row, onView, onEdit, onDuplicate, onPrint, onEmail, onRecordPayment, onMarkPaid, onVoid, onDelete }) {
+function ActionMenu({ row, onView, onEdit, onDuplicate, onPrint, onEmail, onRecordPayment, onMarkPaid, onVoid, onDelete, onDownloadPdf }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
@@ -190,7 +193,7 @@ function ActionMenu({ row, onView, onEdit, onDuplicate, onPrint, onEmail, onReco
     ],
     [
       { label: 'Print',           icon: Printer,      fn: onPrint,         color: 'text-gray-700' },
-      { label: 'Download PDF',    icon: Download,     fn: () => { toast.success('PDF downloaded'); setOpen(false); }, color: 'text-gray-700' },
+      { label: 'Download PDF',    icon: Download,     fn: onDownloadPdf,   color: 'text-gray-700' },
       { label: 'Send Email',      icon: Mail,         fn: onEmail,         color: 'text-gray-700' },
     ],
     [
@@ -297,331 +300,12 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
 /* ══════════════════════════════════════════════════════════════════
    CREATE / EDIT MODAL
 ══════════════════════════════════════════════════════════════════ */
-const BLANK_ITEM = { desc: '', qty: 1, price: 0, tax: 0, disc: 0 };
 
-function InvoiceFormModal({ open, initial, onClose, onSave }) {
-  const isEdit = !!initial?.id;
-  const [form, setForm] = useState({});
-  const [errors, setErrors] = useState({});
-  const [activeSection, setActiveSection] = useState('client');
-
-  useEffect(() => {
-    if (!open) return;
-    setErrors({});
-    setActiveSection('client');
-    setForm({
-      id: uid(), client: '', company: '', email: '', phone: '',
-      billingAddr: '', shippingAddr: '', gst: '', currency: 'USD',
-      paymentTerms: 'Net 30', salesRep: '', issueDate: today(),
-      dueDate: addDays(today(), 30), refNum: '', poNum: '', status: 'draft',
-      payMethod: '', notes: '', internalNotes: '', terms: 'Payment due within 30 days.',
-      shipping: 0, extraCharge: 0, roundOff: 0,
-      items: [{ ...BLANK_ITEM }],
-      ...initial,
-      items: initial?.items?.map(i => ({ ...i })) || [{ ...BLANK_ITEM }],
-    });
-  }, [open, initial]);
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-  const setItem = (i, k, v) => {
-    const items = [...form.items];
-    items[i] = { ...items[i], [k]: v };
-    setForm(f => ({ ...f, items }));
-  };
-  const addItem = () => setForm(f => ({ ...f, items: [...f.items, { ...BLANK_ITEM }] }));
-  const removeItem = i => setForm(f => ({ ...f, items: f.items.filter((_, idx) => idx !== i) }));
-
-  const totals = useMemo(() => {
-    const subtotal = (form.items || []).reduce((s, it) => {
-      const line = (Number(it.qty) || 0) * (Number(it.price) || 0);
-      const disc = line * ((Number(it.disc) || 0) / 100);
-      const tax = (line - disc) * ((Number(it.tax) || 0) / 100);
-      return s + line - disc + tax;
-    }, 0);
-    const shipping = Number(form.shipping) || 0;
-    const extra = Number(form.extraCharge) || 0;
-    const roundOff = Number(form.roundOff) || 0;
-    const grandTotal = subtotal + shipping + extra + roundOff;
-    return { subtotal, shipping, extra, roundOff, grandTotal };
-  }, [form.items, form.shipping, form.extraCharge, form.roundOff]);
-
-  const validate = () => {
-    const e = {};
-    if (!form.client?.trim()) e.client = 'Client name is required';
-    if (!form.email?.trim()) e.email = 'Email is required';
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
-    if (!form.issueDate) e.issueDate = 'Required';
-    if (!form.dueDate) e.dueDate = 'Required';
-    (form.items || []).forEach((it, i) => { if (!it.desc?.trim()) e['item_' + i] = 'Required'; });
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSave = (asDraft) => {
-    if (!validate()) { toast.error('Please fix validation errors'); return; }
-    onSave({
-      ...form, subtotal: totals.subtotal, total: totals.grandTotal,
-      tax: (form.items || []).reduce((s, it) => { const l = (Number(it.qty)||0)*(Number(it.price)||0); const d = l*((Number(it.disc)||0)/100); return s + (l-d)*((Number(it.tax)||0)/100); }, 0),
-      disc: (form.items || []).reduce((s, it) => { const l = (Number(it.qty)||0)*(Number(it.price)||0); return s + l*((Number(it.disc)||0)/100); }, 0),
-      status: asDraft ? 'draft' : (initial?.status || 'pending'),
-      paidAmt: initial?.paidAmt || 0,
-    }, asDraft ? 'draft' : 'save');
-  };
-
-  if (!open) return null;
-
-  const sections = [
-    { id: 'client', label: 'Client Info' },
-    { id: 'invoice', label: 'Invoice Info' },
-    { id: 'items', label: 'Line Items' },
-    { id: 'notes', label: 'Notes & Terms' },
-  ];
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(15,20,40,0.55)' }}>
-      <div className="bg-white rounded-2xl flex flex-col" style={{ width: '100%', maxWidth: 860, maxHeight: '95vh', boxShadow: '0 32px 80px rgba(0,0,0,0.25)' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-7 py-5 border-b border-gray-100">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{isEdit ? 'Edit Invoice' : 'Create Invoice'}</h2>
-            <p className="text-sm text-gray-500 mt-0.5">{isEdit ? ('Editing ' + initial?.id) : 'Fill in the details to create a new invoice'}</p>
-          </div>
-          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all">
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Section Tabs */}
-        <div className="flex border-b border-gray-100 px-7 gap-1">
-          {sections.map(s => (
-            <button key={s.id} onClick={() => setActiveSection(s.id)}
-              className={`px-4 py-3 text-sm font-medium transition-all border-b-2 ${activeSection === s.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
-          {/* Client Info */}
-          {activeSection === 'client' && (
-            <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Client Name *</label>
-                  <input className={'w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ' + (errors.client ? 'border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100')}
-                    value={form.client || ''} onChange={e => set('client', e.target.value)} placeholder="Full name" />
-                  {errors.client && <p className="text-xs text-red-500 mt-1">{errors.client}</p>}
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Company</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.company || ''} onChange={e => set('company', e.target.value)} placeholder="Company name" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email *</label>
-                  <input type="email" className={'w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ' + (errors.email ? 'border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100')}
-                    value={form.email || ''} onChange={e => set('email', e.target.value)} placeholder="email@company.com" />
-                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Phone</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.phone || ''} onChange={e => set('phone', e.target.value)} placeholder="+1-555-0000" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Billing Address</label>
-                  <textarea rows={3} className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                    value={form.billingAddr || ''} onChange={e => set('billingAddr', e.target.value)} placeholder="Street, City, State, ZIP" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Shipping Address</label>
-                  <textarea rows={3} className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                    value={form.shippingAddr || ''} onChange={e => set('shippingAddr', e.target.value)} placeholder="Same as billing" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">GST / VAT Number</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.gst || ''} onChange={e => set('gst', e.target.value)} placeholder="GST123456" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Payment Terms</label>
-                  <select className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-white"
-                    value={form.paymentTerms || 'Net 30'} onChange={e => set('paymentTerms', e.target.value)}>
-                    {['Net 7','Net 15','Net 30','Net 45','Net 60','Due on Receipt'].map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Sales Representative</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.salesRep || ''} onChange={e => set('salesRep', e.target.value)} placeholder="Rep name" />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Invoice Info */}
-          {activeSection === 'invoice' && (
-            <div className="space-y-5">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Invoice Number</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 font-mono"
-                    value={form.id || ''} onChange={e => set('id', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Invoice Date *</label>
-                  <input type="date" className={'w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ' + (errors.issueDate ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100')}
-                    value={form.issueDate || ''} onChange={e => set('issueDate', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Due Date *</label>
-                  <input type="date" className={'w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ' + (errors.dueDate ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100')}
-                    value={form.dueDate || ''} onChange={e => set('dueDate', e.target.value)} />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Currency</label>
-                  <select className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
-                    value={form.currency || 'USD'} onChange={e => set('currency', e.target.value)}>
-                    {CURRENCIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Reference Number</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.refNum || ''} onChange={e => set('refNum', e.target.value)} placeholder="REF-001" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">PO Number</label>
-                  <input className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.poNum || ''} onChange={e => set('poNum', e.target.value)} placeholder="PO-2024-001" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Shipping Charge</label>
-                  <input type="number" min="0" className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.shipping || 0} onChange={e => set('shipping', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Additional Charges</label>
-                  <input type="number" min="0" className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.extraCharge || 0} onChange={e => set('extraCharge', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Round Off</label>
-                  <input type="number" step="0.01" className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    value={form.roundOff || 0} onChange={e => set('roundOff', e.target.value)} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Line Items */}
-          {activeSection === 'items' && (
-            <div className="space-y-4">
-              <div className="rounded-xl overflow-hidden border border-gray-100">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ background: '#F8FAFC' }}>
-                      {['Description', 'Qty', 'Unit Price', 'Tax %', 'Disc %', 'Line Total', ''].map(h => (
-                        <th key={h} className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(form.items || []).map((item, i) => (
-                      <LineItemRow key={i} item={item} index={i}
-                        onChange={setItem} onRemove={removeItem}
-                        canRemove={(form.items || []).length > 1} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <button onClick={addItem}
-                className="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors px-1">
-                <Plus size={16} />Add Line Item
-              </button>
-
-              {/* Totals Summary */}
-              <div className="flex justify-end mt-4">
-                <div className="w-72 space-y-2 text-sm">
-                  {[
-                    ['Subtotal', fmt(totals.subtotal, form.currency)],
-                    ['Shipping', fmt(totals.shipping, form.currency)],
-                    ['Additional', fmt(totals.extra, form.currency)],
-                    ['Round Off', fmt(totals.roundOff, form.currency)],
-                  ].map(([k, v]) => (
-                    <div key={k} className="flex justify-between text-gray-500">
-                      <span>{k}</span><span className="tabular-nums font-medium text-gray-700">{v}</span>
-                    </div>
-                  ))}
-                  <div className="flex justify-between font-bold text-gray-900 text-base pt-2 border-t border-gray-200">
-                    <span>Grand Total</span>
-                    <span className="tabular-nums text-indigo-700">{fmt(totals.grandTotal, form.currency)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notes & Terms */}
-          {activeSection === 'notes' && (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Customer Notes</label>
-                <textarea rows={3} className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                  value={form.notes || ''} onChange={e => set('notes', e.target.value)} placeholder="Notes visible to the customer…" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Internal Notes</label>
-                <textarea rows={3} className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                  value={form.internalNotes || ''} onChange={e => set('internalNotes', e.target.value)} placeholder="Internal team notes (not visible to client)…" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Terms & Conditions</label>
-                <textarea rows={4} className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                  value={form.terms || ''} onChange={e => set('terms', e.target.value)} placeholder="Payment terms, late fees, etc." />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between px-7 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
-          <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-            Cancel
-          </button>
-          <div className="flex items-center gap-3">
-            <button onClick={() => handleSave(true)}
-              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
-              style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }}>
-              <FileText size={15} />Save Draft
-            </button>
-            <button onClick={() => handleSave(false)}
-              className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl flex items-center gap-2 transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', boxShadow: '0 4px 14px rgba(79,70,229,0.35)' }}>
-              <Send size={15} />{isEdit ? 'Save Changes' : 'Create Invoice'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ══════════════════════════════════════════════════════════════════
    VIEW INVOICE MODAL
 ══════════════════════════════════════════════════════════════════ */
-function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
+function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment, onDownloadPdf, onPreviewPdf }) {
   if (!open || !inv) return null;
   const balance = (inv.total || 0) - (inv.paidAmt || 0);
   return (
@@ -711,9 +395,13 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
         </div>
         <div className="flex items-center justify-between px-7 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
           <div className="flex gap-2">
-            <button onClick={() => { toast.success('PDF downloaded'); onClose(); }}
+            <button onClick={() => { onPreviewPdf(inv); }}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all">
+              <FileText size={14} />Preview PDF
+            </button>
+            <button onClick={() => { onDownloadPdf(inv); onClose(); }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
-              <Download size={14} />PDF
+              <Download size={14} />Download PDF
             </button>
             <button onClick={() => { toast.success('Sent to ' + inv.email); onClose(); }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
@@ -854,14 +542,69 @@ function DeleteModal({ open, invoice: inv, onClose, onConfirm }) {
 /* ══════════════════════════════════════════════════════════════════
    EXPORT HELPER
 ══════════════════════════════════════════════════════════════════ */
+function prepareExportData(data) {
+  return data.map(r => ({
+    'Invoice Number': r.id,
+    'Client': r.client,
+    'Email': r.email,
+    'Issue Date': fmtDate(r.issueDate),
+    'Due Date': fmtDate(r.dueDate),
+    'Currency': r.currency,
+    'Subtotal': r.subtotal,
+    'Tax': r.tax || 0,
+    'Discount': r.disc || 0,
+    'Total': r.total,
+    'Paid': r.paidAmt || 0,
+    'Status': r.status
+  }));
+}
+
 function exportCSV(data) {
-  const headers = ['Invoice #', 'Client', 'Company', 'Email', 'Issue Date', 'Due Date', 'Currency', 'Subtotal', 'Tax', 'Discount', 'Total', 'Paid', 'Balance', 'Status', 'Pay Method', 'Created By'];
-  const rows = data.map(r => [r.id, r.client, r.company, r.email, r.issueDate, r.dueDate, r.currency, r.subtotal, r.tax||0, r.disc||0, r.total, r.paidAmt||0, Math.max(0, (r.total||0)-(r.paidAmt||0)), r.status, r.payMethod, r.createdBy]);
-  const csv = [headers, ...rows].map(row => row.map(v => '"' + String(v||'').replace(/"/g, '""') + '"').join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'invoices.csv'; a.click();
-  URL.revokeObjectURL(url);
+  const prepared = prepareExportData(data);
+  const headers = Object.keys(prepared[0]);
+  const csv = [
+    headers.join(','),
+    ...prepared.map(row => headers.map(h => '"' + String(row[h]||'').replace(/"/g, '""') + '"').join(','))
+  ].join('\n');
+  const csvDataUrl = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csv);
+  const a = document.createElement('a'); a.href = csvDataUrl; 
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.download = `Invoices-${dateStr}.csv`; 
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function exportExcel(data) {
+  const prepared = prepareExportData(data);
+  const worksheet = XLSX.utils.json_to_sheet(prepared);
+  
+  // Bold Headers
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  for(let C = range.s.c; C <= range.e.c; ++C) {
+    const address = XLSX.utils.encode_col(C) + "1";
+    if(!worksheet[address]) continue;
+    worksheet[address].s = { font: { bold: true } };
+  }
+
+  // Auto-size columns
+  const colWidths = [];
+  const headers = Object.keys(prepared[0]);
+  headers.forEach((h, i) => colWidths[i] = { wch: h.length });
+  prepared.forEach(row => {
+    headers.forEach((h, i) => {
+      const val = String(row[h] || '');
+      if (val.length > colWidths[i].wch) colWidths[i].wch = val.length + 2;
+    });
+  });
+  worksheet['!cols'] = colWidths;
+
+  // Freeze header row
+  worksheet['!views'] = [{ state: 'frozen', xSplit: 0, ySplit: 1 }];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
+  
+  const dateStr = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(workbook, `Invoices-${dateStr}.xlsx`);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -885,7 +628,19 @@ function SkeletonRows({ count = 8, cols = 10 }) {
 const PAGE_SIZE = 10;
 
 export default function InvoiceManagement() {
-  const [invoices, setInvoices] = useState(SEED_INVOICES);
+  const [invoices, setInvoices] = useState(() => {
+    try {
+      const saved = localStorage.getItem('opz_invoices');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to load invoices from localStorage', e);
+    }
+    return SEED_INVOICES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('opz_invoices', JSON.stringify(invoices));
+  }, [invoices]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -899,6 +654,31 @@ export default function InvoiceManagement() {
   const [selected, setSelected] = useState(new Set());
   const [visibleCols, setVisibleCols] = useState(new Set(ALL_COLS.map(c => c.key)));
   const [showColMenu, setShowColMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const getExportData = () => selected.size > 0 ? sorted.filter(i => selected.has(i.id)) : sorted;
+
+  const handleExport = async (type) => {
+    if (exporting) return;
+    const data = getExportData();
+    if (data.length === 0) { toast.error('No invoices to export'); return; }
+    
+    setExporting(true);
+    toast.loading(`Exporting as ${type}...`, { id: 'export' });
+    try {
+      if (type === 'CSV') exportCSV(data);
+      if (type === 'Excel') exportExcel(data);
+      if (type === 'PDF') await generateInvoiceListPdf(data);
+      toast.success('Invoices exported successfully.', { id: 'export' });
+    } catch (e) {
+      toast.error('Failed to export invoices', { id: 'export' });
+      console.error(e);
+    } finally {
+      setExporting(false);
+      setShowExportMenu(false);
+    }
+  };
 
   // Modals
   const [createOpen, setCreateOpen] = useState(false);
@@ -952,14 +732,31 @@ export default function InvoiceManagement() {
   }), [invoices]);
 
   /* ── CRUD ── */
-  const handleSave = (inv) => {
+  const handleSave = async (inv) => {
+    const isNew = !invoices.find(x => x.id === inv.id);
     setInvoices(prev => {
-      const idx = prev.findIndex(x => x.id === inv.id);
-      if (idx >= 0) { const next = [...prev]; next[idx] = inv; return next; }
+      if (!isNew) { const next = [...prev]; const idx = next.findIndex(x => x.id === inv.id); next[idx] = inv; return next; }
       return [inv, ...prev];
     });
     setCreateOpen(false); setEditInvoice(null);
-    toast.success(inv.status === 'draft' ? '📋 Invoice saved as draft' : '✅ Invoice ' + inv.id + ' created successfully');
+    
+    if (inv.status === 'draft') {
+      toast.success('📋 Invoice saved as draft');
+    } else {
+      toast.success(`✅ Invoice ${inv.id} saved successfully`);
+    }
+
+    if (isNew) {
+      toast.loading('Generating PDF...', { id: 'pdf-auto' });
+      try {
+        await generateInvoicePdf(inv);
+        toast.success('PDF downloaded successfully', { id: 'pdf-auto' });
+      } catch (e) {
+        toast.error('Failed to generate PDF', { id: 'pdf-auto' });
+        console.error(e);
+      }
+      setViewInvoice(inv); // Open Invoice Details (ViewModal)
+    }
   };
 
   const handleDelete = () => {
@@ -1030,11 +827,23 @@ export default function InvoiceManagement() {
               style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
               <RefreshCw size={15} />
             </button>
-            <button onClick={() => exportCSV(sorted)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <FileDown size={15} />Export
-            </button>
+            <div className="relative">
+              <button disabled={exporting} onClick={() => setShowExportMenu(v => !v)}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+                {exporting ? <RefreshCw size={15} className="animate-spin" /> : <FileDown size={15} />}
+                Export
+              </button>
+              {showExportMenu && (
+                <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div className="py-1">
+                    <button onClick={() => handleExport('PDF')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">PDF (.pdf)</button>
+                    <button onClick={() => handleExport('Excel')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Excel (.xlsx)</button>
+                    <button onClick={() => handleExport('CSV')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">CSV (.csv)</button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button onClick={() => setCreateOpen(true)}
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-90 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', boxShadow: '0 4px 14px rgba(79,70,229,0.40)' }}>
@@ -1288,6 +1097,16 @@ export default function InvoiceManagement() {
                           onMarkPaid={() => handleMarkPaid(row)}
                           onVoid={() => handleVoid(row)}
                           onDelete={() => setDeleteInvoice(row)}
+                          onDownloadPdf={async () => {
+                            toast.loading('Generating PDF...', { id: 'pdf' });
+                            try {
+                              await generateInvoicePdf(row);
+                              toast.success('PDF downloaded successfully', { id: 'pdf' });
+                            } catch (e) {
+                              toast.error('Failed to generate PDF', { id: 'pdf' });
+                              console.error(e);
+                            }
+                          }}
                         />
                       </td>
                     </tr>
@@ -1329,7 +1148,7 @@ export default function InvoiceManagement() {
       </div>
 
       {/* ── Modals ── */}
-      <InvoiceFormModal
+      <InvoiceWizard
         open={createOpen || !!editInvoice}
         initial={editInvoice}
         onClose={() => { setCreateOpen(false); setEditInvoice(null); }}
@@ -1340,6 +1159,27 @@ export default function InvoiceManagement() {
         onClose={() => setViewInvoice(null)}
         onEdit={() => { const inv = viewInvoice; setViewInvoice(null); setEditInvoice(inv); }}
         onRecordPayment={() => { const inv = viewInvoice; setViewInvoice(null); setPayInvoice(inv); }}
+        onDownloadPdf={async (inv) => {
+          toast.loading('Generating PDF...', { id: 'pdf' });
+          try {
+            await generateInvoicePdf(inv);
+            toast.success('PDF downloaded successfully', { id: 'pdf' });
+          } catch (e) {
+            toast.error('Failed to generate PDF', { id: 'pdf' });
+            console.error(e);
+          }
+        }}
+        onPreviewPdf={async (inv) => {
+          toast.loading('Preparing preview...', { id: 'pdf' });
+          try {
+            const blobUrl = await generateInvoicePdf(inv, null, { preview: true });
+            window.open(blobUrl, '_blank');
+            toast.success('Preview ready', { id: 'pdf' });
+          } catch (e) {
+            toast.error('Failed to generate preview', { id: 'pdf' });
+            console.error(e);
+          }
+        }}
       />
       <PaymentModal
         open={!!payInvoice} invoice={payInvoice}

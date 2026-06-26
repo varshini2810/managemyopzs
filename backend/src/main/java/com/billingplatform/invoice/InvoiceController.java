@@ -68,16 +68,31 @@ public class InvoiceController {
     }
 
     @PreAuthorize("@accessControl.hasPermission(null, 'INVOICE_VIEW')")
-    @GetMapping(value = "/{id}/pdf", produces = "application/pdf")
-    public ResponseEntity<byte[]> getInvoicePdf(@PathVariable String id, Authentication auth) {
-        Invoice invoice = invoiceService.getInvoice(id);
-        byte[] pdfBytes = pdfGeneratorService.generateInvoicePdf(invoice);
-        
-        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "Invoice_" + id + ".pdf");
-        
-        return new ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
+    @GetMapping(value = "/{id}/download", produces = "application/pdf")
+    public ResponseEntity<?> getInvoicePdf(@PathVariable String id, Authentication auth) {
+        try {
+            Invoice invoice = invoiceService.getInvoice(id);
+            if (invoice == null) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                        .body(java.util.Map.of("success", false, "message", "Invoice not found"));
+            }
+            byte[] pdfBytes = pdfGeneratorService.generateInvoicePdf(invoice);
+            
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "attachment; filename=\"Invoice-" + id + ".pdf\"");
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
+            
+            return new ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
+        } catch (com.billingplatform.common.ResourceNotFoundException e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("success", false, "message", "Invoice not found"));
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("success", false, "message", "Failed to generate PDF"));
+        }
     }
 
     @PreAuthorize("@accessControl.hasPermission(null, 'INVOICE_MARK_PAID')")
