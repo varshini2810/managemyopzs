@@ -1,0 +1,355 @@
+/* ============================================================
+   MANAGE MY FINANCE — GLOBAL STYLESHEET
+   Finance-grade B2B SaaS: calm, dense, trustworthy
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ──────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: theme('colors.bg');
+    @apply text-ink;
+    font-feature-settings: 'cv11', 'ss01', 'kern';
+  }
+
+  /* Tabular nums globally for data — critical for billing alignment */
+  table, .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Scrollbar — thin, warm tinted */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D4D1CE; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #A8A49F; }
+
+  /* Selection */
+  ::selection { background: #BFCEFF; color: #1C1B1A; }
+}
+
+/* ─── Component Classes ──────────────────────────────────────── */
+@layer components {
+
+  /* === BUTTONS === */
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded
+           transition-all duration-100 focus:outline-none select-none cursor-pointer;
+    /* Scale-down on active */
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    @apply btn bg-accent text-white border border-accent
+           hover:bg-accent-hover hover:border-accent-hover
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    box-shadow: 0 1px 2px rgba(45,91,255,0.2);
+  }
+  .btn-primary:focus-visible {
+    outline: 2px solid #BFCEFF;
+    outline-offset: 2px;
+  }
+
+  .btn-secondary {
+    @apply btn bg-surface text-ink border border-border
+           hover:bg-stone-100 hover:border-border-strong
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-white border border-danger
+           hover:bg-red-700
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply btn text-muted hover:text-ink hover:bg-stone-100
+           border border-transparent;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .btn-xs {
+    @apply px-2 py-1 text-xs;
+  }
+
+  /* === FORM ELEMENTS === */
+  .label {
+    @apply block text-xs font-medium text-muted mb-1.5 tracking-wide uppercase;
+  }
+
+  .input {
+    @apply block w-full px-3 py-2 bg-surface text-ink text-sm
+           border border-border rounded placeholder-subtle
+           transition-colors duration-100
+           focus:outline-none focus:border-accent
+           disabled:bg-stone-50 disabled:text-muted disabled:cursor-not-allowed;
+    box-shadow: none;
+  }
+  .input:focus {
+    box-shadow: 0 0 0 3px rgba(45,91,255,0.1);
+  }
+  .input-error {
+    @apply border-danger;
+  }
+  .input-error:focus {
+    box-shadow: 0 0 0 3px rgba(192,41,43,0.1);
+  }
+
+  .select {
+    @apply input cursor-pointer appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B6863' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+
+  .textarea {
+    @apply input resize-none;
+  }
+
+  .error-msg {
+    @apply text-2xs text-danger mt-1 flex items-center gap-1;
+  }
+
+  /* === CARDS === */
+  .card {
+    @apply bg-surface border border-border rounded-lg p-6;
+  }
+  .card-sm {
+    @apply bg-surface border border-border rounded-lg p-4;
+  }
+  /* No box-shadows on cards — hairline borders only */
+
+  /* === TABLES === */
+  .tbl-wrapper {
+    @apply overflow-x-auto;
+  }
+  .tbl {
+    @apply w-full min-w-full;
+    font-variant-numeric: tabular-nums;
+    border-collapse: collapse;
+  }
+  .tbl thead tr {
+    @apply border-b border-border bg-stone-50;
+  }
+  .tbl th {
+    @apply px-4 py-2.5 text-left text-2xs font-semibold text-muted uppercase tracking-widest whitespace-nowrap;
+  }
+  .tbl th:last-child { @apply text-right; }
+  .tbl tbody tr {
+    @apply border-b border-border transition-colors duration-75 cursor-pointer;
+  }
+  .tbl tbody tr:last-child { @apply border-b-0; }
+  .tbl tbody tr:hover { background: #F3F2EF; }
+  .tbl td {
+    @apply px-4 py-3 text-sm text-ink whitespace-nowrap;
+  }
+  .tbl td:last-child { @apply text-right; }
+  .tbl td.num {
+    @apply text-right font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* === STATUS DOT (replaces pill badges) === */
+  .status-dot {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium;
+  }
+  .status-dot::before {
+    content: '●';
+    @apply text-xs;
+  }
+  .status-dot.active { @apply text-success; }
+  .status-dot.active::before { @apply text-success; }
+  .status-dot.inactive { @apply text-muted; }
+  .status-dot.inactive::before { @apply text-stone-400; }
+  .status-dot.archived { @apply text-muted; }
+  .status-dot.archived::before { @apply text-stone-400; }
+  .status-dot.expired { @apply text-warning; }
+  .status-dot.expired::before { @apply text-warning; }
+
+  /* === SIDEBAR NAV === */
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded
+           text-sidebar-text hover:text-sidebar-textActive hover:bg-sidebar-hover
+           transition-colors duration-100 cursor-pointer;
+  }
+  .nav-item.active {
+    @apply text-sidebar-textActive bg-sidebar-active;
+  }
+  .nav-item.active .nav-accent-bar {
+    @apply opacity-100;
+  }
+  .nav-group-label {
+    @apply px-3 py-1 text-2xs font-semibold text-sidebar-groupLabel uppercase tracking-widest;
+  }
+
+  /* === PAGE HEADER === */
+  .page-header {
+    @apply flex items-start justify-between;
+  }
+  .page-title {
+    @apply font-display text-xl font-semibold text-ink tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-sm text-muted mt-0.5;
+  }
+
+  /* === BREADCRUMB SUB-HEADER (sticky module header) === */
+  .module-header {
+    @apply sticky top-0 z-20 bg-bg border-b border-border
+           flex items-center justify-between px-8 py-3;
+  }
+  .breadcrumb {
+    @apply flex items-center gap-1.5 text-sm text-muted;
+  }
+  .breadcrumb-sep {
+    @apply text-stone-300 select-none;
+  }
+  .breadcrumb-current {
+    @apply text-ink font-medium;
+  }
+
+  /* === MONO ID CHIP === */
+  .mono-id {
+    @apply font-mono text-2xs text-muted bg-stone-100 px-1.5 py-0.5 rounded-sm
+           inline-flex items-center gap-1 cursor-pointer select-all
+           hover:bg-stone-200 transition-colors;
+  }
+
+  /* === TOGGLE SWITCH === */
+  .toggle {
+    @apply relative inline-flex shrink-0 h-5 w-9 cursor-pointer rounded-full
+           border-2 border-transparent transition-colors duration-200 ease-in-out
+           focus:outline-none;
+    background: #D4D1CE;
+  }
+  .toggle.on { background: #2D5BFF; }
+  .toggle-thumb {
+    @apply pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm
+           ring-0 transition-transform duration-200 ease-in-out;
+    transform: translateX(0);
+  }
+  .toggle.on .toggle-thumb {
+    transform: translateX(16px);
+  }
+
+  /* === SKELETON === */
+  .skeleton {
+    @apply bg-stone-200 rounded animate-skeleton-pulse;
+  }
+
+  /* === DIVIDER === */
+  .divider {
+    @apply border-t border-border;
+  }
+
+  /* === SECTION LABEL (inside cards/settings) === */
+  .section-label {
+    @apply text-2xs font-semibold text-muted uppercase tracking-widest mb-3;
+  }
+
+  /* === METRIC/LEDGER NUMBER === */
+  .metric-num {
+    @apply font-display text-4xl font-semibold text-ink tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* === SEGMENTED CONTROL (time range picker) === */
+  .seg-control {
+    @apply inline-flex items-center border border-border rounded-md bg-stone-50 p-0.5;
+  }
+  .seg-btn {
+    @apply px-3 py-1 text-xs font-medium text-muted rounded transition-colors duration-100 cursor-pointer;
+  }
+  .seg-btn.active {
+    @apply bg-surface text-ink shadow-sm;
+  }
+
+  /* === SLIDE-OVER PANEL === */
+  .slideover-overlay {
+    @apply fixed inset-0 bg-ink/20 z-40 animate-fade-in;
+  }
+  .slideover-panel {
+    @apply fixed right-0 top-0 bottom-0 w-[480px] bg-surface border-l border-border
+           z-50 flex flex-col animate-slide-in-right;
+  }
+  .slideover-header {
+    @apply flex items-center justify-between px-6 py-5 border-b border-border shrink-0;
+  }
+  .slideover-body {
+    @apply flex-1 overflow-y-auto px-6 py-6;
+  }
+  .slideover-footer {
+    @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0 bg-stone-50;
+  }
+
+  /* === TOOLTIP (chart hover) === */
+  .chart-tooltip {
+    @apply bg-surface border border-border rounded-lg px-3 py-2.5 shadow-tooltip
+           text-xs;
+  }
+
+  /* === TOAST (ledger style) === */
+  .toast-custom {
+    @apply bg-surface border border-border rounded-lg pl-4 pr-4 py-3 shadow-DEFAULT
+           text-sm text-ink flex items-start gap-3;
+  }
+  .toast-bar {
+    @apply absolute left-0 top-0 bottom-0 w-0.5 rounded-l-lg;
+  }
+
+  /* === MULTI-STEP PROGRESS RAIL === */
+  .step-rail { @apply flex flex-col gap-0; }
+  .step-item {
+    @apply flex items-start gap-3 pb-6 relative;
+  }
+  .step-item:last-child { @apply pb-0; }
+  .step-connector {
+    @apply absolute left-3.5 top-7 bottom-0 w-px bg-border;
+  }
+  .step-item:last-child .step-connector { @apply hidden; }
+  .step-dot {
+    @apply w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 z-10 text-xs font-medium;
+  }
+  .step-dot.pending  { @apply border-border bg-surface text-muted; }
+  .step-dot.active   { @apply border-accent bg-accent text-white; }
+  .step-dot.complete { @apply border-success bg-success text-white; }
+
+  /* === SETTINGS TWO-PANE === */
+  .settings-nav {
+    @apply w-52 shrink-0;
+  }
+  .settings-nav-item {
+    @apply flex items-center gap-2 px-3 py-2 text-sm text-muted rounded
+           hover:text-ink hover:bg-stone-100 transition-colors cursor-pointer;
+  }
+  .settings-nav-item.active {
+    @apply text-ink bg-stone-100 font-medium;
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────── */
+@layer utilities {
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .font-display  { font-family: 'Inter Tight', Inter, sans-serif; }
+  .font-mono-sm  { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* Ledger left-accent bar colors */
+  .accent-bar-success { background: #1A7F4E; }
+  .accent-bar-warning { background: #B45309; }
+  .accent-bar-neutral { background: #A8A49F; }
+  .accent-bar-accent  { background: #2D5BFF; }
+}

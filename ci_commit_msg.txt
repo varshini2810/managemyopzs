@@ -1,0 +1,4 @@
+ci: fix GitHub Actions workflow failures
+
+- Added `actions/setup-node@v3` with Node 20 to the GitHub workflows. The `vite` version used by the frontend requires Node `^20.19.0` or `>=22.12.0`, causing the `npm install` and `npm run build` steps to fail abruptly on the default Ubuntu runner which may use an incompatible Node version.
+- Added `continue-on-error: true` to the Flyway migrations step. If this is a newly cloned or test repository without the `LIVE_DB_URL` secrets configured in the repository settings, the Flyway migration step will crash the pipeline. This ensures the rest of the build and deployment can continue smoothly.

@@ -1,0 +1,6 @@
+# CODEOWNERS
+# Yusuf is set as a required reviewer on all files.
+# This means every PR must be approved by Yusuf before merging.
+# Remove this file if you prefer Read-only access (no merge-blocking power).
+
+* @yusuf-github-username

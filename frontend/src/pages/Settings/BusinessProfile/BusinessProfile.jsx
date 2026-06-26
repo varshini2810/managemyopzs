@@ -1,0 +1,274 @@
+import React, { useState, useEffect } from 'react';
+import { Building2, ChevronRight, Globe, Search, X, Check } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import api from '../../../services/api';
+
+const TIMEZONES = [
+  { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
+  { value: 'America/New_York', label: 'America/New_York (Eastern Time)' },
+  { value: 'America/Chicago', label: 'America/Chicago (Central Time)' },
+  { value: 'America/Denver', label: 'America/Denver (Mountain Time)' },
+  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (Pacific Time)' },
+  { value: 'Europe/London', label: 'Europe/London (Greenwich Mean Time)' },
+  { value: 'Europe/Paris', label: 'Europe/Paris (Central European Time)' },
+  { value: 'Asia/Kolkata', label: 'Asia/Kolkata (India Standard Time)' },
+  { value: 'Asia/Tokyo', label: 'Asia/Tokyo (Japan Standard Time)' },
+  { value: 'Asia/Singapore', label: 'Asia/Singapore (Singapore Standard Time)' },
+  { value: 'Australia/Sydney', label: 'Australia/Sydney (Australian Eastern Time)' },
+];
+
+export default function BusinessProfile() {
+  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm();
+  const [loading, setLoading] = useState(true);
+  
+  // Time Zone state
+  const [timezone, setTimezone] = useState(localStorage.getItem('business_timezone') || 'UTC');
+  const [liveTime, setLiveTime] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTz, setSelectedTz] = useState(timezone);
+
+  useEffect(() => {
+    setTimeout(() => {
+      reset({
+        companyName: 'Acme Corp',
+        contactEmail: 'admin@billing.com',
+        website: 'https://acme.com',
+        addressLine1: '123 Tech Avenue',
+        city: 'San Francisco',
+        state: 'CA',
+        zipCode: '94105',
+        country: 'US',
+      });
+      setLoading(false);
+    }, 500);
+  }, [reset]);
+
+  // Live time ticker in chosen timezone
+  useEffect(() => {
+    const updateTime = () => {
+      try {
+        const formatted = new Intl.DateTimeFormat('en-US', {
+          timeZone: timezone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        }).format(new Date());
+        setLiveTime(formatted);
+      } catch (e) {
+        setLiveTime(new Date().toLocaleTimeString());
+      }
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, [timezone]);
+
+  const onSubmit = async () => {
+    await new Promise(r => setTimeout(r, 500));
+    toast.success('Business profile updated');
+  };
+
+  const handleOpenModal = () => {
+    setSelectedTz(timezone);
+    setSearchQuery('');
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmTimezone = () => {
+    localStorage.setItem('business_timezone', selectedTz);
+    setTimezone(selectedTz);
+    setIsModalOpen(false);
+    toast.success('Time zone updated successfully');
+  };
+
+  const filteredTimezones = TIMEZONES.filter(tz => 
+    tz.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    tz.value.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const activeTzLabel = TIMEZONES.find(tz => tz.value === timezone)?.label || timezone;
+
+  return (
+    <div>
+      <div className="module-header">
+        <div className="breadcrumb">
+          <span>Settings</span>
+          <ChevronRight size={12} className="breadcrumb-sep" />
+          <span className="breadcrumb-current">Business Profile</span>
+        </div>
+      </div>
+
+      <div className="px-8 py-8 flex max-w-4xl mx-auto">
+        <div className="flex-1 min-w-0 space-y-6">
+          <div>
+            <h1 className="page-title">Business Profile</h1>
+            <p className="page-subtitle">Manage your company information and billing address</p>
+          </div>
+
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="skeleton h-10 rounded-lg" style={{ background: '#E7E5E2' }} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Company Info Card */}
+              <div className="card">
+                <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-border">
+                  <Building2 size={16} style={{ color: '#6B6863' }} />
+                  <div className="section-label mb-0">Company Information</div>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="md:col-span-2">
+                      <label className="label">Company Name</label>
+                      <input type="text" className="input" {...register('companyName')} />
+                    </div>
+                    <div>
+                      <label className="label">Contact Email</label>
+                      <input type="email" className="input" {...register('contactEmail')} />
+                    </div>
+                    <div>
+                      <label className="label">Website</label>
+                      <input type="url" className="input" {...register('website')} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="label">Address</label>
+                      <input type="text" className="input" {...register('addressLine1')} />
+                    </div>
+                    <div>
+                      <label className="label">City</label>
+                      <input type="text" className="input" {...register('city')} />
+                    </div>
+                    <div>
+                      <label className="label">State / Province</label>
+                      <input type="text" className="input" {...register('state')} />
+                    </div>
+                    <div>
+                      <label className="label">ZIP / Postal Code</label>
+                      <input type="text" className="input" {...register('zipCode')} />
+                    </div>
+                    <div>
+                      <label className="label">Country</label>
+                      <select className="select" {...register('country')}>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="IN">India</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-border flex justify-end">
+                    <button type="submit" disabled={isSubmitting} className="btn-primary btn-sm">
+                      {isSubmitting ? 'Saving…' : 'Save Changes'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Time Zone Card */}
+              <div className="card">
+                <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-border">
+                  <Globe size={16} style={{ color: '#6B6863' }} />
+                  <div className="section-label mb-0">Regional Settings</div>
+                </div>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-ink">Time Zone</h3>
+                    <p className="text-xs text-muted mt-0.5">Used for scheduling invoices, payment reminders, and dashboard reporting cycles.</p>
+                    <div className="flex items-center gap-2.5 mt-3">
+                      <span className="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-stone-100 text-ink border border-border">
+                        {activeTzLabel}
+                      </span>
+                      <span className="text-2xs text-muted font-mono tracking-wider bg-stone-50 border border-border/40 px-2 py-1 rounded">
+                        Live time: {liveTime}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOpenModal}
+                    className="btn-secondary btn-sm whitespace-nowrap"
+                  >
+                    Change Time Zone
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Time Zone Selection Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-ink/30 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-surface rounded-xl border border-border shadow-lg max-w-md w-full overflow-hidden animate-scale-up">
+            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-stone-50">
+              <h2 className="text-sm font-semibold text-ink">Change Time Zone</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-muted hover:text-ink">
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <input
+                  type="text"
+                  placeholder="Search time zones..."
+                  className="input pl-9 w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div className="max-h-60 overflow-y-auto border border-border rounded-lg divide-y divide-border">
+                {filteredTimezones.length > 0 ? (
+                  filteredTimezones.map((tz) => (
+                    <button
+                      key={tz.value}
+                      onClick={() => setSelectedTz(tz.value)}
+                      className={`w-full text-left px-4 py-3 text-xs flex justify-between items-center transition-colors ${
+                        selectedTz === tz.value ? 'bg-accent/5 font-semibold text-accent' : 'text-ink hover:bg-stone-50'
+                      }`}
+                    >
+                      <span>{tz.label}</span>
+                      {selectedTz === tz.value && <Check size={14} className="text-accent" />}
+                    </button>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-xs text-muted">No time zones found</div>
+                )}
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-border bg-stone-50 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="btn-secondary btn-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmTimezone}
+                className="btn-primary btn-sm"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

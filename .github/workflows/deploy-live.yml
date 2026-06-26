@@ -1,0 +1,26 @@
+name: Deploy to LIVE VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Navigate to the project directory (adjust path if needed)
+            cd /opt/Opz-Billing-Tool || exit 1
+            
+            # Pull the latest changes from the repository
+            git pull origin main
+            
+            # Rebuild and restart the containers in the background without downtime
+            docker compose up -d --build
