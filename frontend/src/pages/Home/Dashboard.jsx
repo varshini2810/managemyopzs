@@ -1,102 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useAuth } from '../../store/AuthContext';
+import { LayoutDashboard, Settings, Calendar, DollarSign, Users, CreditCard, FileText, ArrowUpRight } from 'lucide-react';
+import PageHeader from '../../components/ui/PageHeader';
+import StatCardRow from '../../components/ui/StatCardRow';
+import StatCard from '../../components/ui/StatCard';
 
-/* ─── Inline Sparkline (SVG, no recharts) ─────────────────────── */
-function Sparkline({ data, color = '#2D5BFF', height = 32, width = 80 }) {
-  if (!data || data.length < 2) return null;
-
-  const vals = data.map(d => d.value);
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const range = max - min || 1;
-
-  const pts = vals.map((v, i) => {
-    const x = (i / (vals.length - 1)) * width;
-    const y = height - ((v - min) / range) * height;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const d = 'M' + pts.join(' L');
-
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-      <polyline
-        points={pts.join(' ')}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/* ─── Ledger Metric Card (the signature element) ───────────────── */
-function LedgerCard({ title, value, changePercent, sparkData, loading }) {
-  const growing  = changePercent > 0.5;
-  const stable   = Math.abs(changePercent) <= 0.5;
-  const declining = changePercent < -0.5;
-
-  const accentColor = growing ? '#1A7F4E' : declining ? '#B45309' : '#A8A49F';
-  const sparkColor  = growing ? '#1A7F4E' : declining ? '#B45309' : '#2D5BFF';
-  const changeColor = growing ? '#1A7F4E' : declining ? '#B45309' : '#6B6863';
-
-  return (
-    <div
-      className="relative bg-surface flex-1 min-w-[200px] flex"
-      style={{ border: '1px solid #E7E5E2' }}
-    >
-      {/* Ledger accent bar — left edge */}
-      <div
-        style={{
-          width: 3,
-          background: accentColor,
-          borderRadius: '4px 0 0 4px',
-          flexShrink: 0,
-        }}
-      />
-
-      <div className="flex-1 px-5 py-5">
-        {loading ? (
-          <div className="space-y-2">
-            <div className="skeleton h-3 w-24 rounded" style={{ background: '#E7E5E2' }} />
-            <div className="skeleton h-8 w-32 rounded" style={{ background: '#E7E5E2' }} />
-          </div>
-        ) : (
-          <>
-            <div className="text-xs text-muted font-medium tracking-wide uppercase mb-2">
-              {title}
-            </div>
-            <div className="flex items-end gap-4 justify-between">
-              <div>
-                <div
-                  className="font-display font-semibold tabular-nums text-ink"
-                  style={{ fontSize: 28, lineHeight: 1, letterSpacing: '-0.03em' }}
-                >
-                  {value}
-                </div>
-                <div
-                  className="text-xs font-medium tabular-nums mt-1.5"
-                  style={{ color: changeColor }}
-                >
-                  {changePercent > 0 ? '+' : ''}{changePercent?.toFixed(1)}% vs prev period
-                </div>
-              </div>
-              {/* Inline sparkline — sits to the right of the number */}
-              <Sparkline data={sparkData} color={sparkColor} />
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Full-size MetricChart using Recharts ─────────────────────── */
 const RANGES = ['1d', '3m', '6m', '12m'];
 
-function MetricChart({ title, metricType }) {
+function MetricChart({ title, metricType, icon: Icon, colorClass }) {
   const [range, setRange] = useState('3m');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,9 +30,9 @@ function MetricChart({ title, metricType }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-gray-200 rounded-md p-2 shadow-sm text-xs font-sans">
-          <div className="text-gray-500 mb-1">{label}</div>
-          <div className="font-semibold text-gray-900 tabular-nums">
+        <div className="bg-white border border-gray-100 rounded-lg p-3 shadow-lg text-sm">
+          <div className="text-gray-500 mb-1 font-medium">{label}</div>
+          <div className="font-bold text-gray-900 text-lg">
             {fmtVal(payload[0].value)}
           </div>
         </div>
@@ -129,17 +42,23 @@ function MetricChart({ title, metricType }) {
   };
 
   return (
-    <div className="bg-surface rounded-lg" style={{ border: '1px solid #E7E5E2' }}>
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: '1px solid #E7E5E2' }}
-      >
-        <div className="text-sm font-medium text-ink">{title}</div>
-        <div className="seg-control">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          {Icon && (
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClass}`}>
+              <Icon size={16} />
+            </div>
+          )}
+          <div className="text-sm font-bold text-gray-900 tracking-wide uppercase">{title}</div>
+        </div>
+        <div className="flex bg-gray-100 p-1 rounded-lg">
           {RANGES.map(r => (
             <button
               key={r}
-              className={`seg-btn ${range === r ? 'active' : ''}`}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${
+                range === r ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
               onClick={() => setRange(r)}
             >
               {r.toUpperCase()}
@@ -148,42 +67,44 @@ function MetricChart({ title, metricType }) {
         </div>
       </div>
 
-      <div className="px-5 py-4 h-40">
+      <div className="p-6 h-64 flex-1">
         {loading ? (
-          <div className="skeleton rounded h-full w-full" style={{ background: '#F0EFEC' }} />
+          <div className="animate-pulse bg-gray-50 rounded-lg h-full w-full" />
         ) : data.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-sm text-muted">
-            No data available
+          <div className="flex items-center justify-center h-full text-sm font-medium text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+            No data available for this period
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id={`colorValue-${metricType}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2D5BFF" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#2D5BFF" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0EFEC" />
+              <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#F3F4F6" />
               <XAxis 
                 dataKey="date" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 10, fill: '#A8A49F' }} 
+                tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 500 }} 
                 minTickGap={30}
+                dy={10}
               />
               <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 10, fill: '#A8A49F' }} 
+                tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 500 }} 
                 tickFormatter={fmtVal}
+                dx={-10}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#4F46E5', strokeWidth: 1, strokeDasharray: '4 4' }} />
               <Area 
                 type="monotone" 
                 dataKey="value" 
-                stroke="#2D5BFF" 
-                strokeWidth={2}
+                stroke="#4F46E5" 
+                strokeWidth={3}
                 fillOpacity={1} 
                 fill={`url(#colorValue-${metricType})`} 
               />
@@ -191,34 +112,30 @@ function MetricChart({ title, metricType }) {
           </ResponsiveContainer>
         )}
       </div>
+      <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+        <button className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-sm rounded-lg transition-colors flex justify-center items-center gap-2">
+          View Detailed Report <ArrowUpRight size={16} />
+        </button>
+      </div>
     </div>
   );
 }
 
-/* ─── Dashboard Page ─────────────────────────────────────────────── */
 export default function Dashboard() {
+  const { user } = useAuth();
   const [summary, setSummary] = useState(null);
-  const [sparklines, setSparklines] = useState({});
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    Promise.all([
-      api.get('/dashboard/summary'),
-      api.get('/dashboard/metrics?type=mrr&range=3m'),
-      api.get('/dashboard/metrics?type=active_subscriptions&range=3m'),
-      api.get('/dashboard/metrics?type=net_billing&range=3m'),
-      api.get('/dashboard/metrics?type=net_payments&range=3m'),
-      api.get('/dashboard/metrics?type=unpaid_invoices&range=3m'),
-    ]).then(([sum, mrr, subs, bill, pay, unpaid]) => {
-      setSummary(sum.data.data);
-      setSparklines({
-        mrr: mrr.data.data?.slice(-20),
-        active_subscriptions: subs.data.data?.slice(-20),
-        net_billing: bill.data.data?.slice(-20),
-        net_payments: pay.data.data?.slice(-20),
-        unpaid_invoices: unpaid.data.data?.slice(-20),
-      });
-    }).catch(console.error)
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    api.get('/dashboard/summary')
+      .then(res => setSummary(res.data.data))
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
@@ -227,83 +144,82 @@ export default function Dashboard() {
   const fmtNum = (v) =>
     new Intl.NumberFormat('en-US').format(v || 0);
 
-  const cards = [
-    {
-      key: 'mrr',
-      title: 'Monthly Recurring Revenue',
-      value: fmtCurrency(summary?.mrr?.value),
-      changePercent: summary?.mrr?.changePercent || 0,
-    },
-    {
-      key: 'active_subscriptions',
-      title: 'Active Subscriptions',
-      value: fmtNum(summary?.active_subscriptions?.value),
-      changePercent: summary?.active_subscriptions?.changePercent || 0,
-    },
-    {
-      key: 'net_billing',
-      title: 'Net Billing',
-      value: fmtCurrency(summary?.net_billing?.value),
-      changePercent: summary?.net_billing?.changePercent || 0,
-    },
-    {
-      key: 'net_payments',
-      title: 'Net Payments',
-      value: fmtCurrency(summary?.net_payments?.value),
-      changePercent: summary?.net_payments?.changePercent || 0,
-    },
-    {
-      key: 'unpaid_invoices',
-      title: 'Unpaid Invoices',
-      value: fmtCurrency(summary?.unpaid_invoices?.value),
-      changePercent: summary?.unpaid_invoices?.changePercent || 0,
-    },
-  ];
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div>
-      {/* ── Module sub-header ── */}
-      <div className="module-header">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="page-title">Dashboard</h1>
-          <p className="text-xs text-muted mt-0.5">Revenue and billing overview</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'}! 👋
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">Here's what's happening with your revenue today.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 shadow-sm">
+            <Calendar size={16} className="text-indigo-500" />
+            {formattedDate}
+          </div>
+          <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
+            <Settings size={16} />
+            Customize Layout
+          </button>
         </div>
       </div>
 
-      <div className="px-8 py-8 space-y-8">
-        {/* ── Ledger metric cards — horizontal scroll row ── */}
-        <div
-          className="flex gap-0 overflow-x-auto"
-          style={{
-            borderRadius: 8,
-            border: '1px solid #E7E5E2',
-            overflow: 'hidden',
-          }}
-        >
-          {cards.map((card, i) => (
-            <React.Fragment key={card.key}>
-              <LedgerCard
-                title={card.title}
-                value={card.value}
-                changePercent={card.changePercent}
-                sparkData={sparklines[card.key]}
-                loading={loading}
-              />
-              {i < cards.length - 1 && (
-                <div style={{ width: 1, background: '#E7E5E2', flexShrink: 0 }} />
-              )}
-            </React.Fragment>
-          ))}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-white rounded-xl border border-gray-100 animate-pulse" />)}
         </div>
+      ) : (
+        <StatCardRow>
+          <StatCard
+            title="Monthly Recurring Revenue"
+            value={fmtCurrency(summary?.mrr?.value)}
+            trend={summary?.mrr?.changePercent}
+            trendLabel="vs last month"
+            icon={DollarSign}
+            colorClass="text-emerald-600 bg-emerald-100"
+          />
+          <StatCard
+            title="Active Subscriptions"
+            value={fmtNum(summary?.active_subscriptions?.value)}
+            trend={summary?.active_subscriptions?.changePercent}
+            trendLabel="vs last month"
+            icon={Users}
+            colorClass="text-blue-600 bg-blue-100"
+          />
+          <StatCard
+            title="Net Billing"
+            value={fmtCurrency(summary?.net_billing?.value)}
+            trend={summary?.net_billing?.changePercent}
+            trendLabel="vs last month"
+            icon={FileText}
+            colorClass="text-purple-600 bg-purple-100"
+          />
+          <StatCard
+            title="Net Payments"
+            value={fmtCurrency(summary?.net_payments?.value)}
+            trend={summary?.net_payments?.changePercent}
+            trendLabel="vs last month"
+            icon={CreditCard}
+            colorClass="text-amber-600 bg-amber-100"
+          />
+        </StatCardRow>
+      )}
 
-        {/* ── Charts grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MetricChart title="Monthly Recurring Revenue" metricType="mrr" />
-          <MetricChart title="Active Subscriptions" metricType="active_subscriptions" />
-          <MetricChart title="Net Billing" metricType="net_billing" />
-          <MetricChart title="Net Payments" metricType="net_payments" />
-          <MetricChart title="Unpaid Invoices" metricType="unpaid_invoices" />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
+        <MetricChart title="MRR Trend" metricType="mrr" icon={LayoutDashboard} colorClass="bg-indigo-100 text-indigo-600" />
+        <MetricChart title="Subscription Growth" metricType="active_subscriptions" icon={Users} colorClass="bg-blue-100 text-blue-600" />
+        <MetricChart title="Net Billing Performance" metricType="net_billing" icon={FileText} colorClass="bg-purple-100 text-purple-600" />
+        <MetricChart title="Cash Flow (Payments)" metricType="net_payments" icon={CreditCard} colorClass="bg-amber-100 text-amber-600" />
       </div>
     </div>
   );
