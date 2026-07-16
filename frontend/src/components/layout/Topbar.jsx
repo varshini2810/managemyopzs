@@ -1,56 +1,122 @@
-import React from 'react';
-import { Search, Bell, Moon, Menu, ChevronDown, Monitor } from 'lucide-react';
-import { useAuth } from '../../store/AuthContext';
+import React from "react";
+import {
+  Search,
+  Bell,
+  HelpCircle,
+  LayoutGrid,
+  ChevronDown,
+  Lock,
+} from "lucide-react";
+import { useSuite } from "../../store/SuiteContext";
+import { useAuth } from "../../store/AuthContext";
 
-export default function Topbar({ onMenuClick }) {
-  const { user } = useAuth();
-  
-  const initial = user?.name
-    ? user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-    : 'U';
-
+export default function Topbar() {
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 sticky top-0 z-20 shrink-0">
+    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6 sticky top-0 z-20">
       <div className="flex items-center gap-4 flex-1">
-        <button onClick={onMenuClick} className="p-2 text-gray-400 hover:text-gray-600 rounded-md transition-colors">
-          <Menu size={20} />
-        </button>
-        
-        <div className="relative w-80 max-w-md hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search everything..." 
-            className="w-full pl-9 pr-12 py-1.5 bg-gray-100 border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow text-gray-700"
+        <SuiteSwitcher />
+        <div className="relative w-64 ml-4">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+            size={16}
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 rounded text-gray-400 font-mono text-[10px] px-1.5 py-0.5">
-            ⌘K
-          </div>
+          <input
+            type="text"
+            placeholder="Search customers, invoices..."
+            className="input !pl-9"
+          />
         </div>
       </div>
-      
       <div className="flex items-center gap-3">
-        <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors relative">
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+        <button className="p-2 text-muted hover:text-ink hover:bg-stone-100 rounded-md transition-colors">
+          <HelpCircle size={20} />
         </button>
-        <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors">
-          <Moon size={18} />
-        </button>
-        
-        <div className="w-px h-6 bg-gray-200 mx-1"></div>
-        
-        <button className="flex items-center gap-2.5 hover:bg-gray-50 p-1 pr-2 rounded-full transition-colors">
-          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">
-            {initial}
-          </div>
-          <div className="hidden md:block text-left">
-            <div className="text-xs font-semibold text-gray-700 leading-tight">{user?.name || 'Admin User'}</div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wide leading-tight">{user?.role || 'System Console'}</div>
-          </div>
-          <ChevronDown size={14} className="text-gray-400" />
+        <button className="p-2 text-muted hover:text-ink hover:bg-stone-100 rounded-md transition-colors relative">
+          <Bell size={20} />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border-2 border-surface"></span>
         </button>
       </div>
     </header>
+  );
+}
+
+function SuiteSwitcher() {
+  const { currentSuite, setCurrentSuite } = useSuite();
+  const { user } = useAuth();
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const suites = [
+    { id: "billing", name: "Chargebee Billing", permission: "BILLING_READ" },
+    { id: "cpq", name: "Chargebee CPQ", permission: "CPQ_READ" },
+    { id: "receivables", name: "Chargebee Receivables", permission: "RECEIVABLES_READ" },
+    { id: "retention", name: "Chargebee Retention", permission: "RETENTION_READ" },
+    { id: "revrec", name: "Chargebee RevRec", permission: "REVREC_READ" },
+    { id: "payments", name: "Chargebee Payments", permission: "PAYMENTS_READ" },
+    { id: "growth", name: "Chargebee Growth", permission: "GROWTH_READ" },
+  ];
+
+  const hasAccess = (permission, suiteId) => {
+    if (!user) return false;
+    if (user.role === "ULTRASUPERADMIN" || user.role === "SUPERADMIN") return true;
+    const hasRolePermission = user.permissions?.includes(permission);
+    if (!hasRolePermission) return false;
+    if (user.grantedModules && user.grantedModules.length > 0) {
+      const hasTenantSuiteAccess = user.grantedModules.some((mod) =>
+        mod.startsWith(suiteId + ":"),
+      );
+      if (!hasTenantSuiteAccess) return false;
+    }
+    return true;
+  };
+
+  const activeSuite = suites.find((s) => s.id === currentSuite) || suites[0];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
+      >
+        <div className="w-6 h-6 bg-accent-light text-accent rounded flex items-center justify-center">
+          <LayoutGrid size={14} />
+        </div>
+        <span className="font-medium text-sm text-ink">
+          {activeSuite.name}
+        </span>
+        <ChevronDown size={14} className="text-muted" />
+      </button>
+      
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-2 w-56 bg-surface rounded-xl shadow-md border border-border py-1 z-20 animate-fade-in">
+            {suites.map((suite) => {
+              const canAccess = hasAccess(suite.permission, suite.id);
+              return (
+                <button
+                  key={suite.id}
+                  onClick={() => {
+                    if (canAccess) {
+                      setCurrentSuite(suite.id);
+                      setIsOpen(false);
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${canAccess ? "hover:bg-stone-50 text-ink cursor-pointer" : "text-muted cursor-not-allowed opacity-60"} ${currentSuite === suite.id ? "bg-stone-50 font-semibold" : "font-medium"}`}
+                  title={!canAccess ? "No access — contact your admin." : ""}
+                >
+                  <span>{suite.name}</span>
+                  {!canAccess && (
+                    <Lock size={12} className="text-stone-300" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

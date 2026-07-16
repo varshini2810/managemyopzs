@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         // === Core Brand Palette ===
-        bg: '#FAFAF9',          // warm off-white app background
+        bg: '#F8F9FB',          // warm off-white app background
         surface: '#FFFFFF',     // card/panel surface
         border: '#E7E5E2',      // hairline 1px border
         'border-strong': '#D4D1CE',
@@ -20,10 +20,10 @@ export default {
 
         // Accent (used SPARINGLY — primary actions only)
         accent: {
-          DEFAULT: '#2D5BFF',
-          hover: '#2347D6',
+          DEFAULT: '#4F46E5',
+          hover: '#4338CA',
           light: '#EEF2FF',
-          muted: '#BFCEFF',
+          muted: '#C7D2FE',
         },
 
         // Semantic
@@ -94,20 +94,21 @@ export default {
         sm:   '4px',
         DEFAULT: '6px',   // buttons, inputs, chips
         md:   '6px',
-        lg:   '8px',      // cards, panels max
-        xl:   '8px',      // same — no more rounded-xl bloat
-        '2xl': '8px',
+        lg:   '8px',
+        xl:   '12px',     // soft cards
+        '2xl': '16px',    // very soft cards
         full: '9999px',
       },
 
       boxShadow: {
-        // NO heavy shadows — hairline borders only
         none: 'none',
-        sm:   '0 1px 2px rgba(28,27,26,0.04)',  // only for dropdowns/tooltips
-        DEFAULT: '0 1px 3px rgba(28,27,26,0.06)',
+        sm:   '0 1px 2px rgba(28,27,26,0.05)',  // Flat cards, very subtle
+        DEFAULT: '0 2px 4px rgba(28,27,26,0.06), 0 1px 2px rgba(28,27,26,0.04)', // Raised cards, inputs
+        md:   '0 4px 8px rgba(28,27,26,0.08), 0 2px 4px rgba(28,27,26,0.04)', // Floating menus, popovers
+        lg:   '0 10px 15px rgba(28,27,26,0.1), 0 4px 6px rgba(28,27,26,0.05)', // Modals
         tooltip: '0 2px 8px rgba(28,27,26,0.12)',
-        // Focus ring — NOT glow
-        'focus-accent': '0 0 0 2px #EEF2FF',
+        'focus-accent': '0 0 0 3px rgba(79, 70, 229, 0.2)', // Accessible focus ring
+        'focus-danger': '0 0 0 3px rgba(192, 41, 43, 0.2)',
       },
 
       spacing: {

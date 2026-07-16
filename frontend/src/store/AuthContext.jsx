@@ -1,55 +1,89 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import api, { getErrorMessage } from '../services/api';
-
-const AuthContext = createContext(null);
-
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import api from "../services/api";
+const AuthContext = createContext({
+  user: null,
+  loading: true,
+  login: async () => {},
+  logout: () => {},
+  refreshSession: async () => {},
+});
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      api.get('/auth/me')
-        .then(res => setUser(res.data.data))
-        .catch(() => {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-        })
-        .finally(() => setLoading(false));
-    } else {
+  const fetchUser = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("opz_token");
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const res = await api.get("/auth/me");
+      const payload = res.data?.data || res.data;
+      if (payload) {
+        setUser(payload);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
+      localStorage.removeItem("opz_token");
+      localStorage.removeItem("opz_refresh_token");
+    } finally {
       setLoading(false);
     }
   }, []);
-
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    // Handle both res.data.data (sendJson wrapper) and res.data directly
-    const payload = res.data.data || res.data;
-    const { accessToken, refreshToken, user: userData } = payload;
-    if (!accessToken) throw new Error('No access token in response');
-    localStorage.setItem('accessToken', accessToken);
-    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-    setUser(userData);
-    return userData;
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+  const login = async (email, password, portalType) => {
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+        portalType,
+      });
+      const payload = res.data?.data || res.data;
+      if (payload?.accessToken) {
+        localStorage.setItem("opz_token", payload.accessToken);
+        localStorage.setItem("opz_refresh_token", payload.refreshToken);
+        await fetchUser();
+        /*  Reload full profile + permissions  */ return {
+          success: true,
+          user: payload.user,
+        };
+      }
+      return { success: false, error: "Invalid response from server" };
+    } catch (error) {
+      const msg = error.response?.data?.message || "Login failed";
+      return { success: false, error: msg };
+    }
   };
-
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("opz_token");
+    localStorage.removeItem("opz_refresh_token");
+    localStorage.removeItem("adminSelectedTenant");
     setUser(null);
-    window.location.href = '/login';
+    window.location.href = "/";
   };
-
+  const refreshSession = async () => {
+    await fetchUser();
+  };
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
+    <AuthContext.Provider
+      value={{ user, loading, login, logout, refreshSession }}
+    >
+      {" "}
+      {children}{" "}
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
-};
+export const useAuth = () => useContext(AuthContext);
