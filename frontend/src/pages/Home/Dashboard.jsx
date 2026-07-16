@@ -1,226 +1,299 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { useAuth } from '../../store/AuthContext';
-import { LayoutDashboard, Settings, Calendar, DollarSign, Users, CreditCard, FileText, ArrowUpRight } from 'lucide-react';
-import PageHeader from '../../components/ui/PageHeader';
-import StatCardRow from '../../components/ui/StatCardRow';
-import StatCard from '../../components/ui/StatCard';
+import React, { useState, useEffect } from "react";
+import api from "../../services/api";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import {
+  LayoutDashboard,
+  CreditCard,
+  Users,
+  Plus,
+  PieChart,
+  Activity,
+  DollarSign,
+  Calendar,
+} from "lucide-react";
+import { useAuth } from "../../store/AuthContext";
+import SkeletonLoader from "../../components/common/SkeletonLoader";
 
-const RANGES = ['1d', '3m', '6m', '12m'];
-
-function MetricChart({ title, metricType, icon: Icon, colorClass }) {
-  const [range, setRange] = useState('3m');
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    api.get(`/dashboard/metrics?type=${metricType}&range=${range}`)
-      .then(res => setData(res.data.data || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [metricType, range]);
-
-  const fmtVal = (v) => {
-    if (metricType === 'active_subscriptions') return Math.round(v).toLocaleString();
-    return '$' + (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v.toFixed(0));
-  };
-
+function DashboardCard({
+  icon: Icon,
+  title,
+  value,
+  changePercent,
+  sparkData,
+  loading,
+  chartData,
+  chartType,
+  actionLabel,
+}) {
+  const growing = changePercent > 0.5;
+  const declining = changePercent < -0.5;
+  const changeColor = growing
+    ? "text-success"
+    : declining
+      ? "text-danger"
+      : "text-muted";
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-gray-100 rounded-lg p-3 shadow-lg text-sm">
-          <div className="text-gray-500 mb-1 font-medium">{label}</div>
-          <div className="font-bold text-gray-900 text-lg">
-            {fmtVal(payload[0].value)}
-          </div>
+        <div className="bg-surface border border-border rounded-lg p-2 shadow-sm text-xs">
+          {" "}
+          <div className="text-muted mb-1">{label}</div>{" "}
+          <div className="font-semibold text-ink tabular-nums">
+            {" "}
+            {chartType === "currency" ? "$" : ""}
+            {Number(payload[0].value).toLocaleString()}{" "}
+          </div>{" "}
         </div>
       );
     }
     return null;
   };
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          {Icon && (
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClass}`}>
-              <Icon size={16} />
-            </div>
-          )}
-          <div className="text-sm font-bold text-gray-900 tracking-wide uppercase">{title}</div>
-        </div>
-        <div className="flex bg-gray-100 p-1 rounded-lg">
-          {RANGES.map(r => (
-            <button
-              key={r}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${
-                range === r ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}
-              onClick={() => setRange(r)}
-            >
-              {r.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-6 h-64 flex-1">
+    <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+      {" "}
+      <div className="p-6 border-b border-border flex items-center gap-3 bg-stone-50/50">
+        {" "}
+        <div className="w-8 h-8 rounded-lg bg-accent-light text-accent flex items-center justify-center shrink-0">
+          {" "}
+          <Icon size={16} />{" "}
+        </div>{" "}
+        <h2 className="text-sm font-bold text-ink tracking-tight uppercase">
+          {title}
+        </h2>{" "}
+      </div>{" "}
+      <div className="p-6 flex-1 flex flex-col">
+        {" "}
         {loading ? (
-          <div className="animate-pulse bg-gray-50 rounded-lg h-full w-full" />
-        ) : data.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-sm font-medium text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-            No data available for this period
+          <div className="space-y-4">
+            <SkeletonLoader type="text" rows={1} className="w-1/3 h-10" />
+            <div className="skeleton-block h-32 w-full mt-4"></div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id={`colorValue-${metricType}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#F3F4F6" />
-              <XAxis 
-                dataKey="date" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 500 }} 
-                minTickGap={30}
-                dy={10}
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 500 }} 
-                tickFormatter={fmtVal}
-                dx={-10}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#4F46E5', strokeWidth: 1, strokeDasharray: '4 4' }} />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#4F46E5" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill={`url(#colorValue-${metricType})`} 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-      <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
-        <button className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-sm rounded-lg transition-colors flex justify-center items-center gap-2">
-          View Detailed Report <ArrowUpRight size={16} />
-        </button>
-      </div>
+          <>
+            {" "}
+            <div className="flex items-end justify-between mb-6">
+              {" "}
+              <div>
+                {" "}
+                <div className="font-display text-4xl font-bold text-ink tracking-tight tabular-nums">
+                  {" "}
+                  {value}{" "}
+                </div>{" "}
+                <div className={`text-xs font-semibold mt-1.5 ${changeColor}`}>
+                  {" "}
+                  {changePercent > 0 ? "+" : ""}
+                  {changePercent?.toFixed(1)}% vs prev period{" "}
+                </div>{" "}
+              </div>{" "}
+            </div>{" "}
+            <div className="flex-1 min-h-[140px]">
+              {" "}
+              {chartData && chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  {" "}
+                  <AreaChart
+                    data={chartData}
+                    margin={{ top: 5, right: 0, left: -20, bottom: 0 }}
+                  >
+                    {" "}
+                    <defs>
+                      {" "}
+                      <linearGradient
+                        id={`color-${title}`}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        {" "}
+                        <stop
+                          offset="5%"
+                          stopColor="#4F46E5"
+                          stopOpacity={0.2}
+                        />{" "}
+                        <stop
+                          offset="95%"
+                          stopColor="#4F46E5"
+                          stopOpacity={0}
+                        />{" "}
+                      </linearGradient>{" "}
+                    </defs>{" "}
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#E7E5E2"
+                    />{" "}
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#A8A49F" }}
+                      minTickGap={30}
+                    />{" "}
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#A8A49F" }}
+                      tickFormatter={(v) =>
+                        chartType === "currency" ? `$${v / 1000}k` : v
+                      }
+                    />{" "}
+                    <Tooltip content={<CustomTooltip />} />{" "}
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#4F46E5"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill={`url(#color-${title})`}
+                    />{" "}
+                  </AreaChart>{" "}
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-sm text-muted">
+                  No trend data available
+                </div>
+              )}{" "}
+            </div>{" "}
+          </>
+        )}{" "}
+      </div>{" "}
+      {actionLabel && (
+        <div className="p-4 bg-stone-50 border-t border-border mt-auto">
+          {" "}
+          <button className="w-full btn bg-accent-light text-accent hover:bg-accent hover:text-white border-transparent transition-colors justify-center rounded-lg py-2.5 font-semibold">
+            {" "}
+            <Plus size={16} /> {actionLabel}{" "}
+          </button>{" "}
+        </div>
+      )}{" "}
     </div>
   );
 }
-
 export default function Dashboard() {
   const { user } = useAuth();
   const [summary, setSummary] = useState(null);
+  const [charts, setCharts] = useState({});
   const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
-
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    api.get('/dashboard/summary')
-      .then(res => setSummary(res.data.data))
+    Promise.all([
+      api.get("/dashboard/summary"),
+      api.get("/dashboard/metrics?type=mrr&range=3m"),
+      api.get("/dashboard/metrics?type=active_subscriptions&range=3m"),
+      api.get("/dashboard/metrics?type=net_billing&range=3m"),
+      api.get("/dashboard/metrics?type=net_payments&range=3m"),
+    ])
+      .then(([sum, mrr, subs, bill, pay]) => {
+        setSummary(sum.data.data);
+        setCharts({
+          mrr: mrr.data.data || [],
+          active_subscriptions: subs.data.data || [],
+          net_billing: bill.data.data || [],
+          net_payments: pay.data.data || [],
+        });
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
   const fmtCurrency = (v) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v || 0);
-  const fmtNum = (v) =>
-    new Intl.NumberFormat('en-US').format(v || 0);
-
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(v || 0);
+  const fmtNum = (v) => new Intl.NumberFormat("en-US").format(v || 0);
   const getGreeting = () => {
-    const hour = currentTime.getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    const hr = new Date().getHours();
+    if (hr < 12) return "Good Morning";
+    if (hr < 18) return "Good Afternoon";
+    return "Good Evening";
   };
-
-  const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      {" "}
+      {/* Greeting Header */}{" "}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        {" "}
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-            {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'}! 👋
-          </h1>
-          <p className="text-gray-500 font-medium mt-1">Here's what's happening with your revenue today.</p>
-        </div>
+          {" "}
+          <h1 className="text-3xl font-display font-bold text-ink tracking-tight flex items-center gap-2">
+            {" "}
+            {getGreeting()}, {user?.name?.split(" ")[0] || "Admin"}!{" "}
+            <span className=""></span>{" "}
+          </h1>{" "}
+          <p className="text-muted mt-1.5">
+            Here's what's happening with your platform today.
+          </p>{" "}
+        </div>{" "}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 shadow-sm">
-            <Calendar size={16} className="text-indigo-500" />
-            {formattedDate}
-          </div>
-          <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
-            <Settings size={16} />
-            Customize Layout
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-white rounded-xl border border-gray-100 animate-pulse" />)}
-        </div>
-      ) : (
-        <StatCardRow>
-          <StatCard
-            title="Monthly Recurring Revenue"
-            value={fmtCurrency(summary?.mrr?.value)}
-            trend={summary?.mrr?.changePercent}
-            trendLabel="vs last month"
-            icon={DollarSign}
-            colorClass="text-emerald-600 bg-emerald-100"
-          />
-          <StatCard
-            title="Active Subscriptions"
-            value={fmtNum(summary?.active_subscriptions?.value)}
-            trend={summary?.active_subscriptions?.changePercent}
-            trendLabel="vs last month"
-            icon={Users}
-            colorClass="text-blue-600 bg-blue-100"
-          />
-          <StatCard
-            title="Net Billing"
-            value={fmtCurrency(summary?.net_billing?.value)}
-            trend={summary?.net_billing?.changePercent}
-            trendLabel="vs last month"
-            icon={FileText}
-            colorClass="text-purple-600 bg-purple-100"
-          />
-          <StatCard
-            title="Net Payments"
-            value={fmtCurrency(summary?.net_payments?.value)}
-            trend={summary?.net_payments?.changePercent}
-            trendLabel="vs last month"
-            icon={CreditCard}
-            colorClass="text-amber-600 bg-amber-100"
-          />
-        </StatCardRow>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
-        <MetricChart title="MRR Trend" metricType="mrr" icon={LayoutDashboard} colorClass="bg-indigo-100 text-indigo-600" />
-        <MetricChart title="Subscription Growth" metricType="active_subscriptions" icon={Users} colorClass="bg-blue-100 text-blue-600" />
-        <MetricChart title="Net Billing Performance" metricType="net_billing" icon={FileText} colorClass="bg-purple-100 text-purple-600" />
-        <MetricChart title="Cash Flow (Payments)" metricType="net_payments" icon={CreditCard} colorClass="bg-amber-100 text-amber-600" />
-      </div>
+          {" "}
+          <div className="flex items-center gap-2 bg-white border border-border px-3 py-1.5 rounded-lg text-xs font-semibold text-muted shadow-sm">
+            {" "}
+            <Calendar size={14} /> {currentDate}{" "}
+          </div>{" "}
+          <button className="btn-secondary rounded-lg font-semibold shadow-sm text-xs px-3 py-1.5">
+            {" "}
+            Customize Layout{" "}
+          </button>{" "}
+        </div>{" "}
+      </div>{" "}
+      {/* Grid */}{" "}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {" "}
+        <DashboardCard
+          icon={Activity}
+          title="Revenue & MRR"
+          value={fmtCurrency(summary?.mrr?.value)}
+          changePercent={summary?.mrr?.changePercent}
+          loading={loading}
+          chartData={charts.mrr}
+          chartType="currency"
+          actionLabel="View Revenue Story"
+        />{" "}
+        <DashboardCard
+          icon={Users}
+          title="Active Subscriptions"
+          value={fmtNum(summary?.active_subscriptions?.value)}
+          changePercent={summary?.active_subscriptions?.changePercent}
+          loading={loading}
+          chartData={charts.active_subscriptions}
+          chartType="number"
+          actionLabel="Create Subscription"
+        />{" "}
+        <DashboardCard
+          icon={DollarSign}
+          title="Net Billing"
+          value={fmtCurrency(summary?.net_billing?.value)}
+          changePercent={summary?.net_billing?.changePercent}
+          loading={loading}
+          chartData={charts.net_billing}
+          chartType="currency"
+          actionLabel="Create Invoice"
+        />{" "}
+        <DashboardCard
+          icon={CreditCard}
+          title="Net Payments"
+          value={fmtCurrency(summary?.net_payments?.value)}
+          changePercent={summary?.net_payments?.changePercent}
+          loading={loading}
+          chartData={charts.net_payments}
+          chartType="currency"
+          actionLabel="Record Payment"
+        />{" "}
+      </div>{" "}
     </div>
   );
 }

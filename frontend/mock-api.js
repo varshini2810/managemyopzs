@@ -1,5 +1,98 @@
 // Mock API Middleware for Vite Dev Server
 
+let clients = [
+  {
+    id: 'CLT-001',
+    companyName: 'TechVision Solutions Pvt Ltd',
+    companyCode: 'TECH-7821',
+    businessType: 'Private Limited',
+    industry: 'Technology',
+    contactName: 'Rahul Mehta',
+    email: 'rahul@techvision.in',
+    phone: '+91 98765 43210',
+    mobile: '+91 99999 11111',
+    website: 'https://techvision.in',
+    gstNumber: '27AABCV1234A1ZS',
+    taxRegNumber: 'TRN-27001',
+    companyRegNumber: 'CIN-U72200MH2020PTC12345',
+    addressLine1: '401, Solitaire Corporate Park',
+    addressLine2: 'Chakala, Andheri East',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    country: 'India',
+    zipCode: '400093',
+    subscriptionPlan: 'Enterprise',
+    numberOfUsers: 100,
+    startDate: '2026-01-01',
+    expiryDate: '2026-12-31',
+    subscriptionStatus: 'Active',
+    accountStatus: 'Active',
+    logoUrl: '',
+    createdAt: '2026-01-01T09:00:00Z',
+    updatedAt: '2026-01-01T09:00:00Z'
+  },
+  {
+    id: 'CLT-002',
+    companyName: 'ScalePay Technologies',
+    companyCode: 'SCAL-4392',
+    businessType: 'Private Limited',
+    industry: 'Finance & Banking',
+    contactName: 'Arjun Kapoor',
+    email: 'arjun@scalepay.io',
+    phone: '+91 88001 22334',
+    mobile: '',
+    website: 'https://scalepay.io',
+    gstNumber: '29AABCV5678B2ZT',
+    taxRegNumber: '',
+    companyRegNumber: 'CIN-U65100KA2021PTC67890',
+    addressLine1: '88 Bandra West',
+    addressLine2: '',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    country: 'India',
+    zipCode: '400050',
+    subscriptionPlan: 'Professional',
+    numberOfUsers: 50,
+    startDate: '2026-02-15',
+    expiryDate: '2027-02-14',
+    subscriptionStatus: 'Active',
+    accountStatus: 'Active',
+    logoUrl: '',
+    createdAt: '2026-02-15T10:00:00Z',
+    updatedAt: '2026-02-15T10:00:00Z'
+  },
+  {
+    id: 'CLT-003',
+    companyName: 'DataBridge Analytics',
+    companyCode: 'DATA-9012',
+    businessType: 'LLP',
+    industry: 'Technology',
+    contactName: 'Sneha Reddy',
+    email: 'sneha@databridge.com',
+    phone: '+91 87654 32190',
+    mobile: '',
+    website: '',
+    gstNumber: '36AABCD9012C1ZT',
+    taxRegNumber: '',
+    companyRegNumber: '',
+    addressLine1: '22 Jubilee Hills',
+    addressLine2: '',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    country: 'India',
+    zipCode: '500033',
+    subscriptionPlan: 'Growth',
+    numberOfUsers: 25,
+    startDate: '2025-12-01',
+    expiryDate: '2026-11-30',
+    subscriptionStatus: 'Suspended',
+    accountStatus: 'Inactive',
+    logoUrl: '',
+    createdAt: '2025-12-01T08:00:00Z',
+    updatedAt: '2026-06-01T08:00:00Z'
+  }
+];
+
 let productFamilies = [
   { id: 'pf_1', name: 'Cloud Infrastructure', description: 'Core compute and storage resources', slug: 'cloud-infrastructure', createdAt: '2026-06-01T12:00:00Z' },
   { id: 'pf_2', name: 'SaaS Suite', description: 'Software application access', slug: 'saas-suite', createdAt: '2026-06-02T12:00:00Z' }
@@ -172,50 +265,501 @@ function sendJson(res, data, status = 200) {
   }));
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// RBAC HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Map role → portalType string used in login URL
+const ROLE_TO_PORTAL = {
+  ULTRASUPERADMIN: 'ultra-admin',
+  SUPERADMIN: 'super-admin',
+  ADMIN: 'admin',
+  USER: 'user',
+};
+
+const PORTAL_TO_ROLE = {
+  'ultra-admin': 'ULTRASUPERADMIN',
+  'super-admin': 'SUPERADMIN',
+  'admin': 'ADMIN',
+  'user': 'USER',
+};
+
+function calculatePermissions(role) {
+  const isUltra = role === 'ULTRASUPERADMIN';
+  const isSuper = role === 'SUPERADMIN' || isUltra;
+  const isAdmin = role === 'ADMIN';
+  return {
+    dashboard: true,
+    employeeManagement: isSuper,
+    attendance: isSuper || isAdmin,
+    payroll: isSuper,
+    leaveManagement: isSuper || isAdmin,
+    reports: isSuper || isAdmin,
+    settings: isSuper,
+    invoices: true,
+    expenses: isSuper || isAdmin,
+    analytics: isSuper || isAdmin,
+    taxReports: isSuper,
+    brandSettings: isSuper,
+    checkoutPortal: isSuper,
+    clientManagement: isUltra,
+    platformConsole: isUltra,
+    accessControl: isSuper,
+    teamMembers: isSuper,
+  };
+}
+
+function buildGrantedModules(role) {
+  const isUltra = role === 'ULTRASUPERADMIN';
+  const isSuper = role === 'SUPERADMIN' || isUltra;
+  const isAdmin = role === 'ADMIN';
+  const modules = ['INVOICE', 'CUSTOMER', 'SUBSCRIPTION', 'CATALOG'];
+  if (isSuper || isAdmin) modules.push('ANALYTICS', 'EXPENSE', 'LOGS');
+  if (isSuper) modules.push(
+    'TAX_REPORT', 'SETTINGS_CONFIGURE', 'SETTINGS_THIRD_PARTY',
+    'SETTINGS_IMPORT_EXPORT', 'SETTINGS_TEAM_MEMBERS', 'SETTINGS_ACCESS_CONTROL',
+    'SETTINGS_NOTIFICATIONS', 'SETTINGS_SECURITY', 'REVENUE_STORY', 'REPORTS', 'APPS'
+  );
+  if (isUltra) modules.push('CLIENT_MANAGEMENT', 'PLATFORM_CONSOLE', 'SETTINGS_CLIENT_DETAILS');
+  return modules;
+}
+
+const DEFAULT_USERS = [
+  {
+    id: 1,
+    role: 'ULTRASUPERADMIN',
+    profile: {
+      fullName: 'Ultra Admin',
+      email: 'ultraadmin@billingplatform.com',
+      password: 'Ultra@123',
+      status: 'Active',
+      loginEnabled: true,
+      employeeId: 'EMP-001',
+      department: 'Platform',
+    },
+  },
+  {
+    id: 2,
+    role: 'SUPERADMIN',
+    profile: {
+      fullName: 'Super Admin',
+      email: 'superadmin@billingplatform.com',
+      password: 'Super@123',
+      status: 'Active',
+      loginEnabled: true,
+      employeeId: 'EMP-002',
+      department: 'Management',
+    },
+  },
+  {
+    id: 3,
+    role: 'ADMIN',
+    profile: {
+      fullName: 'Admin User',
+      email: 'admin@billingplatform.com',
+      password: 'Admin@123',
+      status: 'Active',
+      loginEnabled: true,
+      employeeId: 'EMP-003',
+      department: 'Operations',
+    },
+  },
+  {
+    id: 4,
+    role: 'USER',
+    profile: {
+      fullName: 'Regular User',
+      email: 'user@billingplatform.com',
+      password: 'User@123',
+      status: 'Active',
+      loginEnabled: true,
+      employeeId: 'EMP-004',
+      department: 'Support',
+    },
+  },
+];
+
+function seedDefaultUsers() {
+  if (!globalThis.__mockUsers || globalThis.__mockUsers.length === 0) {
+    globalThis.__mockUsers = DEFAULT_USERS.map(u => ({
+      ...u,
+      permissions: calculatePermissions(u.role),
+    }));
+  } else {
+    // Ensure every seeded user exists (add if missing)
+    DEFAULT_USERS.forEach(def => {
+      const exists = globalThis.__mockUsers.find(u => u.id === def.id);
+      if (!exists) {
+        globalThis.__mockUsers.push({ ...def, permissions: calculatePermissions(def.role) });
+      }
+    });
+  }
+}
+
+if (!globalThis.__mockAuditLogs) globalThis.__mockAuditLogs = [];
+
+function addAuditLog(adminUser, targetUser, changes) {
+  globalThis.__mockAuditLogs.unshift({
+    id: `AL-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    adminId: adminUser?.id,
+    adminName: adminUser?.profile?.fullName || adminUser?.name || 'System',
+    adminRole: adminUser?.role,
+    targetId: targetUser?.id,
+    targetName: targetUser?.profile?.fullName,
+    ...changes,
+  });
+}
+
 export default function mockApiPlugin() {
+  seedDefaultUsers();
+
   return {
     name: 'mock-api-plugin',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (!req.url.startsWith('/api')) {
-          return next();
-        }
+        if (!req.url.startsWith('/api')) return next();
 
         const url = new URL(req.url, `http://${req.headers.host}`);
         const path = url.pathname;
         const method = req.method;
 
-        // Auth endpoints
+        // ─── Ensure default users always exist (hot-reload safe) ───────────
+        seedDefaultUsers();
+
+        // ─── Token helper ───────────────────────────────────────────────────
+        function getUserFromToken(req) {
+          const authHeader = req.headers.authorization || '';
+          const match = authHeader.match(/Bearer opz_([^_]+)_/);
+          if (!match) return null;
+          const userId = parseInt(match[1], 10);
+          return globalThis.__mockUsers?.find(u => u.id === userId) || null;
+        }
+
+        // ─── Auth endpoints ─────────────────────────────────────────────────
+
         if (path === '/api/auth/login' && method === 'POST') {
           const body = await getRequestBody(req);
-          // Return 401 if no email provided (basic guard)
-          if (!body.email) return sendJson(res, { message: 'Email is required' }, 401);
+          const { email, password, portalType } = body;
+
+          if (!email) return sendJson(res, { message: 'Email is required' }, 400);
+
+          const foundUser = globalThis.__mockUsers?.find(u => u.profile?.email === email);
+          if (!foundUser) return sendJson(res, { message: 'Invalid email or password.' }, 401);
+
+          if (foundUser.profile?.password !== password) {
+            return sendJson(res, { message: 'Invalid email or password.' }, 401);
+          }
+
+          // Portal-type mismatch check
+          if (portalType) {
+            const expectedPortal = ROLE_TO_PORTAL[foundUser.role];
+            if (expectedPortal !== portalType) {
+              const roleLabel = foundUser.role.replace('ULTRASUPERADMIN','Ultra Admin').replace('SUPERADMIN','Super Admin').replace('ADMIN','Admin').replace('USER','User');
+              const portalLabel = portalType.split('-').map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+              return sendJson(res, {
+                message: `This account belongs to the ${roleLabel} Portal. Please login using the ${roleLabel} Login page.`
+              }, 403);
+            }
+          }
+
+          if (foundUser.profile?.loginEnabled === false) {
+            return sendJson(res, { message: 'Your login has been disabled by the administrator.' }, 403);
+          }
+          if (foundUser.profile?.status !== 'Active') {
+            return sendJson(res, { message: 'Your account has been deactivated. Please contact an administrator.' }, 403);
+          }
+
+          const token = `opz_${foundUser.id}_${Date.now()}`;
           return sendJson(res, {
-            accessToken: 'mock_access_token_12345',
-            refreshToken: 'mock_refresh_token_67890',
+            accessToken: token,
+            refreshToken: `opz_refresh_${foundUser.id}_${Date.now()}`,
             user: {
-              id: 1,
-              name: 'Admin User',
-              email: body.email,
-              role: 'ULTRASUPERADMIN',
-              tenantId: 'tenant_demo'
+              id: foundUser.id,
+              name: foundUser.profile?.fullName,
+              email: foundUser.profile?.email,
+              role: foundUser.role,
+              tenantId: 'tenant_demo',
             }
           });
         }
+
         if (path === '/api/auth/me' && method === 'GET') {
+          const foundUser = getUserFromToken(req);
+          if (!foundUser) return sendJson(res, { message: 'Unauthorized' }, 401);
+
           return sendJson(res, {
-            id: 1,
-            name: 'Admin User',
-            email: 'admin@billingplatform.com',
-            role: 'ULTRASUPERADMIN',
-            tenantId: 'tenant_demo'
+            id: foundUser.id,
+            name: foundUser.profile?.fullName || 'User',
+            email: foundUser.profile?.email,
+            role: foundUser.role,
+            tenantId: 'tenant_demo',
+            grantedModules: buildGrantedModules(foundUser.role),
+            status: foundUser.profile?.status,
+            loginEnabled: foundUser.profile?.loginEnabled,
           });
         }
+
         if (path === '/api/auth/refresh' && method === 'POST') {
-          return sendJson(res, { accessToken: 'mock_access_token_new_12345' });
+          const body = await getRequestBody(req);
+          const match = (body.refreshToken || '').match(/opz_refresh_(\d+)_/);
+          if (!match) return sendJson(res, { message: 'Invalid refresh token' }, 401);
+          const userId = parseInt(match[1], 10);
+          return sendJson(res, { accessToken: `opz_${userId}_${Date.now()}` });
         }
 
-        // Dashboard endpoints
+        if (path === '/api/auth/reset-password' && method === 'POST') {
+          const body = await getRequestBody(req);
+          if (!body.email || !body.password) return sendJson(res, { message: 'Email and password are required' }, 400);
+          const foundUser = globalThis.__mockUsers?.find(u => u.profile?.email === body.email);
+          if (!foundUser) return sendJson(res, { message: 'User not found' }, 404);
+          foundUser.profile.password = body.password;
+          if (body.forceChangeOnNextLogin) foundUser.profile.forcePasswordChange = true;
+          return sendJson(res, { message: 'Password reset successfully', success: true });
+        }
+
+        if (path === '/api/auth/change-portal' && method === 'POST') {
+          const body = await getRequestBody(req);
+          const { newPortalRole, password } = body;
+          const actingUser = getUserFromToken(req);
+
+          if (!actingUser) return sendJson(res, { message: 'Unauthorized' }, 401);
+
+          // Only Ultra Admin can change their own portal
+          if (actingUser.role !== 'ULTRASUPERADMIN') {
+            return sendJson(res, { message: 'Only Ultra Admin users can change portals.' }, 403);
+          }
+
+          if (!newPortalRole) return sendJson(res, { message: 'New portal role is required.' }, 400);
+          if (!password) return sendJson(res, { message: 'Password is required.' }, 400);
+
+          // Validate password
+          if (actingUser.profile?.password !== password) {
+            return sendJson(res, { message: 'Incorrect password. Please try again.' }, 401);
+          }
+
+          // Prevent switching to same role
+          if (actingUser.role === newPortalRole) {
+            return sendJson(res, { message: 'You are already on this portal.' }, 400);
+          }
+
+          // Protect last Ultra Admin from downgrading themselves
+          const ultraCount = globalThis.__mockUsers.filter(u => u.role === 'ULTRASUPERADMIN').length;
+          if (actingUser.role === 'ULTRASUPERADMIN' && newPortalRole !== 'ULTRASUPERADMIN' && ultraCount <= 1) {
+            return sendJson(res, { message: 'Cannot change portal. You are the last Ultra Admin.' }, 400);
+          }
+
+          const previousRole = actingUser.role;
+
+          // Apply role change
+          actingUser.role = newPortalRole;
+          actingUser.permissions = calculatePermissions(newPortalRole);
+
+          // Audit log
+          addAuditLog(actingUser, actingUser, {
+            action: 'PORTAL_CHANGE',
+            previousPortal: previousRole,
+            newPortal: newPortalRole,
+            changedBy: actingUser.profile?.fullName || actingUser.name || 'Self',
+          });
+
+          return sendJson(res, { message: 'Portal changed successfully.' });
+        }
+
+        // ─── Audit Logs ─────────────────────────────────────────────────────
+        if (path === '/api/audit-logs' && method === 'GET') {
+          return sendJson(res, globalThis.__mockAuditLogs || []);
+        }
+
+        // ─── Employees API ───────────────────────────────────────────────────
+        if (path === '/api/employees' && method === 'GET') {
+          return sendJson(res, globalThis.__mockUsers);
+        }
+
+        if (path === '/api/employees' && method === 'POST') {
+          const body = await getRequestBody(req);
+          const adminUser = getUserFromToken(req);
+          const { id, email, role, status, loginEnabled, password, ...rest } = body;
+
+          if (!email) return sendJson(res, { error: 'Email is required' }, 400);
+
+          // Locate existing user
+          let existingIdx = -1;
+          if (id) {
+            existingIdx = globalThis.__mockUsers.findIndex(u => u.id === id);
+          } else {
+            existingIdx = globalThis.__mockUsers.findIndex(u => u.profile?.email === email);
+          }
+
+          // Duplicate email check (across other users)
+          const dupeIdx = globalThis.__mockUsers.findIndex(u => u.profile?.email === email && u.id !== id);
+          if (dupeIdx !== -1) return sendJson(res, { message: 'Email address is already in use by another account.' }, 400);
+
+          if (existingIdx !== -1) {
+            const target = globalThis.__mockUsers[existingIdx];
+            const oldRole = target.role;
+            const oldEmail = target.profile?.email;
+            const oldStatus = target.profile?.status;
+            const oldLoginEnabled = target.profile?.loginEnabled;
+
+            // RBAC: Super Admin cannot modify Ultra Admin
+            if (adminUser?.role === 'SUPERADMIN' && target.role === 'ULTRASUPERADMIN') {
+              return sendJson(res, { message: 'You do not have permission to modify an Ultra Admin account.' }, 403);
+            }
+            // Admin cannot modify Super Admin or Ultra Admin
+            if (adminUser?.role === 'ADMIN' && (target.role === 'ULTRASUPERADMIN' || target.role === 'SUPERADMIN')) {
+              return sendJson(res, { message: 'You do not have permission to modify this account.' }, 403);
+            }
+
+            // Security: Prevent removing last Ultra Admin
+            if (oldRole === 'ULTRASUPERADMIN' && role && role !== 'ULTRASUPERADMIN') {
+              const ultraCount = globalThis.__mockUsers.filter(u => u.role === 'ULTRASUPERADMIN').length;
+              if (ultraCount <= 1) {
+                return sendJson(res, { message: 'Cannot change the role of the last Ultra Admin.' }, 400);
+              }
+            }
+
+            // Apply updates
+            const updatedProfile = {
+              ...target.profile,
+              ...rest,
+              email,
+              status: status !== undefined ? status : target.profile.status,
+              loginEnabled: loginEnabled !== undefined ? loginEnabled : (target.profile.loginEnabled ?? true),
+            };
+            if (password) updatedProfile.password = password;
+
+            globalThis.__mockUsers[existingIdx].profile = updatedProfile;
+
+            if (role && role !== oldRole) {
+              globalThis.__mockUsers[existingIdx].role = role;
+              globalThis.__mockUsers[existingIdx].permissions = calculatePermissions(role);
+            }
+
+            // Audit log
+            const changes = {};
+            if (role && role !== oldRole) { changes.oldPortalType = oldRole; changes.newPortalType = role; }
+            if (email !== oldEmail) changes.emailChanged = `${oldEmail} → ${email}`;
+            if (password) changes.passwordReset = true;
+            if (loginEnabled !== undefined && loginEnabled !== oldLoginEnabled) changes.loginEnabledChanged = loginEnabled;
+            if (status !== undefined && status !== oldStatus) changes.statusChanged = status;
+            addAuditLog(adminUser, target, changes);
+
+            return sendJson(res, globalThis.__mockUsers[existingIdx]);
+          }
+
+          // Create new user
+          const newRole = role || 'USER';
+          const newUser = {
+            id: Date.now(),
+            profile: {
+              ...rest,
+              email,
+              status: status || 'Active',
+              loginEnabled: loginEnabled ?? true,
+              password: password || 'Default@123',
+            },
+            role: newRole,
+            permissions: calculatePermissions(newRole),
+          };
+          globalThis.__mockUsers.push(newUser);
+          addAuditLog(adminUser, newUser, { action: 'USER_CREATED', newPortalType: newRole });
+          return sendJson(res, newUser);
+        }
+
+        // ─── Clients API (Ultra Admin Only) ─────────────────────────────────
+        if (path === '/api/clients' && method === 'GET') {
+          return sendJson(res, clients);
+        }
+        if (path === '/api/clients' && method === 'POST') {
+          const body = await getRequestBody(req);
+          if (!body.companyName) return sendJson(res, { error: 'Company name is required' }, 400);
+          const newClient = {
+            id: 'CLT-' + String(clients.length + 1).padStart(3, '0') + '-' + Math.floor(100 + Math.random() * 900),
+            ...body,
+            companyCode: body.companyCode || ('CLT-' + Math.floor(1000 + Math.random() * 9000)),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          clients.push(newClient);
+          return sendJson(res, newClient);
+        }
+        const clientMatch = path.match(/^\/api\/clients\/(.+)$/);
+        if (clientMatch && method === 'GET') {
+          const client = clients.find(c => c.id === clientMatch[1]);
+          return client ? sendJson(res, client) : sendJson(res, { error: 'Client not found' }, 404);
+        }
+        if (clientMatch && method === 'PUT') {
+          const body = await getRequestBody(req);
+          const idx = clients.findIndex(c => c.id === clientMatch[1]);
+          if (idx !== -1) { clients[idx] = { ...clients[idx], ...body, updatedAt: new Date().toISOString() }; return sendJson(res, clients[idx]); }
+          return sendJson(res, { error: 'Client not found' }, 404);
+        }
+        if (clientMatch && method === 'DELETE') {
+          const before = clients.length;
+          clients = clients.filter(c => c.id !== clientMatch[1]);
+          return clients.length < before ? sendJson(res, { message: 'Client deleted' }) : sendJson(res, { error: 'Client not found' }, 404);
+        }
+
+        // ─── Users CRUD ──────────────────────────────────────────────────────
+        if (path === '/api/users' && method === 'GET') return sendJson(res, globalThis.__mockUsers);
+
+        if (path === '/api/users' && method === 'POST') {
+          const body = await getRequestBody(req);
+          if (globalThis.__mockUsers.find(u => u.profile?.email === body.email)) {
+            return sendJson(res, { error: 'Email already exists' }, 400);
+          }
+          const newU = { id: Date.now(), profile: { fullName: body.fullName||'', email: body.email||'', department: body.department||'', status: body.status||'Active', loginEnabled: true, password: body.password||'Default@123' }, role: body.role||'USER', permissions: calculatePermissions(body.role||'USER') };
+          globalThis.__mockUsers.push(newU);
+          return sendJson(res, newU);
+        }
+
+        const userMatch = path.match(/^\/api\/users\/(\d+)$/);
+        if (userMatch && method === 'GET') {
+          const u = globalThis.__mockUsers.find(u => u.id === parseInt(userMatch[1], 10));
+          return u ? sendJson(res, u) : sendJson(res, { error: 'User not found' }, 404);
+        }
+        if (userMatch && method === 'PUT') {
+          const body = await getRequestBody(req);
+          const idx = globalThis.__mockUsers.findIndex(u => u.id === parseInt(userMatch[1], 10));
+          if (idx !== -1) {
+            globalThis.__mockUsers[idx] = { ...globalThis.__mockUsers[idx], profile: { ...globalThis.__mockUsers[idx].profile, ...body.profile, status: body.status || globalThis.__mockUsers[idx].profile.status }, role: body.role || globalThis.__mockUsers[idx].role, permissions: body.permissions || globalThis.__mockUsers[idx].permissions };
+            return sendJson(res, globalThis.__mockUsers[idx]);
+          }
+          return sendJson(res, { error: 'User not found' }, 404);
+        }
+        if (userMatch && method === 'DELETE') {
+          globalThis.__mockUsers = globalThis.__mockUsers.filter(u => u.id !== parseInt(userMatch[1], 10));
+          return sendJson(res, { message: 'Deleted' });
+        }
+
+        const userPermMatch = path.match(/^\/api\/users\/(\d+)\/permissions$/);
+        if (userPermMatch && method === 'PUT') {
+          const body = await getRequestBody(req);
+          const idx = globalThis.__mockUsers.findIndex(u => u.id === parseInt(userPermMatch[1], 10));
+          if (idx !== -1) { globalThis.__mockUsers[idx].permissions = { ...globalThis.__mockUsers[idx].permissions, ...body }; return sendJson(res, globalThis.__mockUsers[idx]); }
+          return sendJson(res, { error: 'User not found' }, 404);
+        }
+
+        // ─── User/Profile ────────────────────────────────────────────────────
+        if (path === '/api/user/profile' && method === 'GET') {
+          const u = getUserFromToken(req);
+          return sendJson(res, u ? u.profile : (globalThis.__mockUsers[0]?.profile || {}));
+        }
+        if (path === '/api/user/profile' && method === 'PUT') {
+          const body = await getRequestBody(req);
+          const tokenUser = getUserFromToken(req);
+          const idx = tokenUser
+            ? globalThis.__mockUsers.findIndex(u => u.id === tokenUser.id)
+            : globalThis.__mockUsers.findIndex(u => u.profile?.email === body.email || u.profile?.employeeId === body.employeeId);
+          if (idx !== -1) {
+            globalThis.__mockUsers[idx].profile = { ...globalThis.__mockUsers[idx].profile, ...body };
+            if (body.role) globalThis.__mockUsers[idx].role = body.role;
+          }
+          return sendJson(res, body);
+        }
+
+        // ─── Dashboard endpoints ──────────────────────────────────────────────
         if (path === '/api/dashboard/summary' && method === 'GET') {
           return sendJson(res, {
             mrr: { value: 15450.00, changePercent: 5.4 },
@@ -225,6 +769,7 @@ export default function mockApiPlugin() {
             unpaid_invoices: { value: 1330.00, changePercent: -15.4 }
           });
         }
+
         if (path === '/api/dashboard/metrics' && method === 'GET') {
           const type = url.searchParams.get('type') || 'mrr';
           const points = [];

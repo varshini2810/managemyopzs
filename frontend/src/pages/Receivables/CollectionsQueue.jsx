@@ -15,9 +15,9 @@ export default function CollectionsQueue() {
 
   useEffect(() => {
     setLoading(true);
-    // Use invoices endpoint filtering for OVERDUE if possible, or just search
-    api.get(`/invoices?page=${page}&size=20&search=${debouncedSearch}&status=PAYMENT_DUE`)
-      .then(res => {
+    api
+      .get(`/invoices?page=${page}&size=20&search=${debouncedSearch}&status=PAYMENT_DUE`)
+      .then((res) => {
         setData(res.data.data?.content || []);
         setTotalElements(res.data.data?.totalElements || 0);
       })
@@ -29,7 +29,7 @@ export default function CollectionsQueue() {
     { header: 'Invoice ID', cell: (row) => <span className="font-mono text-xs">{row.id}</span> },
     { header: 'Customer ID', cell: (row) => row.customerId },
     { header: 'Amount Due', cell: (row) => <span className="text-red-600 font-medium">${row.amountDue.toFixed(2)}</span> },
-    { header: 'Status', cell: (row) => <StatusBadge status={row.status} /> }
+    { header: 'Status', cell: (row) => <StatusBadge status={row.status} /> },
   ];
 
   return (
@@ -49,18 +49,20 @@ export default function CollectionsQueue() {
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={14} />
-            <input 
-              type="text" 
-              className="input pl-9 h-10 w-80 text-sm" 
-              placeholder="Search by Customer Name or Invoice ID..." 
+            <input
+              type="text"
+              className="input pl-9 h-10 w-80 text-sm"
+              placeholder="Search by Customer Name or Invoice ID..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
         </div>
-        
         <div className="bg-surface border border-gray-200 rounded-lg overflow-hidden">
-          <DataTable 
+          <DataTable
             columns={columns}
             data={data}
             loading={loading}
