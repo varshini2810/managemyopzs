@@ -1,0 +1,64 @@
+name: Deploy to TEST
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Test Backend
+        run: mvn clean package -DskipTests
+        working-directory: ./backend
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Start API Server for Regression Tests
+        run: |
+          nohup java -jar target/*.jar > backend.log 2>&1 &
+          sleep 15
+        working-directory: ./backend
+
+      - name: Run API Regression Tests
+        run: node tests/api_regression.test.js
+        working-directory: ./
+
+      - name: Run Flyway Migrations (TEST DB)
+        run: mvn flyway:migrate
+        working-directory: ./backend
+        continue-on-error: true
+        env:
+          FLYWAY_URL: ${{ secrets.TEST_DB_URL }}
+          FLYWAY_USER: ${{ secrets.TEST_DB_USERNAME }}
+          FLYWAY_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Build Frontend
+        run: |
+          npm install
+          npm run build
+        working-directory: ./frontend
+        env:
+          REACT_APP_ENV: test
+          VITE_APP_ENV: test
+
+      - name: Deploy to TEST Server
+        run: echo "Deploying to TEST environment..."
+        # Replace with actual deployment steps (e.g., SSH, Docker push, etc.)

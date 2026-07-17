@@ -1,0 +1,13 @@
+-- V28: Alter ENUM columns to VARCHAR to align with JPA Entity expectations and satisfy strict Hibernate validation
+ALTER TABLE audit_logs MODIFY COLUMN action VARCHAR(100) NOT NULL;
+ALTER TABLE users MODIFY COLUMN status VARCHAR(50) NOT NULL;
+ALTER TABLE tenants MODIFY COLUMN status VARCHAR(50) NOT NULL;
+ALTER TABLE roles MODIFY COLUMN scope VARCHAR(50) NOT NULL;
+ALTER TABLE invoices MODIFY COLUMN payment_status VARCHAR(50) NULL;
+ALTER TABLE custom_fields MODIFY COLUMN entity_type VARCHAR(50) NOT NULL;
+ALTER TABLE custom_fields MODIFY COLUMN field_type VARCHAR(50) NOT NULL;
+ALTER TABLE payment_gateways MODIFY COLUMN mode VARCHAR(50) NOT NULL DEFAULT 'test';
+ALTER TABLE tax_config MODIFY COLUMN price_type VARCHAR(50) NOT NULL DEFAULT 'exclusive';
+ALTER TABLE tax_regions MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'active';
+ALTER TABLE api_keys MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'active';
+ALTER TABLE webhooks MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'active';
