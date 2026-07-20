@@ -1,4 +1,0 @@
-ALTER TABLE expenses 
-ADD COLUMN created_by VARCHAR(100),
-ADD COLUMN updated_by VARCHAR(100),
-ADD COLUMN deleted_at TIMESTAMP;
