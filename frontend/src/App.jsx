@@ -6,6 +6,7 @@ import { SuiteProvider } from "./store/SuiteContext"; // Layout
 import PageWrapper from "./components/layout/PageWrapper";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import PortalLoginPage from "./pages/Auth/PortalLoginPage";
+import AccessDenied from "./pages/Auth/AccessDenied";
 import Dashboard from "./pages/Home/Dashboard";
 import InvoiceManagement from "./pages/InvoiceManagement/InvoiceManagement";
 import ExpenseManagement from "./pages/Expenses/Expenses";
@@ -105,6 +106,7 @@ export default function App() {
               path="/login/user"
               element={<PortalLoginPage portalType="user" />}
             />{" "}
+            <Route path="/access-denied" element={<AccessDenied />} />{" "}
             {/* PROTECTED LAYOUT */}{" "}
             <Route
               element={
@@ -194,15 +196,18 @@ export default function App() {
                 <Route path="notifications" element={<OpzNotifications />} />{" "}
                 <Route path="security" element={<Security />} />{" "}
               </Route>{" "}
-              {/* Platform Console */}{" "}
-              <Route path="/platform-console" element={<PlatformConsole />} />{" "}
+              {/* Platform Console */}
               <Route
-                path="/platform-console/clients"
-                element={<AllClients />}
-              />{" "}
-              <Route
-                path="/platform-console/clients/new"
-                element={<AddClientWizard />}
+                path="/platform-console/*"
+                element={
+                  <ProtectedRoute requiredRole="ULTRASUPERADMIN">
+                    <Routes>
+                      <Route path="" element={<PlatformConsole />} />
+                      <Route path="clients" element={<AllClients />} />
+                      <Route path="clients/new" element={<AddClientWizard />} />
+                    </Routes>
+                  </ProtectedRoute>
+                }
               />{" "}
               {/* CPQ SUITE */}{" "}
               <Route path="/cpq/quotes" element={<Quotes />} />{" "}

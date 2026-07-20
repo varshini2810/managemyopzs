@@ -1,3 +1,4 @@
+import { hasMinRole } from '../../utils/rbac';
 import React from "react";
 import {
   Search,
@@ -57,7 +58,7 @@ function SuiteSwitcher() {
 
   const hasAccess = (permission, suiteId) => {
     if (!user) return false;
-    if (user.role === "ULTRASUPERADMIN" || user.role === "SUPERADMIN") return true;
+    if (hasMinRole(user?.role, "SUPERADMIN")) return true;
     const hasRolePermission = user.permissions?.includes(permission);
     if (!hasRolePermission) return false;
     if (user.grantedModules && user.grantedModules.length > 0) {

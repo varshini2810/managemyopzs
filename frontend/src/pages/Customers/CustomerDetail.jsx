@@ -1,4 +1,5 @@
 import { useAuth } from "../../store/AuthContext";
+import { hasMinRole } from '../../utils/rbac';
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -216,7 +217,7 @@ export default function CustomerDetail() {
               <h3 className="text-lg font-semibold text-ink">
                 Payment Methods
               </h3>{" "}
-              {user?.role !== "USER" && (
+              {hasMinRole(user?.role, "ADMIN") && (
                 <button className="btn-primary btn-sm">
                   Add Payment Method
                 </button>
@@ -271,7 +272,7 @@ export default function CustomerDetail() {
                       </div>{" "}
                     </div>{" "}
                   </div>{" "}
-                  {!pm.primary && user?.role !== "USER" && (
+                  {!pm.primary && hasMinRole(user?.role, "ADMIN") && (
                     <button
                       className="btn-ghost btn-sm"
                       onClick={() => handleSetPrimary(pm.id)}
@@ -292,7 +293,7 @@ export default function CustomerDetail() {
               <h3 className="text-lg font-semibold text-ink">
                 Additional Contacts
               </h3>{" "}
-              {user?.role !== "USER" && (
+              {hasMinRole(user?.role, "ADMIN") && (
                 <button className="btn-primary btn-sm">Add Contact</button>
               )}{" "}
             </div>{" "}

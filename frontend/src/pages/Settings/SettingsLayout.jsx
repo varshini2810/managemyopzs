@@ -1,3 +1,4 @@
+import { hasMinRole } from '../../utils/rbac';
 import React from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
@@ -37,7 +38,7 @@ export default function SettingsLayout() {
     { label: "Access Control", to: "/settings/access-control", icon: Key },
     { label: "Notifications", to: "/settings/notifications", icon: Bell },
     { label: "Security", to: "/settings/security", icon: Shield },
-  ].filter((item) => !(item.ultraOnly && user?.role !== "ULTRASUPERADMIN"));
+  ].filter((item) => !(item.ultraOnly && !hasMinRole(user?.role, "ULTRASUPERADMIN")));
   return (
     <div className="p-8 max-w-7xl mx-auto animate-fade-in">
       {" "}

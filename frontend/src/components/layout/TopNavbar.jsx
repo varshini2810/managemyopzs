@@ -1,3 +1,4 @@
+import { hasMinRole } from '../../utils/rbac';
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../store/AuthContext";
 import api from "../../services/api";
@@ -20,7 +21,7 @@ export default function TopNavbar() {
   const [theme, setTheme] = useState("light");
   const [showNotifications, setShowNotifications] = useState(false);
   useEffect(() => {
-    if (user?.role === "ULTRASUPERADMIN") {
+    if (hasMinRole(user?.role, "ULTRASUPERADMIN")) {
       api
         .get("/admin/clients")
         .then((res) => {
@@ -53,7 +54,7 @@ export default function TopNavbar() {
         .toUpperCase()
     : "U";
   const roleLabel =
-    user?.role === "ULTRASUPERADMIN"
+    hasMinRole(user?.role, "ULTRASUPERADMIN")
       ? "Platform Owner"
       : user?.role === "SUPERADMIN"
         ? "System Admin"
@@ -87,7 +88,7 @@ export default function TopNavbar() {
           </div>{" "}
         </div>{" "}
         {/* ULTRASUPERADMIN Tenant Toggle */}{" "}
-        {user?.role === "ULTRASUPERADMIN" && (
+        {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
           <div className="ml-4 flex items-center gap-2 text-xs font-medium text-muted bg-bg-main px-3 py-1.5 rounded-card border border-border">
             {" "}
             <Building2 size={14} className="text-muted" />{" "}

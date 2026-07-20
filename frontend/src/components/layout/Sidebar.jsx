@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { hasMinRole } from "../../utils/rbac";
 import {
   ChevronLeft,
   ChevronRight,
@@ -119,7 +120,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
       >
         {" "}
         {/* Platform Console (ULTRASUPERADMIN ONLY) */}{" "}
-        {user?.role === "ULTRASUPERADMIN" && (
+        {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
           <div className="mb-8">
             {" "}
             {!collapsed && (
@@ -296,7 +297,7 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
                   navigate("/settings/security");
                 }}
               />{" "}
-              {user?.role === "ULTRASUPERADMIN" && (
+              {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
                 <MenuItem
                   icon={ArrowRightLeft}
                   label="Change Portal"
@@ -348,7 +349,7 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
           )}{" "}
         </div>{" "}
       </div>{" "}
-      {user?.role === "ULTRASUPERADMIN" && (
+      {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
         <ChangePortalModal
           isOpen={changePortalOpen}
           onClose={() => setChangePortalOpen(false)}
