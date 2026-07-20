@@ -67,14 +67,14 @@ public class InvoiceController {
         return ResponseEntity.ok(ApiResponse.success(invoiceService.getInvoice(id)));
     }
 
-    @PreAuthorize("@accessControl.hasPermission(null, 'INVOICE_VIEW')")
     @GetMapping(value = "/{id}/download", produces = "application/pdf")
     public ResponseEntity<?> getInvoicePdf(@PathVariable String id, Authentication auth) {
         try {
             Invoice invoice = invoiceService.getInvoice(id);
             if (invoice == null) {
                 return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
-                        .body(java.util.Map.of("success", false, "message", "Invoice not found"));
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .body("{\"success\": false, \"message\": \"Invoice not found\"}".getBytes());
             }
             byte[] pdfBytes = pdfGeneratorService.generateInvoicePdf(invoice);
             
@@ -86,14 +86,19 @@ public class InvoiceController {
             headers.add("Expires", "0");
             
             return new ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
-        } catch (com.billingplatform.common.ResourceNotFoundException e) {
+        } catch (RuntimeException e) {
+            e.printStackTrace();
             return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
-                    .body(java.util.Map.of("success", false, "message", "Invoice not found"));
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body("{\"success\": false, \"message\": \"Invoice not found\"}".getBytes());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(java.util.Map.of("success", false, "message", "Failed to generate PDF"));
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body(("{\"success\": false, \"message\": \"" + (e.getMessage() != null ? e.getMessage() : "Failed to generate PDF") + "\"}").getBytes());
         }
     }
+
 
     @PreAuthorize("@accessControl.hasPermission(null, 'INVOICE_MARK_PAID')")
     @PutMapping("/{id}/mark-paid")

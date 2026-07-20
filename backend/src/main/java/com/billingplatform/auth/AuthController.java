@@ -149,6 +149,7 @@ public class AuthController {
     }
 
     @Data
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     public static class LoginRequest {
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")

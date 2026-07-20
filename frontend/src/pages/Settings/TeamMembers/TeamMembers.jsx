@@ -50,7 +50,7 @@ export default function TeamMembers() {
           {" "}
           <h2 className="text-base font-bold text-ink flex items-center gap-2">
             {" "}
-            <Users size={16} className="text-accent" /> Team Members{" "}
+            <Users size={16} className="text-primary" /> Team Members{" "}
           </h2>{" "}
           <p className="text-sm text-muted mt-0.5">
             Manage users with access to this tenant workspace
@@ -118,7 +118,7 @@ export default function TeamMembers() {
       </div>{" "}
       {isInviteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-          <div className="bg-surface p-6 rounded-xl shadow-xl max-w-md w-full relative">
+          <div className="bg-surface p-6 rounded-card shadow-xl max-w-md w-full relative">
             {" "}
             <h2 className="text-xl font-display font-semibold mb-4">
               Invite Team Member
@@ -126,7 +126,7 @@ export default function TeamMembers() {
             {inviteLink ? (
               <div className="space-y-4">
                 {" "}
-                <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-card">
                   {" "}
                   <h3 className="font-semibold text-indigo-600 mb-2">
                     Member Invited!

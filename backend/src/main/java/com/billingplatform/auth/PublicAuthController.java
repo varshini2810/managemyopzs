@@ -43,7 +43,7 @@ public class PublicAuthController {
             return ResponseEntity.badRequest().body(ApiResponse.error("Email already in use"));
         }
 
-        Optional<Role> tenantAdminRole = roleRepository.findById("Tenant Admin");
+        Optional<Role> tenantAdminRole = roleRepository.findById("Admin");
         if (tenantAdminRole.isEmpty()) {
             return ResponseEntity.internalServerError().body(ApiResponse.error("System roles not initialized"));
         }

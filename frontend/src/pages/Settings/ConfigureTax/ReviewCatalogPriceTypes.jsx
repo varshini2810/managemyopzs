@@ -75,7 +75,7 @@ export default function ReviewCatalogPriceTypes({ onBack }) {
         <div className="card p-0 overflow-hidden">
           {" "}
           {/* Table header */}{" "}
-          <div className="px-5 py-3 bg-stone-50 border-b border-border grid grid-cols-3 text-2xs font-semibold text-muted uppercase tracking-wide">
+          <div className="px-5 py-3 bg-bg-main border-b border-border grid grid-cols-3 text-2xs font-semibold text-muted uppercase tracking-wide">
             {" "}
             <span>Currency</span> <span>Price Type</span> <span />{" "}
           </div>{" "}
@@ -86,7 +86,7 @@ export default function ReviewCatalogPriceTypes({ onBack }) {
                 key={cur.code}
                 id={`currency-row-${cur.code}`}
                 onClick={() => setModal({ open: true, currency: cur.code })}
-                className={`w-full text-left grid grid-cols-3 items-center px-5 py-4 hover:bg-stone-50 transition-colors ${idx !== DEFAULT_CURRENCIES.length - 1 ? "border-b border-border" : ""} `}
+                className={`w-full text-left grid grid-cols-3 items-center px-5 py-4 hover:bg-bg-main transition-colors ${idx !== DEFAULT_CURRENCIES.length - 1 ? "border-b border-border" : ""} `}
               >
                 {" "}
                 {/* Currency info */}{" "}
@@ -105,7 +105,7 @@ export default function ReviewCatalogPriceTypes({ onBack }) {
                 <div>
                   {" "}
                   <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${type === "exclusive" ? "bg-stone-100 text-ink border border-border" : "bg-blue-50 text-accent border border-blue-200"}`}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${type === "exclusive" ? "bg-bg-main text-ink border border-border" : "bg-blue-50 text-primary border border-blue-200"}`}
                   >
                     {" "}
                     Tax {type.charAt(0).toUpperCase() + type.slice(1)}{" "}

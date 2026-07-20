@@ -295,7 +295,7 @@ function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
     <div
-      className="rounded-xl py-3 px-4"
+      className="rounded-card py-3 px-4"
       style={{
         background: T.navy,
         border: "none",
@@ -447,7 +447,7 @@ function Card({ children, title, subtitle, action, className = "" }) {
 function PeriodToggle({ value, onChange }) {
   return (
     <div
-      className="flex items-center p-1 rounded-xl"
+      className="flex items-center p-1 rounded-card"
       style={{ background: "#F1F5F9", border: "1px solid " + T.border }}
     >
       {" "}
@@ -455,7 +455,7 @@ function PeriodToggle({ value, onChange }) {
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200"
+          className="px-4 py-1.5 rounded-card text-sm font-semibold transition-all duration-200"
           style={{
             background: value === opt ? T.primary : "transparent",
             color: value === opt ? "#fff" : T.textSec,
@@ -601,7 +601,7 @@ export default function Analytics() {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="appearance-none pl-9 pr-8 py-2.5 text-sm font-semibold rounded-xl cursor-pointer focus:outline-none"
+                className="appearance-none pl-9 pr-8 py-2.5 text-sm font-semibold rounded-card cursor-pointer focus:outline-none"
                 style={{
                   background: T.card,
                   border: "1px solid " + T.border,
@@ -634,7 +634,7 @@ export default function Analytics() {
             {} <PeriodToggle value={period} onChange={setPeriod} /> {}{" "}
             <button
               onClick={() => toast.success("Data refreshed")}
-              className="w-10 h-10 flex items-center justify-center rounded-xl transition-all hover:scale-105"
+              className="w-10 h-10 flex items-center justify-center rounded-card transition-all hover:scale-105"
               style={{
                 background: T.card,
                 border: "1px solid " + T.border,
@@ -651,7 +651,7 @@ export default function Analytics() {
                 exportData(data, "analytics-report");
                 toast.success("Report exported");
               }}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-card transition-all hover:opacity-90"
               style={{
                 background: T.primary,
                 color: "#fff",
@@ -765,7 +765,7 @@ export default function Analytics() {
                 <button
                   key={opt.id}
                   onClick={() => setActiveChart(opt.id)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
+                  className="px-3 py-1.5 rounded-card text-xs font-semibold transition-all duration-200"
                   style={{
                     background:
                       activeChart === opt.id ? opt.color + "18" : "transparent",
@@ -785,7 +785,7 @@ export default function Analytics() {
                   exportData(data, "revenue-trend");
                   toast.success("Chart exported");
                 }}
-                className="ml-2 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all hover:bg-gray-100"
+                className="ml-2 px-3 py-1.5 rounded-card text-xs font-semibold flex items-center gap-1.5 transition-all hover:bg-gray-100"
                 style={{ color: T.textSec, border: "1px solid " + T.border }}
               >
                 {" "}
@@ -884,7 +884,7 @@ export default function Analytics() {
                     exportData(data, "revenue-vs-expenses");
                     toast.success("Exported");
                   }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all hover:bg-gray-100"
+                  className="px-3 py-1.5 rounded-card text-xs font-semibold flex items-center gap-1.5 transition-all hover:bg-gray-100"
                   style={{ color: T.textSec, border: "1px solid " + T.border }}
                 >
                   {" "}
@@ -1232,7 +1232,7 @@ export default function Analytics() {
                 exportData(TOP_CUSTOMERS, "top-customers");
                 toast.success("Customer report exported");
               }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-card transition-all hover:opacity-90"
               style={{
                 background: T.primary + "12",
                 color: T.primary,
@@ -1285,7 +1285,7 @@ export default function Analytics() {
                   >
                     <td className="py-4">
                       <span
-                        className="w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center"
+                        className="w-7 h-7 rounded-card text-xs font-bold flex items-center justify-center"
                         style={{
                           background: i < 3 ? T.primary + "12" : "#F1F5F9",
                           color: i < 3 ? T.primary : T.textSec,
@@ -1297,7 +1297,7 @@ export default function Analytics() {
                     <td className="py-4 pr-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+                          className="w-8 h-8 rounded-card flex items-center justify-center text-xs font-bold text-white"
                           style={{
                             background: `hsl(${(c.name.charCodeAt(0) * 37) % 360}, 55%, 52%)`,
                           }}
@@ -1478,7 +1478,7 @@ export default function Analytics() {
                   <div key={label} className="flex items-center gap-3 group">
                     {" "}
                     <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+                      className="w-9 h-9 rounded-card flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
                       style={{ background: color + "15" }}
                     >
                       {" "}
@@ -1517,7 +1517,7 @@ export default function Analytics() {
                 exportData(data, "performance-breakdown");
                 toast.success("Table exported");
               }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-card transition-all hover:opacity-90"
               style={{
                 background: T.primary + "12",
                 color: T.primary,

@@ -52,11 +52,11 @@ export default function EmailNotificationsDashboard({ onSelectCategory }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {" "}
         {/* Card 1 */}{" "}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+        <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200">
           {" "}
           <div className="flex items-center gap-3 mb-4">
             {" "}
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-card">
               {" "}
               <Mail size={20} />{" "}
             </div>{" "}
@@ -74,11 +74,11 @@ export default function EmailNotificationsDashboard({ onSelectCategory }) {
           </button>{" "}
         </div>{" "}
         {/* Card 2 */}{" "}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+        <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200">
           {" "}
           <div className="flex items-center gap-3 mb-4">
             {" "}
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-card">
               {" "}
               <Settings size={20} />{" "}
             </div>{" "}
@@ -97,11 +97,11 @@ export default function EmailNotificationsDashboard({ onSelectCategory }) {
           </button>{" "}
         </div>{" "}
         {/* Card 3 */}{" "}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+        <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200">
           {" "}
           <div className="flex items-center gap-3 mb-4">
             {" "}
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-card">
               {" "}
               <UserCircle size={20} />{" "}
             </div>{" "}
@@ -134,7 +134,7 @@ export default function EmailNotificationsDashboard({ onSelectCategory }) {
           <div
             key={cat.name}
             onClick={() => onSelectCategory(cat.name)}
-            className="bg-white p-5 rounded-lg shadow-sm border border-stone-200 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group flex flex-col justify-between"
+            className="bg-white p-5 rounded-card shadow-sm border border-stone-200 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group flex flex-col justify-between"
           >
             {" "}
             <div>

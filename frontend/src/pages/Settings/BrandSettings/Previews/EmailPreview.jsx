@@ -3,10 +3,10 @@ export default function EmailPreview({ logoUrl, accentColor }) {
   return (
     <div className="flex justify-center items-start w-full">
       {" "}
-      <div className="bg-white shadow-lg rounded-xl border border-stone-200 w-full max-w-lg overflow-hidden flex flex-col font-sans">
+      <div className="bg-white shadow-lg rounded-card border border-stone-200 w-full max-w-lg overflow-hidden flex flex-col font-sans">
         {" "}
         {/* Header */}{" "}
-        <div className="bg-stone-50 py-6 px-8 flex justify-center border-b border-stone-100">
+        <div className="bg-bg-main py-6 px-8 flex justify-center border-b border-stone-100">
           {" "}
           {logoUrl ? (
             <img src={logoUrl} alt="Logo" className="max-h-12 object-contain" />
@@ -32,7 +32,7 @@ export default function EmailPreview({ logoUrl, accentColor }) {
             is due soon. Please make sure your payment method is up to date to
             avoid any interruptions to your service.{" "}
           </p>{" "}
-          <div className="bg-stone-50 rounded-lg p-4 mb-8 border border-stone-100">
+          <div className="bg-bg-main rounded-card p-4 mb-8 border border-stone-100">
             {" "}
             <div className="flex justify-between items-center mb-2">
               {" "}
@@ -52,7 +52,7 @@ export default function EmailPreview({ logoUrl, accentColor }) {
           <div className="flex justify-center mb-6">
             {" "}
             <button
-              className="px-8 py-3 rounded-md text-white font-medium transition-opacity hover:opacity-90 shadow-sm"
+              className="px-8 py-3 rounded-button text-white font-medium transition-opacity hover:opacity-90 shadow-sm"
               style={{ backgroundColor: accentColor || "#2196F3" }}
             >
               {" "}
@@ -61,7 +61,7 @@ export default function EmailPreview({ logoUrl, accentColor }) {
           </div>{" "}
         </div>{" "}
         {/* Footer */}{" "}
-        <div className="bg-stone-50 py-4 text-center border-t border-stone-100">
+        <div className="bg-bg-main py-4 text-center border-t border-stone-100">
           {" "}
           <p className="text-xs text-stone-400">Powered by Opz</p>{" "}
         </div>{" "}

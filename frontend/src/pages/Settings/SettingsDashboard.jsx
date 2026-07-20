@@ -76,13 +76,13 @@ export default function SettingsDashboard() {
       {/* Recent Operations */}{" "}
       <div className="card p-0 overflow-hidden">
         {" "}
-        <div className="p-5 border-b border-border bg-stone-50/50">
+        <div className="p-5 border-b border-border bg-bg-main/50">
           <h2 className="font-bold text-ink">Recent Operations</h2>{" "}
         </div>{" "}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-stone-50 text-xs font-semibold text-muted uppercase tracking-wider border-b border-border">
+              <tr className="bg-bg-main text-xs font-semibold text-muted uppercase tracking-wider border-b border-border">
                 <th className="px-5 py-3">Operation</th>{" "}
                 <th className="px-5 py-3">Initiated By</th>{" "}
                 <th className="px-5 py-3">Status</th>{" "}
@@ -91,7 +91,7 @@ export default function SettingsDashboard() {
               {recentOps.map((op, i) => (
                 <tr
                   key={i}
-                  className="border-b border-border/50 hover:bg-stone-50/50 transition-colors"
+                  className="border-b border-border/50 hover:bg-bg-main/50 transition-colors"
                 >
                   <td className="px-5 py-3 font-medium text-ink">
                     {op.op}

@@ -26,14 +26,14 @@ export default function AlertsAndGoals() {
       <div className="flex items-center gap-6 border-b border-border">
         {" "}
         <button
-          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${tab === "alerts" ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}
+          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${tab === "alerts" ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"}`}
           onClick={() => setTab("alerts")}
         >
           {" "}
           Alerts{" "}
         </button>{" "}
         <button
-          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${tab === "goals" ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}
+          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${tab === "goals" ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"}`}
           onClick={() => setTab("goals")}
         >
           {" "}
@@ -76,7 +76,7 @@ export default function AlertsAndGoals() {
                   <td>MRR ($500k)</td>{" "}
                   <td>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-bg-main rounded-full overflow-hidden">
                         <div className="h-full bg-success w-[80%]" />{" "}
                       </div>{" "}
                       <span className="text-2xs text-muted tabular-nums">

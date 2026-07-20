@@ -53,7 +53,7 @@ export default function AllInvoicesReports() {
     toast.success("Exported to CSV");
   };
   return (
-    <div className="bg-surface rounded-lg border border-gray-200 p-6">
+    <div className="bg-surface rounded-card border border-gray-200 p-6">
       {" "}
       <div className="flex justify-between items-center mb-6 gap-4">
         {" "}

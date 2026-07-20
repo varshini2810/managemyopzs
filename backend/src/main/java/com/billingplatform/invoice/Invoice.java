@@ -127,4 +127,13 @@ public class Invoice extends com.billingplatform.common.BaseEntity {
         super.preUpdate();
         setUpdatedAt(LocalDateTime.now());
     }
+
+    public BigDecimal getDiscountTotal() {
+        if (lineItems == null) {
+            return BigDecimal.ZERO;
+        }
+        return lineItems.stream()
+                .map(item -> item.getDiscountAmount() != null ? item.getDiscountAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

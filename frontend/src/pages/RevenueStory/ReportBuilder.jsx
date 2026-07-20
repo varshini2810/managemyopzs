@@ -81,14 +81,14 @@ export default function ReportBuilder() {
         {/* Live Preview */}{" "}
         <div className="flex-1 card flex flex-col p-0 overflow-hidden">
           {" "}
-          <div className="px-4 py-3 border-b border-border bg-stone-50 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-border bg-bg-main flex items-center justify-between">
             {" "}
             <span className="font-medium text-sm">Live Preview</span>{" "}
             <span className="text-2xs text-muted">
               Showing top 50 rows
             </span>{" "}
           </div>{" "}
-          <div className="flex-1 overflow-auto bg-white p-4 flex items-center justify-center border-dashed border-2 border-border m-4 rounded">
+          <div className="flex-1 overflow-auto bg-white p-4 flex items-center justify-center border-dashed border-2 border-border m-4 rounded-card">
             {" "}
             <span className="text-muted text-sm">
               Select data source and columns to preview

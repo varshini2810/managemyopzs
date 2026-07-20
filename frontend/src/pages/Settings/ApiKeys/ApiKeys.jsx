@@ -145,7 +145,7 @@ export default function ApiKeys() {
         </div>{" "}
         {newKeyData && (
           <div
-            className="rounded-lg p-5 mb-6"
+            className="rounded-card p-5 mb-6"
             style={{ background: "#EDFAF3", border: "1px solid #6EBD97" }}
           >
             {" "}
@@ -174,7 +174,7 @@ export default function ApiKeys() {
                   reasons, <strong>we cannot show it to you again</strong>.{" "}
                 </p>{" "}
                 <div
-                  className="flex items-center gap-2 rounded-md p-2.5"
+                  className="flex items-center gap-2 rounded-card p-2.5"
                   style={{ background: "#FFFFFF", border: "1px solid #6EBD97" }}
                 >
                   {" "}
@@ -184,7 +184,7 @@ export default function ApiKeys() {
                   </code>{" "}
                   <button
                     onClick={() => copyToClipboard(newKeyData.rawKey)}
-                    className="btn-ghost p-1.5 rounded text-success hover:bg-success-light transition-colors"
+                    className="btn-ghost p-1.5 rounded-button text-success hover:bg-success-light transition-colors"
                     title="Copy to clipboard"
                   >
                     {" "}
@@ -204,12 +204,12 @@ export default function ApiKeys() {
         )}{" "}
         {!loading && keys.length === 0 ? (
           <div
-            className="bg-surface rounded-lg flex flex-col items-center justify-center py-20"
+            className="bg-surface rounded-card flex flex-col items-center justify-center py-20"
             style={{ border: "1px solid #E7E5E2" }}
           >
             {" "}
             <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+              className="w-12 h-12 rounded-card flex items-center justify-center mb-4"
               style={{ background: "#EEF2FF" }}
             >
               {" "}

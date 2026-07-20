@@ -156,7 +156,7 @@ export default function InvoiceAnalytics() {
   return (
     <div className="space-y-6">
       {" "}
-      <div className="bg-surface rounded-lg border border-gray-200 p-6 flex gap-4">
+      <div className="bg-surface rounded-card border border-gray-200 p-6 flex gap-4">
         {" "}
         <div className="flex-1">
           {" "}
@@ -211,7 +211,7 @@ export default function InvoiceAnalytics() {
           </select>{" "}
         </div>{" "}
       </div>{" "}
-      <div className="bg-surface rounded-lg border border-gray-200 p-6">
+      <div className="bg-surface rounded-card border border-gray-200 p-6">
         {" "}
         <h3 className="text-lg font-semibold mb-6">
           {metric} Over {range}

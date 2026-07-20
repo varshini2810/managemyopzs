@@ -4,7 +4,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
   return (
     <div className="flex justify-center items-start w-full">
       {" "}
-      <div className="bg-stone-50 shadow-md border border-stone-200 w-full max-w-4xl h-[500px] overflow-hidden flex font-sans rounded-lg">
+      <div className="bg-bg-main shadow-md border border-stone-200 w-full max-w-4xl h-[500px] overflow-hidden flex font-sans rounded-card">
         {" "}
         {/* Sidebar */}{" "}
         <div className="w-64 bg-white border-r border-stone-200 flex flex-col">
@@ -26,7 +26,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
           <div className="p-4 flex-1 space-y-1">
             {" "}
             <div
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium"
+              className="flex items-center gap-3 px-3 py-2 rounded-card text-sm font-medium"
               style={{
                 backgroundColor: `${accentColor || "#2196F3"}15`,
                 color: accentColor || "#2196F3",
@@ -35,15 +35,15 @@ export default function PortalPreview({ logoUrl, accentColor }) {
               {" "}
               <Home size={18} /> <span>Overview</span>{" "}
             </div>{" "}
-            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-stone-600 hover:bg-stone-50">
+            <div className="flex items-center gap-3 px-3 py-2 rounded-card text-sm font-medium text-stone-600 hover:bg-bg-main">
               {" "}
               <CreditCard size={18} /> <span>Subscriptions</span>{" "}
             </div>{" "}
-            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-stone-600 hover:bg-stone-50">
+            <div className="flex items-center gap-3 px-3 py-2 rounded-card text-sm font-medium text-stone-600 hover:bg-bg-main">
               {" "}
               <FileText size={18} /> <span>Invoices</span>{" "}
             </div>{" "}
-            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-stone-600 hover:bg-stone-50">
+            <div className="flex items-center gap-3 px-3 py-2 rounded-card text-sm font-medium text-stone-600 hover:bg-bg-main">
               {" "}
               <Settings size={18} /> <span>Settings</span>{" "}
             </div>{" "}
@@ -52,7 +52,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
             {" "}
             <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-stone-600">
               {" "}
-              <div className="w-8 h-8 rounded-lg bg-stone-200 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-card bg-stone-200 flex items-center justify-center">
                 {" "}
                 <User size={16} className="text-stone-500" />{" "}
               </div>{" "}
@@ -77,7 +77,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
           <div className="grid grid-cols-2 gap-6 mb-8">
             {" "}
             {/* Subscription Card */}{" "}
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+            <div className="bg-white p-6 rounded-card border border-stone-200 shadow-sm">
               {" "}
               <div className="flex justify-between items-start mb-4">
                 {" "}
@@ -102,27 +102,27 @@ export default function PortalPreview({ logoUrl, accentColor }) {
               <div className="flex gap-3">
                 {" "}
                 <button
-                  className="px-4 py-2 rounded-md text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-button text-white text-sm font-medium"
                   style={{ backgroundColor: accentColor || "#2196F3" }}
                 >
                   {" "}
                   Upgrade Plan{" "}
                 </button>{" "}
-                <button className="px-4 py-2 rounded-md text-stone-700 bg-white border border-stone-300 text-sm font-medium hover:bg-stone-50">
+                <button className="px-4 py-2 rounded-button text-stone-700 bg-white border border-stone-300 text-sm font-medium hover:bg-bg-main">
                   {" "}
                   Cancel{" "}
                 </button>{" "}
               </div>{" "}
             </div>{" "}
             {/* Payment Method Card */}{" "}
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+            <div className="bg-white p-6 rounded-card border border-stone-200 shadow-sm">
               {" "}
               <h3 className="text-stone-500 text-sm font-medium mb-4">
                 Default Payment Method
               </h3>{" "}
               <div className="flex items-center gap-4 mb-6">
                 {" "}
-                <div className="w-12 h-8 bg-stone-100 border border-stone-200 rounded flex items-center justify-center font-bold text-stone-400 text-xs">
+                <div className="w-12 h-8 bg-bg-main border border-stone-200 rounded-card flex items-center justify-center font-bold text-stone-400 text-xs">
                   {" "}
                   VISA{" "}
                 </div>{" "}
@@ -146,7 +146,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
             </div>{" "}
           </div>{" "}
           {/* Recent Invoices */}{" "}
-          <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-card border border-stone-200 shadow-sm overflow-hidden">
             {" "}
             <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center">
               {" "}
@@ -159,7 +159,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
             </div>{" "}
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="bg-stone-50 text-stone-500 border-b border-stone-100">
+                <tr className="bg-bg-main text-stone-500 border-b border-stone-100">
                   <th className="py-3 px-6 font-medium">Invoice</th>{" "}
                   <th className="py-3 px-6 font-medium">Amount</th>{" "}
                   <th className="py-3 px-6 font-medium">Date</th>{" "}
@@ -173,7 +173,7 @@ export default function PortalPreview({ logoUrl, accentColor }) {
                   <td className="py-3 px-6">$49.00</td>{" "}
                   <td className="py-3 px-6">Sep 26, 2023</td>{" "}
                   <td className="py-3 px-6">
-                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">
+                    <span className="px-2 py-0.5 rounded-card text-xs font-medium bg-green-50 text-green-700">
                       Paid
                     </span>{" "}
                   </td>{" "}

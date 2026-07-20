@@ -51,7 +51,7 @@ public class AdminTenantController {
                 .build();
         userRepository.save(admin);
 
-        Role tenantAdminRole = roleRepository.findById("Tenant Admin").orElseThrow();
+        Role tenantAdminRole = roleRepository.findById("Admin").orElseThrow();
         UserRoleAssignment assignment = UserRoleAssignment.builder()
                 .id("ura-" + UUID.randomUUID().toString())
                 .user(admin)

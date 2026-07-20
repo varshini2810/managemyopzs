@@ -12,7 +12,7 @@ function SkeletonRows({ columns, count = 8 }) {
       {columns.map((col, ci) => (
         <td key={ci} className="px-4 py-3">
           <div
-            className="skeleton rounded"
+            className="skeleton rounded-card"
             style={{
               height: 14,
               width:
@@ -72,7 +72,7 @@ export default function DataTable({
   };
   return (
     <div
-      className="bg-surface rounded-lg overflow-hidden"
+      className="bg-surface rounded-card overflow-hidden"
       style={{ border: "1px solid #E7E5E2" }}
     >
       {" "}
@@ -232,7 +232,7 @@ export default function DataTable({
       {/* ── Floating Bulk Action Bar ── */}{" "}
       {selected.size > 0 && (
         <div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-ink text-white rounded-lg shadow-tooltip"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-ink text-white rounded-card shadow-tooltip"
           style={{ border: "1px solid #2A2620" }}
         >
           {" "}

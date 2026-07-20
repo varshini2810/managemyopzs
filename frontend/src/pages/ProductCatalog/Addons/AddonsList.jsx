@@ -145,12 +145,12 @@ export default function AddonsList() {
         </div>{" "}
         {!loading && addons.length === 0 && search === "" ? (
           <div
-            className="bg-surface rounded-lg flex flex-col items-center justify-center py-20"
+            className="bg-surface rounded-card flex flex-col items-center justify-center py-20"
             style={{ border: "1px solid #E7E5E2" }}
           >
             {" "}
             <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+              className="w-12 h-12 rounded-card flex items-center justify-center mb-4"
               style={{ background: "#EEF2FF" }}
             >
               {" "}

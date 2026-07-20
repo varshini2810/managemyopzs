@@ -28,10 +28,10 @@ export default function Topbar() {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <button className="p-2 text-muted hover:text-ink hover:bg-stone-100 rounded-md transition-colors">
+        <button className="p-2 text-muted hover:text-ink hover:bg-bg-main rounded-button transition-colors">
           <HelpCircle size={20} />
         </button>
-        <button className="p-2 text-muted hover:text-ink hover:bg-stone-100 rounded-md transition-colors relative">
+        <button className="p-2 text-muted hover:text-ink hover:bg-bg-main rounded-button transition-colors relative">
           <Bell size={20} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border-2 border-surface"></span>
         </button>
@@ -75,9 +75,9 @@ function SuiteSwitcher() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-card hover:bg-bg-main transition-colors"
       >
-        <div className="w-6 h-6 bg-accent-light text-accent rounded flex items-center justify-center">
+        <div className="w-6 h-6 bg-primary-light text-primary rounded-card flex items-center justify-center">
           <LayoutGrid size={14} />
         </div>
         <span className="font-medium text-sm text-ink">
@@ -92,7 +92,7 @@ function SuiteSwitcher() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 w-56 bg-surface rounded-xl shadow-md border border-border py-1 z-20 animate-fade-in">
+          <div className="absolute top-full left-0 mt-2 w-56 bg-surface rounded-card shadow-md border border-border py-1 z-20 animate-fade-in">
             {suites.map((suite) => {
               const canAccess = hasAccess(suite.permission, suite.id);
               return (
@@ -104,7 +104,7 @@ function SuiteSwitcher() {
                       setIsOpen(false);
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${canAccess ? "hover:bg-stone-50 text-ink cursor-pointer" : "text-muted cursor-not-allowed opacity-60"} ${currentSuite === suite.id ? "bg-stone-50 font-semibold" : "font-medium"}`}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${canAccess ? "hover:bg-bg-main text-ink cursor-pointer" : "text-muted cursor-not-allowed opacity-60"} ${currentSuite === suite.id ? "bg-bg-main font-semibold" : "font-medium"}`}
                   title={!canAccess ? "No access — contact your admin." : ""}
                 >
                   <span>{suite.name}</span>

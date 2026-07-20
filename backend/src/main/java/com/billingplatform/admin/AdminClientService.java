@@ -76,10 +76,8 @@ public class AdminClientService {
         user = userRepository.save(user);
 
         // 3. Assign Role
-        Role adminRole = roleRepository.findAll().stream()
-                .filter(r -> r.getName().equals("Tenant Admin"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tenant Admin role not found"));
+        Role adminRole = roleRepository.findById("Admin")
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
                 
         UserRoleAssignment assignment = new UserRoleAssignment();
         assignment.setUser(user);

@@ -4,7 +4,7 @@ export default function StatusBadge({ status, className = "" }) {
   const s = (status || "").toLowerCase();
   
   let label = status;
-  let bgClass = "bg-stone-100 text-stone-600 border-stone-200";
+  let bgClass = "bg-bg-main text-stone-600 border-stone-200";
   let dotClass = "bg-stone-400";
   
   if (['active', 'live', 'connected', 'enabled', 'success', 'paid'].includes(s)) { 
@@ -13,11 +13,11 @@ export default function StatusBadge({ status, className = "" }) {
     dotClass = "bg-emerald-500";
   } else if (['inactive', 'disconnected', 'disabled'].includes(s)) { 
     label = s === 'disconnected' ? 'Disconnected' : s === 'disabled' ? 'Disabled' : 'Inactive'; 
-    bgClass = "bg-stone-100 text-stone-600 border-stone-200";
+    bgClass = "bg-bg-main text-stone-600 border-stone-200";
     dotClass = "bg-stone-400";
   } else if (['archived', 'deleted', 'voided'].includes(s)) { 
     label = s === 'voided' ? 'Voided' : 'Archived'; 
-    bgClass = "bg-stone-100 text-stone-600 border-stone-200";
+    bgClass = "bg-bg-main text-stone-600 border-stone-200";
     dotClass = "bg-stone-400";
   } else if (['expired', 'past_due', 'overdue', 'failed'].includes(s)) { 
     label = s === 'failed' ? 'Failed' : s === 'overdue' ? 'Overdue' : 'Expired'; 

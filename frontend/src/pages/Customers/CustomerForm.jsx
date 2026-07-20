@@ -221,7 +221,7 @@ export default function CustomerForm() {
                   type="checkbox"
                   id="taxExempt"
                   {...register("taxExempt")}
-                  className="rounded border-gray-300 text-accent focus:ring-accent"
+                  className="rounded-input border-gray-300 text-primary focus:ring-accent"
                 />{" "}
                 <label htmlFor="taxExempt" className="text-sm text-ink">
                   This customer is tax exempt

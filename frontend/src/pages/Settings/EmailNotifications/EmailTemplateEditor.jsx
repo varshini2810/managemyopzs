@@ -57,7 +57,7 @@ export default function EmailTemplateEditor({
         {" "}
         <button
           onClick={onBack}
-          className="p-2 hover:bg-stone-200 rounded-md transition-colors text-stone-600"
+          className="p-2 hover:bg-stone-200 rounded-button transition-colors text-stone-600"
         >
           {" "}
           <ArrowLeft size={20} />{" "}
@@ -77,7 +77,7 @@ export default function EmailTemplateEditor({
         {" "}
         <div className="lg:col-span-2 space-y-6">
           {" "}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+          <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200">
             {" "}
             <h2 className="text-lg font-semibold text-stone-900 mb-4">
               Template Settings
@@ -94,7 +94,7 @@ export default function EmailTemplateEditor({
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-input outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />{" "}
               </div>{" "}
               <div>
@@ -107,7 +107,7 @@ export default function EmailTemplateEditor({
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-input outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />{" "}
               </div>{" "}
               <div className="grid grid-cols-2 gap-4">
@@ -122,7 +122,7 @@ export default function EmailTemplateEditor({
                     name="senderName"
                     value={formData.senderName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-stone-300 rounded-input outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />{" "}
                 </div>{" "}
                 <div>
@@ -135,13 +135,13 @@ export default function EmailTemplateEditor({
                     name="senderEmail"
                     value={formData.senderEmail}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-stone-300 rounded-input outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />{" "}
                 </div>{" "}
               </div>{" "}
             </div>{" "}
           </div>{" "}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200 flex flex-col">
+          <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200 flex flex-col">
             {" "}
             <div className="flex justify-between items-center mb-4">
               {" "}
@@ -149,21 +149,21 @@ export default function EmailTemplateEditor({
                 Email Body
               </h2>{" "}
             </div>{" "}
-            <div className="border border-stone-300 rounded-md overflow-hidden flex flex-col min-h-[300px]">
+            <div className="border border-stone-300 rounded-card overflow-hidden flex flex-col min-h-[300px]">
               {" "}
-              <div className="bg-stone-50 border-b border-stone-300 p-2 flex gap-2">
+              <div className="bg-bg-main border-b border-stone-300 p-2 flex gap-2">
                 {" "}
-                <button className="px-2 py-1 text-sm font-bold text-stone-700 hover:bg-stone-200 rounded">
+                <button className="px-2 py-1 text-sm font-bold text-stone-700 hover:bg-stone-200 rounded-button">
                   B
                 </button>{" "}
-                <button className="px-2 py-1 text-sm italic text-stone-700 hover:bg-stone-200 rounded">
+                <button className="px-2 py-1 text-sm italic text-stone-700 hover:bg-stone-200 rounded-button">
                   I
                 </button>{" "}
-                <button className="px-2 py-1 text-sm underline text-stone-700 hover:bg-stone-200 rounded">
+                <button className="px-2 py-1 text-sm underline text-stone-700 hover:bg-stone-200 rounded-button">
                   U
                 </button>{" "}
                 <div className="w-px bg-stone-300 mx-1"></div>{" "}
-                <button className="px-2 py-1 text-sm text-stone-700 hover:bg-stone-200 rounded">
+                <button className="px-2 py-1 text-sm text-stone-700 hover:bg-stone-200 rounded-button">
                   &lt;/&gt;
                 </button>{" "}
               </div>{" "}
@@ -180,7 +180,7 @@ export default function EmailTemplateEditor({
         </div>{" "}
         <div className="space-y-6">
           {" "}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+          <div className="bg-white p-6 rounded-card shadow-sm border border-stone-200">
             {" "}
             <h3 className="text-sm font-bold text-stone-900 mb-3 uppercase tracking-wide">
               Dynamic Variables
@@ -194,7 +194,7 @@ export default function EmailTemplateEditor({
                 <button
                   key={v}
                   onClick={() => insertVariable(v)}
-                  className="px-2.5 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-mono hover:bg-blue-100 transition-colors"
+                  className="px-2.5 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-card text-xs font-mono hover:bg-blue-100 transition-colors"
                 >
                   {" "}
                   {v}{" "}
@@ -202,24 +202,24 @@ export default function EmailTemplateEditor({
               ))}{" "}
             </div>{" "}
           </div>{" "}
-          <div className="bg-stone-50 p-6 rounded-lg border border-stone-200 flex flex-col gap-3">
+          <div className="bg-bg-main p-6 rounded-card border border-stone-200 flex flex-col gap-3">
             {" "}
-            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-md text-stone-700 font-medium hover:bg-stone-50 transition-colors shadow-sm">
+            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-button text-stone-700 font-medium hover:bg-bg-main transition-colors shadow-sm">
               {" "}
               <Save size={18} /> Save Draft{" "}
             </button>{" "}
-            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-md text-stone-700 font-medium hover:bg-stone-50 transition-colors shadow-sm">
+            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-button text-stone-700 font-medium hover:bg-bg-main transition-colors shadow-sm">
               {" "}
               <Play size={18} /> Preview Email{" "}
             </button>{" "}
-            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-md text-stone-700 font-medium hover:bg-stone-50 transition-colors shadow-sm">
+            <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-stone-300 rounded-button text-stone-700 font-medium hover:bg-bg-main transition-colors shadow-sm">
               {" "}
               <Send size={18} /> Send Test Email{" "}
             </button>{" "}
             <hr className="my-2 border-stone-200" />{" "}
             <button
               onClick={handlePublish}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-md font-medium transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-button font-medium transition-colors shadow-sm"
             >
               {" "}
               <CheckCircle size={18} /> Publish{" "}

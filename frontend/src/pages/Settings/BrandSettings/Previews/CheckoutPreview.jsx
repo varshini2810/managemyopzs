@@ -4,10 +4,10 @@ export default function CheckoutPreview({ logoUrl, accentColor }) {
   return (
     <div className="flex justify-center items-start w-full">
       {" "}
-      <div className="bg-white shadow-xl rounded-xl border border-stone-200 w-full max-w-3xl overflow-hidden flex flex-col md:flex-row font-sans">
+      <div className="bg-white shadow-xl rounded-card border border-stone-200 w-full max-w-3xl overflow-hidden flex flex-col md:flex-row font-sans">
         {" "}
         {/* Left Side - Product Summary */}{" "}
-        <div className="w-full md:w-1/2 p-8 bg-stone-50 border-r border-stone-100 flex flex-col">
+        <div className="w-full md:w-1/2 p-8 bg-bg-main border-r border-stone-100 flex flex-col">
           {" "}
           <div className="mb-8">
             {" "}
@@ -96,7 +96,7 @@ export default function CheckoutPreview({ logoUrl, accentColor }) {
               <input
                 type="email"
                 placeholder="elon@spacex.com"
-                className="w-full p-2 border border-stone-300 rounded-md text-sm outline-none focus:ring-1"
+                className="w-full p-2 border border-stone-300 rounded-input text-sm outline-none focus:ring-1"
                 style={{ "--tw-ring-color": accentColor || "#2196F3" }}
               />{" "}
             </div>{" "}
@@ -106,7 +106,7 @@ export default function CheckoutPreview({ logoUrl, accentColor }) {
                 Card Information
               </label>{" "}
               <div
-                className="border border-stone-300 rounded-md overflow-hidden focus-within:ring-1"
+                className="border border-stone-300 rounded-card overflow-hidden focus-within:ring-1"
                 style={{ "--tw-ring-color": accentColor || "#2196F3" }}
               >
                 {" "}
@@ -138,12 +138,12 @@ export default function CheckoutPreview({ logoUrl, accentColor }) {
               <input
                 type="text"
                 placeholder="Elon Musk"
-                className="w-full p-2 border border-stone-300 rounded-md text-sm outline-none focus:ring-1"
+                className="w-full p-2 border border-stone-300 rounded-input text-sm outline-none focus:ring-1"
                 style={{ "--tw-ring-color": accentColor || "#2196F3" }}
               />{" "}
             </div>{" "}
             <button
-              className="w-full py-3 rounded-md text-white font-medium mt-4 shadow-sm hover:opacity-90 transition-opacity"
+              className="w-full py-3 rounded-button text-white font-medium mt-4 shadow-sm hover:opacity-90 transition-opacity"
               style={{ backgroundColor: accentColor || "#2196F3" }}
             >
               {" "}

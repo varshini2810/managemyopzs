@@ -1,0 +1,5 @@
+[builtin:vite-transform] Expected corresponding JSX closing tag for 'GlobalTenantGuard'.
+ - Opened here in src/pages/Invoices/InvoiceWizard.jsx at 8034..8051
+    ╭─[ src/pages/Invoices/InvoiceWizard.jsx:36:13934 ]
+[builtin:vite-transform] Unexpected token
+    ╭─[ src/pages/Invoices/InvoiceWizard.jsx:36:13964 ]

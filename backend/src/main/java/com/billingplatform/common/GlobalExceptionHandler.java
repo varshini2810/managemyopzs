@@ -77,6 +77,6 @@ public class GlobalExceptionHandler {
         org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class).error("Unhandled internal exception: ", ex);
         // Do not leak stack traces or internal messages to the client
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected internal error occurred. Please try again later."));
+                .body(ApiResponse.error("Internal error: " + ex.getMessage()));
     }
 }

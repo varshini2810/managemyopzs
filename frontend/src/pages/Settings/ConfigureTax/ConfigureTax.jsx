@@ -120,12 +120,12 @@ export default function ConfigureTax() {
                 key={option.id}
                 id={`tax-option-${option.id}`}
                 onClick={() => setShowDashboard(true)}
-                className={`w-full text-left flex items-center gap-4 px-6 py-4 group transition-colors hover:bg-stone-50 ${idx !== TAX_OPTIONS.length - 1 ? "border-b border-border" : ""} `}
+                className={`w-full text-left flex items-center gap-4 px-6 py-4 group transition-colors hover:bg-bg-main ${idx !== TAX_OPTIONS.length - 1 ? "border-b border-border" : ""} `}
               >
                 {" "}
                 {/* Icon */}{" "}
                 <div
-                  className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                  className="shrink-0 w-9 h-9 rounded-card flex items-center justify-center"
                   style={{ background: "#EEF2FF" }}
                 >
                   {" "}

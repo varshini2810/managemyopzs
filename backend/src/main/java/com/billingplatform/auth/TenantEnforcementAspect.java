@@ -18,8 +18,8 @@ public class TenantEnforcementAspect {
             HttpServletRequest request = attr.getRequest();
             String uri = request.getRequestURI();
             
-            // Skip auth, tenants, webhooks, and public endpoints
-            if (uri.startsWith("/api/auth") || uri.startsWith("/api/tenants") || uri.startsWith("/api/webhooks") || uri.startsWith("/api/public")) {
+            // Skip auth, tenants, webhooks, public, and admin endpoints
+            if (uri.startsWith("/api/auth") || uri.startsWith("/api/tenants") || uri.startsWith("/api/webhooks") || uri.startsWith("/api/public") || uri.startsWith("/api/admin")) {
                 return;
             }
 

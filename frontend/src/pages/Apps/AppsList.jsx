@@ -86,7 +86,7 @@ export default function AppsList() {
               {" "}
               <div className="flex items-center justify-between mb-4">
                 {" "}
-                <div className="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center border border-gray-100">
+                <div className="w-12 h-12 bg-slate-50 rounded-card flex items-center justify-center border border-gray-100">
                   {" "}
                   {getIcon(app.appId)}{" "}
                 </div>{" "}

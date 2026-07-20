@@ -46,7 +46,7 @@ export default function SettingsLayout() {
         title="Settings & Configuration"
         subtitle="Manage your platform preferences, team access, and integrations."
       />{" "}
-      <div className="flex flex-col lg:flex-row gap-6 items-start mt-6">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {" "}
         {/* Left column: config modules vertical menu */}{" "}
         <div className="card w-full lg:w-64 shrink-0 p-4">
@@ -58,7 +58,7 @@ export default function SettingsLayout() {
               to="/settings"
               end
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-accent text-white shadow-sm" : "text-muted hover:bg-stone-50 hover:text-ink"}`
+                `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-card transition-colors ${isActive ? "bg-primary text-white shadow-sm" : "text-muted hover:bg-bg-main hover:text-ink"}`
               }
             >
               {" "}
@@ -69,7 +69,7 @@ export default function SettingsLayout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-accent text-white shadow-sm" : "text-muted hover:bg-stone-50 hover:text-ink"}`
+                  `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-card transition-colors ${isActive ? "bg-primary text-white shadow-sm" : "text-muted hover:bg-bg-main hover:text-ink"}`
                 }
               >
                 {" "}

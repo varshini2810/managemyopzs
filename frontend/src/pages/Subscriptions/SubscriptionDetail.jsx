@@ -132,7 +132,7 @@ export default function SubscriptionDetail() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === t.id ? "border-accent text-ink" : "border-transparent text-muted hover:text-ink"}`}
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === t.id ? "border-primary text-ink" : "border-transparent text-muted hover:text-ink"}`}
             >
               {" "}
               {t.label}{" "}
@@ -215,7 +215,7 @@ export default function SubscriptionDetail() {
                     <div className="font-medium text-sm text-ink">
                       {evt.eventType}
                     </div>{" "}
-                    <div className="text-xs text-muted font-mono bg-gray-50 p-2 rounded mt-1">
+                    <div className="text-xs text-muted font-mono bg-gray-50 p-2 rounded-card mt-1">
                       {evt.details}
                     </div>{" "}
                   </div>{" "}

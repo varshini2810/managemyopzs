@@ -22,7 +22,7 @@ export default function Security() {
         ].map((tab) => (
           <button
             key={tab.id}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === tab.id ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === tab.id ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {" "}
@@ -90,7 +90,7 @@ export default function Security() {
       {activeTab === "audit" && (
         <div className="card p-0">
           {" "}
-          <div className="p-4 border-b border-border flex items-center gap-4 bg-stone-50 justify-between">
+          <div className="p-4 border-b border-border flex items-center gap-4 bg-bg-main justify-between">
             {" "}
             <input
               type="text"
@@ -111,7 +111,7 @@ export default function Security() {
                     admin@billing.com
                   </td>{" "}
                   <td>UPDATE_PLAN_PRICE</td>{" "}
-                  <td className="font-mono-sm bg-stone-100 px-1 py-0.5 rounded">
+                  <td className="font-mono-sm bg-bg-main px-1 py-0.5 rounded-card">
                     plan_8a92b
                   </td>{" "}
                   <td>192.168.1.105</td>{" "}
@@ -119,7 +119,7 @@ export default function Security() {
                 <tr>
                   <td className="font-medium text-ink">system</td>{" "}
                   <td>GENERATE_INVOICE</td>{" "}
-                  <td className="font-mono-sm bg-stone-100 px-1 py-0.5 rounded">
+                  <td className="font-mono-sm bg-bg-main px-1 py-0.5 rounded-card">
                     inv_3391c
                   </td>{" "}
                   <td>10.0.0.1</td>{" "}

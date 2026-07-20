@@ -61,7 +61,7 @@ export default function CollectionsQueue() {
             />
           </div>
         </div>
-        <div className="bg-surface border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-surface border border-gray-200 rounded-card overflow-hidden">
           <DataTable
             columns={columns}
             data={data}

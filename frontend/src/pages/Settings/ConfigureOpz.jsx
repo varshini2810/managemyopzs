@@ -56,13 +56,13 @@ export default function ConfigureOpz() {
         </p>{" "}
       </div>{" "}
       {/* Horizontal tab strip */}{" "}
-      <div className="flex flex-wrap gap-1 bg-stone-100 p-1 rounded-xl">
+      <div className="flex flex-wrap gap-1 bg-bg-main p-1 rounded-card">
         {" "}
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === tab.id ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-card transition-colors ${activeTab === tab.id ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}
           >
             {" "}
             {tab.label}{" "}

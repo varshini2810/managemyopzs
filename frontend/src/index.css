@@ -15,15 +15,24 @@
 
   html {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 14px;
+    font-size: 11px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     background-color: theme('colors.bg');
-    @apply text-ink;
+    color: theme('colors.muted');
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.35;
     font-feature-settings: 'cv11', 'ss01', 'kern';
+  }
+
+  h1, .page-title {
+    font-size: 21px;
+    font-weight: 700;
+    color: theme('colors.ink');
   }
 
   /* Tabular nums globally for data — critical for billing alignment */
@@ -43,24 +52,23 @@
 @layer components {
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-btn
            transition-all duration-150 ease-in-out focus:outline-none select-none cursor-pointer;
   }
   .btn:active { transform: scale(0.97); }
 
   .btn-primary {
-    @apply btn bg-accent text-white border border-accent
-           hover:bg-accent-hover hover:border-accent-hover hover:shadow-md
+    @apply btn bg-primary text-white border border-primary
+           hover:bg-primary-hover hover:border-primary-hover hover:shadow-card
            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none
-           focus-visible:ring-4 focus-visible:ring-accent-light focus-visible:border-accent;
-    box-shadow: 0 1px 2px rgba(79,70,229,0.2);
+           focus-visible:ring-4 focus-visible:ring-primary/20 focus-visible:border-primary;
   }
 
   .btn-secondary {
-    @apply btn bg-surface text-ink border border-border shadow-sm
-           hover:bg-stone-50 hover:border-border-strong
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-stone-50
-           focus-visible:ring-4 focus-visible:ring-stone-200 focus-visible:border-border-strong;
+    @apply btn bg-surface text-ink border border-gray-border shadow-card
+           hover:bg-bg-main hover:border-gray-divider
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-bg-main
+           focus-visible:ring-4 focus-visible:ring-stone-200 focus-visible:border-gray-divider;
   }
 
   .btn-danger {
@@ -70,7 +78,7 @@
   }
 
   .btn-ghost {
-    @apply btn text-muted hover:text-ink hover:bg-stone-100
+    @apply btn text-muted hover:text-ink hover:bg-bg-main
            border border-transparent;
   }
 
@@ -88,11 +96,11 @@
 
   .input {
     @apply block w-full px-3 py-2 bg-surface text-ink text-sm
-           border border-border rounded-md placeholder-subtle
+           border border-gray-border rounded-button placeholder-subtle
            transition-all duration-150 ease-in-out
-           focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent-light
-           hover:border-border-strong
-           disabled:bg-stone-50 disabled:text-muted disabled:cursor-not-allowed disabled:border-border;
+           focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20
+           hover:border-gray-divider
+           disabled:bg-bg-main disabled:text-muted disabled:cursor-not-allowed disabled:border-gray-border;
     box-shadow: none;
   }
   .input-error {
@@ -112,20 +120,20 @@
   }
 
   .error-msg {
-    @apply text-2xs text-danger mt-1 flex items-center gap-1;
+    @apply text-xs-role text-danger mt-1 flex items-center gap-1;
   }
 
   /* === CARDS === */
   .card {
-    @apply bg-surface border border-border rounded-xl p-6 shadow-sm;
+    @apply bg-surface border border-gray-border rounded-card p-6 shadow-card;
   }
   .card-sm {
-    @apply bg-surface border border-border rounded-xl p-4 shadow-sm;
+    @apply bg-surface border border-gray-border rounded-card p-4 shadow-card;
   }
 
   /* === TABLES === */
   .tbl-wrapper {
-    @apply overflow-x-auto rounded-lg border border-border bg-surface shadow-sm;
+    @apply overflow-x-auto rounded-card border border-gray-border bg-surface shadow-card;
   }
   .tbl {
     @apply w-full min-w-full text-left;
@@ -134,10 +142,10 @@
     border-spacing: 0;
   }
   .tbl thead tr {
-    @apply bg-stone-50;
+    @apply bg-bg-main;
   }
   .tbl th {
-    @apply sticky top-0 z-10 px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-widest whitespace-nowrap bg-stone-50 border-b border-border;
+    @apply sticky top-0 z-10 px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-widest whitespace-nowrap bg-bg-main border-b border-gray-border;
   }
   .tbl th:last-child { @apply text-right; }
   .tbl tbody tr {
@@ -146,9 +154,9 @@
   .tbl tbody tr:nth-child(even) {
     @apply bg-[#FAFAF9]; /* stone-50 equivalent for zebra striping */
   }
-  .tbl tbody tr:hover { @apply bg-stone-100; }
+  .tbl tbody tr:hover { @apply bg-bg-main; }
   .tbl td {
-    @apply px-5 py-3.5 text-sm text-ink whitespace-nowrap border-b border-border/50;
+    @apply px-5 py-3.5 text-sm text-ink whitespace-nowrap border-b border-gray-border/50;
   }
   .tbl tbody tr:last-child td { @apply border-b-0; }
   .tbl td:last-child { @apply text-right; }
@@ -187,7 +195,7 @@
     @apply opacity-100;
   }
   .nav-group-label {
-    @apply px-3 py-1 text-2xs font-semibold text-sidebar-groupLabel uppercase tracking-widest;
+    @apply px-3 py-1 text-xs-role font-semibold text-sidebar-groupLabel uppercase tracking-widest;
   }
 
   /* === PAGE HEADER === */
@@ -203,7 +211,7 @@
 
   /* === BREADCRUMB SUB-HEADER (sticky module header) === */
   .module-header {
-    @apply sticky top-0 z-20 bg-bg border-b border-border
+    @apply sticky top-0 z-20 bg-bg-main border-b border-gray-border
            flex items-center justify-between px-8 py-3;
   }
   .breadcrumb {
@@ -218,7 +226,7 @@
 
   /* === MONO ID CHIP === */
   .mono-id {
-    @apply font-mono text-2xs text-muted bg-stone-100 px-1.5 py-0.5 rounded-sm
+    @apply font-mono text-xs-role text-muted bg-bg-main px-1.5 py-0.5 rounded-sm
            inline-flex items-center gap-1 cursor-pointer select-all
            hover:bg-stone-200 transition-colors;
   }
@@ -230,9 +238,9 @@
            focus:outline-none;
     background: #D4D1CE;
   }
-  .toggle.on { background: #2D5BFF; }
+  .toggle.on { @apply bg-primary; }
   .toggle-thumb {
-    @apply pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm
+    @apply pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-card
            ring-0 transition-transform duration-200 ease-in-out;
     transform: translateX(0);
   }
@@ -245,10 +253,10 @@
     @apply bg-stone-200 rounded animate-skeleton-pulse;
   }
   .skeleton-text {
-    @apply h-4 bg-stone-200 rounded-md animate-skeleton-pulse w-3/4;
+    @apply h-4 bg-stone-200 rounded-button animate-skeleton-pulse w-3/4;
   }
   .skeleton-block {
-    @apply bg-stone-200 rounded-xl animate-skeleton-pulse w-full h-full;
+    @apply bg-stone-200 rounded-card animate-skeleton-pulse w-full h-full;
   }
   .skeleton-circle {
     @apply bg-stone-200 rounded-full animate-skeleton-pulse;
@@ -256,12 +264,12 @@
 
   /* === DIVIDER === */
   .divider {
-    @apply border-t border-border;
+    @apply border-t border-gray-border;
   }
 
   /* === SECTION LABEL (inside cards/settings) === */
   .section-label {
-    @apply text-2xs font-semibold text-muted uppercase tracking-widest mb-3;
+    @apply text-xs-role font-semibold text-muted uppercase tracking-widest mb-3;
   }
 
   /* === METRIC/LEDGER NUMBER === */
@@ -272,13 +280,13 @@
 
   /* === SEGMENTED CONTROL (time range picker) === */
   .seg-control {
-    @apply inline-flex items-center border border-border rounded-md bg-stone-50 p-0.5;
+    @apply inline-flex items-center border border-gray-border rounded-button bg-bg-main p-0.5;
   }
   .seg-btn {
     @apply px-3 py-1 text-xs font-medium text-muted rounded transition-colors duration-100 cursor-pointer;
   }
   .seg-btn.active {
-    @apply bg-surface text-ink shadow-sm;
+    @apply bg-surface text-ink shadow-card;
   }
 
   /* === SLIDE-OVER PANEL === */
@@ -286,28 +294,28 @@
     @apply fixed inset-0 bg-ink/20 z-40 animate-fade-in;
   }
   .slideover-panel {
-    @apply fixed right-0 top-0 bottom-0 w-[480px] bg-surface border-l border-border
+    @apply fixed right-0 top-0 bottom-0 w-[480px] bg-surface border-l border-gray-border
            z-50 flex flex-col animate-slide-in-right;
   }
   .slideover-header {
-    @apply flex items-center justify-between px-6 py-5 border-b border-border shrink-0;
+    @apply flex items-center justify-between px-6 py-5 border-b border-gray-border shrink-0;
   }
   .slideover-body {
     @apply flex-1 overflow-y-auto px-6 py-6;
   }
   .slideover-footer {
-    @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0 bg-stone-50;
+    @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-border shrink-0 bg-bg-main;
   }
 
   /* === TOOLTIP (chart hover) === */
   .chart-tooltip {
-    @apply bg-surface border border-border rounded-lg px-3 py-2.5 shadow-tooltip
+    @apply bg-surface border border-gray-border rounded-card px-3 py-2.5 shadow-tooltip
            text-xs;
   }
 
   /* === TOAST (ledger style) === */
   .toast-custom {
-    @apply bg-surface border border-border rounded-lg pl-4 pr-4 py-3 shadow-DEFAULT
+    @apply bg-surface border border-gray-border rounded-card pl-4 pr-4 py-3 shadow-DEFAULT
            text-sm text-ink flex items-start gap-3;
   }
   .toast-bar {
@@ -327,8 +335,8 @@
   .step-dot {
     @apply w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 z-10 text-xs font-medium;
   }
-  .step-dot.pending  { @apply border-border bg-surface text-muted; }
-  .step-dot.active   { @apply border-accent bg-accent text-white; }
+  .step-dot.pending  { @apply border-gray-border bg-surface text-muted; }
+  .step-dot.active   { @apply border-primary bg-primary text-white; }
   .step-dot.complete { @apply border-success bg-success text-white; }
 
   /* === SETTINGS TWO-PANE === */
@@ -337,10 +345,10 @@
   }
   .settings-nav-item {
     @apply flex items-center gap-2 px-3 py-2 text-sm text-muted rounded
-           hover:text-ink hover:bg-stone-100 transition-colors cursor-pointer;
+           hover:text-ink hover:bg-bg-main transition-colors cursor-pointer;
   }
   .settings-nav-item.active {
-    @apply text-ink bg-stone-100 font-medium;
+    @apply text-ink bg-bg-main font-medium;
   }
 }
 
@@ -354,7 +362,7 @@
   .accent-bar-success { background: #1A7F4E; }
   .accent-bar-warning { background: #B45309; }
   .accent-bar-neutral { background: #A8A49F; }
-  .accent-bar-accent  { background: #2D5BFF; }
+  .accent-bar-accent  { @apply bg-primary; }
 
   /* ─── Z-Index stacking order ───────────────────────────────── */
   /* App content:   z-1    (default)                              */

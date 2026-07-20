@@ -108,7 +108,7 @@ export default function InviteMemberModal({ isOpen, onClose, onSuccess }) {
           </p>{" "}
         </div>{" "}
         {selectedRole === "ADMIN" && (
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mt-2">
+          <div className="bg-slate-50 p-3 rounded-card border border-slate-200 mt-2">
             {" "}
             <label className="label mb-2">Module Access</label>{" "}
             <div className="space-y-2">
@@ -123,7 +123,7 @@ export default function InviteMemberModal({ isOpen, onClose, onSuccess }) {
                     type="checkbox"
                     checked={selectedPerms.includes(perm.id)}
                     onChange={() => togglePerm(perm.id)}
-                    className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded-card border-slate-300 text-primary-600 focus:ring-primary-500"
                   />{" "}
                   {perm.label}{" "}
                 </label>

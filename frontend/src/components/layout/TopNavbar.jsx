@@ -18,6 +18,7 @@ export default function TopNavbar() {
     localStorage.getItem("adminSelectedTenant") || "",
   );
   const [theme, setTheme] = useState("light");
+  const [showNotifications, setShowNotifications] = useState(false);
   useEffect(() => {
     if (user?.role === "ULTRASUPERADMIN") {
       api
@@ -78,28 +79,28 @@ export default function TopNavbar() {
           <input
             type="text"
             placeholder="Search everything..."
-            className="w-full bg-stone-50 border border-border rounded-lg pl-9 pr-12 py-1.5 text-sm focus:outline-none focus:border-accent focus:bg-surface transition-colors"
+            className="w-full bg-bg-main border border-border rounded-input pl-9 pr-12 py-1.5 text-sm focus:outline-none focus:border-primary focus:bg-surface transition-colors"
           />{" "}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-surface border border-border text-subtle text-[10px] font-mono px-1.5 py-0.5 rounded shadow-sm">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-surface border border-border text-subtle text-[10px] font-mono px-1.5 py-0.5 rounded-card shadow-sm">
             {" "}
             ⌘K{" "}
           </div>{" "}
         </div>{" "}
         {/* ULTRASUPERADMIN Tenant Toggle */}{" "}
         {user?.role === "ULTRASUPERADMIN" && (
-          <div className="ml-4 flex items-center gap-2 text-xs font-medium text-muted bg-stone-50 px-3 py-1.5 rounded-lg border border-border">
+          <div className="ml-4 flex items-center gap-2 text-xs font-medium text-muted bg-bg-main px-3 py-1.5 rounded-card border border-border">
             {" "}
             <Building2 size={14} className="text-muted" />{" "}
             <select
               value={selectedTenant}
               onChange={handleSelectTenant}
-              className="bg-transparent border-none outline-none text-ink font-semibold cursor-pointer pl-1 hover:text-accent"
+              className="bg-transparent border-none outline-none text-ink font-semibold cursor-pointer pl-1 hover:text-primary"
             >
               {" "}
               <option value="">Global Platform</option>{" "}
               {clients.map((c) => (
-                <option key={c.tenantId} value={c.tenantId}>
-                  {c.clientName}
+                <option key={c.id} value={c.id}>
+                  {c.companyName}
                 </option>
               ))}{" "}
             </select>{" "}
@@ -115,11 +116,83 @@ export default function TopNavbar() {
       </div>{" "}
       <div className="flex items-center gap-4 shrink-0">
         {" "}
-        <button className="relative text-muted hover:text-ink transition-colors">
+        <div className="relative">
           {" "}
-          <Bell size={18} />{" "}
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-danger rounded-full border border-surface"></span>{" "}
-        </button>{" "}
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative text-muted hover:text-ink transition-colors"
+          >
+            {" "}
+            <Bell size={18} />{" "}
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-danger rounded-full border border-surface"></span>{" "}
+          </button>{" "}
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden">
+              {" "}
+              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+                {" "}
+                <h3 className="font-semibold text-gray-900">
+                  Notifications
+                </h3>{" "}
+                <span className="text-xs text-indigo-600 font-medium cursor-pointer hover:text-indigo-700">
+                  Mark all as read
+                </span>{" "}
+              </div>{" "}
+              <div className="max-h-96 overflow-y-auto">
+                {" "}
+                <div className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors bg-indigo-50/30">
+                  {" "}
+                  <div className="flex gap-3">
+                    {" "}
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                      {" "}
+                      <AlertCircle size={16} className="text-indigo-600" />{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium">System Alert</span>: PDF
+                        Generation successfully updated.
+                      </p>{" "}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Just now
+                      </p>{" "}
+                    </div>{" "}
+                  </div>{" "}
+                </div>{" "}
+                <div className="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
+                  {" "}
+                  <div className="flex gap-3">
+                    {" "}
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                      {" "}
+                      <Building2 size={16} className="text-green-600" />{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium">New Client</span>: Initech
+                        LLC added to platform.
+                      </p>{" "}
+                      <p className="text-xs text-gray-500 mt-1">
+                        2 hours ago
+                      </p>{" "}
+                    </div>{" "}
+                  </div>{" "}
+                </div>{" "}
+              </div>{" "}
+              <div className="p-3 text-center border-t border-gray-100">
+                {" "}
+                <button
+                  onClick={() => setShowNotifications(false)}
+                  className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                >
+                  Close
+                </button>{" "}
+              </div>{" "}
+            </div>
+          )}{" "}
+        </div>{" "}
         <button
           onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
           className="text-muted hover:text-ink transition-colors"
@@ -128,9 +201,9 @@ export default function TopNavbar() {
           {theme === "light" ? <Sun size={18} /> : <Moon size={18} />}{" "}
         </button>{" "}
         <div className="w-px h-5 bg-border mx-1"></div>{" "}
-        <button className="flex items-center gap-2.5 hover:bg-stone-50 py-1 px-1.5 rounded-lg transition-colors">
+        <button className="flex items-center gap-2.5 hover:bg-bg-main py-1 px-1.5 rounded-button transition-colors">
           {" "}
-          <div className="w-7 h-7 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shadow-sm">
             {" "}
             {initial}{" "}
           </div>{" "}

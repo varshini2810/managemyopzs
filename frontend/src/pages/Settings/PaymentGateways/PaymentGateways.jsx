@@ -76,7 +76,7 @@ function GatewayCard({ meta, gateway, onToggle, onConnect }) {
   const isActive = gateway?.status === "ACTIVE";
   return (
     <div
-      className="bg-surface rounded-lg p-5 flex items-center justify-between gap-4"
+      className="bg-surface rounded-card p-5 flex items-center justify-between gap-4"
       style={{ border: "1px solid #E7E5E2" }}
     >
       {" "}
@@ -84,7 +84,7 @@ function GatewayCard({ meta, gateway, onToggle, onConnect }) {
         {" "}
         {/* Logo area */}{" "}
         <div
-          className="flex items-center justify-center rounded shrink-0"
+          className="flex items-center justify-center rounded-card shrink-0"
           style={{
             width: 56,
             height: 40,
@@ -131,7 +131,7 @@ function GatewayCard({ meta, gateway, onToggle, onConnect }) {
               {isActive ? "Disable" : "Enable"}{" "}
             </button>{" "}
             <button
-              className="btn-ghost btn-sm text-accent"
+              className="btn-ghost btn-sm text-primary"
               style={{ color: "#2D5BFF" }}
             >
               {" "}
@@ -217,7 +217,7 @@ export default function PaymentGateways() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-lg h-20 skeleton"
+                className="rounded-card h-20 skeleton"
                 style={{ background: "#E7E5E2" }}
               />
             ))}{" "}
@@ -244,7 +244,7 @@ export default function PaymentGateways() {
           </div>
         )}{" "}
         <div
-          className="mt-8 p-4 rounded-lg text-xs text-muted"
+          className="mt-8 p-4 rounded-card text-xs text-muted"
           style={{ background: "#FAFAF9", border: "1px solid #E7E5E2" }}
         >
           {" "}

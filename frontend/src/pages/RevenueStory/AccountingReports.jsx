@@ -47,7 +47,7 @@ export default function AccountingReports() {
             {" "}
             <div className="flex items-center gap-4">
               {" "}
-              <div className="w-10 h-10 rounded bg-stone-100 flex items-center justify-center text-muted">
+              <div className="w-10 h-10 rounded-card bg-bg-main flex items-center justify-center text-muted">
                 {" "}
                 <FileText size={20} />{" "}
               </div>{" "}

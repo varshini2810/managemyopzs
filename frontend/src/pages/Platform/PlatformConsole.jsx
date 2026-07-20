@@ -61,7 +61,7 @@ export default function PlatformConsole() {
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
       {" "}
       {/* Dark Hero Banner */}{" "}
-      <div className="bg-ink text-white rounded-xl p-8 flex flex-col md:flex-row justify-between items-center md:items-end shadow-lg relative overflow-hidden">
+      <div className="bg-ink text-white rounded-card p-8 flex flex-col md:flex-row justify-between items-center md:items-end shadow-lg relative overflow-hidden">
         {" "}
         <div className="relative z-10 w-full md:w-auto mb-6 md:mb-0">
           {" "}
@@ -87,7 +87,7 @@ export default function PlatformConsole() {
           {" "}
           <button
             onClick={() => setIsInviteModalOpen(true)}
-            className="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
+            className="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2.5 px-6 rounded-card shadow-sm transition-colors flex items-center justify-center gap-2"
           >
             {" "}
             <Plus size={18} /> Invite Tenant{" "}
@@ -157,7 +157,7 @@ export default function PlatformConsole() {
           </div>{" "}
         </div>{" "}
         {/* Live Data Card (Right column, takes 4 columns) */}{" "}
-        <div className="col-span-1 md:col-span-4 card p-6 bg-stone-50 border-border shadow-inner">
+        <div className="col-span-1 md:col-span-4 card p-6 bg-bg-main border-border shadow-inner">
           {" "}
           <h2 className="font-semibold text-ink mb-4 flex items-center gap-2">
             {" "}
@@ -171,7 +171,7 @@ export default function PlatformConsole() {
                 {" "}
                 Environment{" "}
               </span>{" "}
-              <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700">
+              <span className="px-2 py-0.5 rounded-card text-xs font-bold bg-green-100 text-green-700">
                 {" "}
                 LIVE{" "}
               </span>{" "}
@@ -212,12 +212,12 @@ export default function PlatformConsole() {
         {/* All Tenants Table */}{" "}
         <div className="lg:col-span-2 card p-0 overflow-hidden">
           {" "}
-          <div className="p-5 border-b border-border bg-stone-50/50 flex justify-between items-center">
+          <div className="p-5 border-b border-border bg-bg-main/50 flex justify-between items-center">
             <h2 className="font-bold text-ink">Provisioned Tenants</h2>{" "}
           </div>{" "}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse">
-              <thead className="bg-stone-50 text-xs font-semibold text-muted uppercase tracking-wider border-b border-border">
+              <thead className="bg-bg-main text-xs font-semibold text-muted uppercase tracking-wider border-b border-border">
                 <tr>
                   <th className="px-5 py-3">Tenant ID</th>{" "}
                   <th className="px-5 py-3">Company</th>{" "}
@@ -244,7 +244,7 @@ export default function PlatformConsole() {
                   tenants.map((t) => (
                     <tr
                       key={t.id}
-                      className="hover:bg-stone-50/50 transition-colors"
+                      className="hover:bg-bg-main/50 transition-colors"
                     >
                       <td className="px-5 py-3 font-mono text-xs text-muted">
                         {t.id}{" "}
@@ -270,7 +270,7 @@ export default function PlatformConsole() {
         <div className="lg:col-span-1 card p-6 flex flex-col">
           <div className="flex items-center gap-2 font-bold text-ink mb-6">
             {" "}
-            <PieChart size={18} className="text-accent" /> Module Adoption{" "}
+            <PieChart size={18} className="text-primary" /> Module Adoption{" "}
           </div>{" "}
           <div className="space-y-5 flex-1">
             {" "}
@@ -290,7 +290,7 @@ export default function PlatformConsole() {
                     {mod.percent}%{" "}
                   </span>{" "}
                 </div>{" "}
-                <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-bg-main rounded-full overflow-hidden">
                   {" "}
                   <div
                     className={`h-full ${mod.color} rounded-full`}
@@ -315,7 +315,7 @@ export default function PlatformConsole() {
             {inviteLink ? (
               <div className="space-y-6">
                 {" "}
-                <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-xl">
+                <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-card">
                   {" "}
                   <h3 className="font-bold text-emerald-800 mb-2">
                     {" "}
@@ -387,7 +387,7 @@ export default function PlatformConsole() {
                     <input
                       type="text"
                       required
-                      className="input rounded-r-none border-r-0 flex-1 z-10 focus:border-accent"
+                      className="input rounded-r-none border-r-0 flex-1 z-10 focus:border-primary"
                       value={inviteForm.subdomain}
                       onChange={(e) =>
                         setInviteForm({
@@ -399,7 +399,7 @@ export default function PlatformConsole() {
                       }
                       placeholder="acme"
                     />{" "}
-                    <span className="bg-stone-50 border border-border border-l-0 px-3 py-[9px] rounded-r-lg text-muted text-sm whitespace-nowrap">
+                    <span className="bg-bg-main border border-border border-l-0 px-3 py-[9px] rounded-r-lg text-muted text-sm whitespace-nowrap">
                       {" "}
                       .billingplatform.com{" "}
                     </span>{" "}

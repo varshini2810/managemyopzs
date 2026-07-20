@@ -77,7 +77,7 @@ export default function OpzNotifications() {
                     </button>{" "}
                   </td>{" "}
                   <td className="text-right">
-                    <button className="btn-ghost btn-sm text-accent">
+                    <button className="btn-ghost btn-sm text-primary">
                       <Edit2 size={14} /> Configure
                     </button>{" "}
                   </td></tr>
