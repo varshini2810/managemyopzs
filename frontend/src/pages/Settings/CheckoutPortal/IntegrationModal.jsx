@@ -76,7 +76,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4">
       {" "}
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden animate-scale-up">
+      <div className="bg-white rounded-card shadow-xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden animate-scale-up">
         {" "}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
           {" "}
@@ -85,7 +85,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
           </h2>{" "}
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+            className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-button transition-colors"
           >
             {" "}
             <X size={20} />{" "}
@@ -130,13 +130,13 @@ export default function IntegrationModal({ isOpen, onClose }) {
                 </div>{" "}
                 <div className="relative group">
                   {" "}
-                  <pre className="bg-gray-900 text-gray-100 text-xs p-4 rounded-md overflow-x-auto font-mono">
+                  <pre className="bg-gray-900 text-gray-100 text-xs p-4 rounded-card overflow-x-auto font-mono">
                     {" "}
                     {`<script src="https:`}{" "}
                   </pre>{" "}
                   <button
                     onClick={() => handleCopy(`<script src="https:`)}
-                    className="absolute top-2 right-2 p-1.5 bg-gray-800 text-gray-300 hover:text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 p-1.5 bg-gray-800 text-gray-300 hover:text-white rounded-card opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     {" "}
                     <Copy size={14} />{" "}
@@ -164,7 +164,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                       Product Family*
                     </label>{" "}
                     <select
-                      className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white"
+                      className="w-full border border-gray-300 rounded-input text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white"
                       value={family}
                       onChange={(e) => {
                         setFamily(e.target.value);
@@ -188,7 +188,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                       Choose Plan
                     </label>{" "}
                     <select
-                      className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      className="w-full border border-gray-300 rounded-input text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
                       value={plan}
                       onChange={(e) => {
                         setPlan(e.target.value);
@@ -213,7 +213,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                       Currency
                     </label>{" "}
                     <select
-                      className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      className="w-full border border-gray-300 rounded-input text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
                       value={currency}
                       onChange={(e) => {
                         setCurrency(e.target.value);
@@ -236,7 +236,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                       Frequency
                     </label>{" "}
                     <select
-                      className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      className="w-full border border-gray-300 rounded-input text-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white disabled:bg-gray-50 disabled:text-gray-400"
                       value={frequency}
                       onChange={(e) => setFrequency(e.target.value)}
                       disabled={!currency}
@@ -289,7 +289,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                           <Plus size={12} /> Add Addon{" "}
                         </button>{" "}
                         {openDropdown === "addons" && (
-                          <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                          <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-card shadow-lg z-10 py-1">
                             {" "}
                             {ADDON_OPTIONS.map((opt) => (
                               <button
@@ -342,13 +342,13 @@ export default function IntegrationModal({ isOpen, onClose }) {
                               openDropdown === "charges" ? null : "charges",
                             )
                           }
-                          className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 px-2 py-1 border border-dashed border-gray-300 rounded hover:border-gray-400"
+                          className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 px-2 py-1 border border-dashed border-gray-300 rounded-card hover:border-gray-400"
                         >
                           {" "}
                           <Plus size={12} /> Add Charge{" "}
                         </button>{" "}
                         {openDropdown === "charges" && (
-                          <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                          <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-card shadow-lg z-10 py-1">
                             {" "}
                             {CHARGE_OPTIONS.map((opt) => (
                               <button
@@ -377,14 +377,14 @@ export default function IntegrationModal({ isOpen, onClose }) {
                   <div className="absolute -top-3 left-3 bg-white px-2 text-xs font-medium text-[#6D28D9]">
                     Generated Button Code
                   </div>{" "}
-                  <pre className="bg-gray-900 text-[#a5b4fc] text-xs p-5 rounded-md overflow-x-auto font-mono min-h-[120px] pt-6 border border-gray-200">
+                  <pre className="bg-gray-900 text-[#a5b4fc] text-xs p-5 rounded-card overflow-x-auto font-mono min-h-[120px] pt-6 border border-gray-200">
                     {" "}
                     {generatedCode}{" "}
                   </pre>{" "}
                   <button
                     onClick={() => handleCopy(generatedCode)}
                     disabled={!family || !plan || !currency || !frequency}
-                    className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors disabled:opacity-30 flex items-center gap-2 text-xs font-medium"
+                    className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-card transition-colors disabled:opacity-30 flex items-center gap-2 text-xs font-medium"
                   >
                     {" "}
                     <Copy size={14} /> Copy Code{" "}
@@ -408,9 +408,9 @@ export default function IntegrationModal({ isOpen, onClose }) {
                 <div className="text-xs font-semibold text-gray-700">
                   API Endpoint
                 </div>{" "}
-                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-card border border-gray-200">
                   {" "}
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded uppercase">
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded-card uppercase">
                     Post
                   </span>{" "}
                   <span className="text-sm font-mono text-gray-800">
@@ -425,7 +425,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                   <div className="text-xs font-semibold text-gray-700">
                     Request Payload
                   </div>{" "}
-                  <pre className="bg-gray-900 text-[#a5b4fc] text-xs p-4 rounded-md font-mono overflow-x-auto">
+                  <pre className="bg-gray-900 text-[#a5b4fc] text-xs p-4 rounded-card font-mono overflow-x-auto">
                     {" "}
                     {`{ "product_family": "CRM", "plan": "Professional", "currency": "USD", "frequency": "Monthly", "addons": ["API Access"], "customer_id": "cust_8a9B2c" }`}{" "}
                   </pre>{" "}
@@ -435,7 +435,7 @@ export default function IntegrationModal({ isOpen, onClose }) {
                   <div className="text-xs font-semibold text-gray-700">
                     Success Response (200 OK)
                   </div>{" "}
-                  <pre className="bg-gray-900 text-green-400 text-xs p-4 rounded-md font-mono overflow-x-auto">
+                  <pre className="bg-gray-900 text-green-400 text-xs p-4 rounded-card font-mono overflow-x-auto">
                     {" "}
                     {`{ "checkout_url": "https:}`}{" "}
                   </pre>{" "}
@@ -446,12 +446,12 @@ export default function IntegrationModal({ isOpen, onClose }) {
                 <div className="text-xs font-semibold text-gray-700">
                   Sample Implementation (cURL)
                 </div>{" "}
-                <pre className="bg-gray-800 text-gray-300 text-xs p-4 rounded-md font-mono overflow-x-auto relative group">
+                <pre className="bg-gray-800 text-gray-300 text-xs p-4 rounded-card font-mono overflow-x-auto relative group">
                   {" "}
                   {`curl -X POST https:{ "product_family": "CRM", "plan": "Professional" }'`}{" "}
                   <button
                     onClick={() => handleCopy("curl...")}
-                    className="absolute top-2 right-2 p-1 bg-white/10 hover:bg-white/20 rounded opacity-0 group-hover:opacity-100"
+                    className="absolute top-2 right-2 p-1 bg-white/10 hover:bg-white/20 rounded-card opacity-0 group-hover:opacity-100"
                   >
                     <Copy size={12} />
                   </button>{" "}

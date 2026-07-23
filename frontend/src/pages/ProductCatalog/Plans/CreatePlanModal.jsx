@@ -133,7 +133,7 @@ export default function CreatePlanModal({ isOpen, onClose, onSuccess }) {
     >
       {" "}
       <div
-        className="m-auto bg-surface rounded-lg w-full max-w-3xl flex overflow-hidden"
+        className="m-auto bg-surface rounded-card w-full max-w-3xl flex overflow-hidden"
         style={{
           border: "1px solid #E7E5E2",
           height: "calc(100vh - 80px)",
@@ -277,7 +277,7 @@ export default function CreatePlanModal({ isOpen, onClose, onSuccess }) {
                 ].map((opt) => (
                   <div
                     key={opt.key}
-                    className="flex items-start justify-between gap-4 p-4 rounded-lg cursor-pointer"
+                    className="flex items-start justify-between gap-4 p-4 rounded-card cursor-pointer"
                     style={{ border: "1px solid #E7E5E2" }}
                     onClick={() => opt.set((v) => !v)}
                   >
@@ -394,7 +394,7 @@ export default function CreatePlanModal({ isOpen, onClose, onSuccess }) {
               <div className="max-w-lg space-y-5">
                 {" "}
                 <div
-                  className="rounded-lg p-5 space-y-3"
+                  className="rounded-card p-5 space-y-3"
                   style={{ background: "#FAFAF9", border: "1px solid #E7E5E2" }}
                 >
                   {" "}

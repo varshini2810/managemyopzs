@@ -37,7 +37,7 @@ export default function MetricCard({ title, value, changePercent, data = [] }) {
             <defs>
               {" "}
               <linearGradient
-                id={`gradient-${title}`}
+                id={`gradient-${title.replace(/[^a-zA-Z0-9]/g, '')}`}
                 x1="0"
                 y1="0"
                 x2="0"
@@ -60,7 +60,7 @@ export default function MetricCard({ title, value, changePercent, data = [] }) {
               type="monotone"
               dataKey="value"
               stroke={isPositive ? "#10b981" : "#ef4444"}
-              fill={`url(#gradient-${title})`}
+              fill={`url(#gradient-${title.replace(/[^a-zA-Z0-9]/g, '')})`}
               strokeWidth={2}
               isAnimationActive={false}
             />{" "}

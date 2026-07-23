@@ -17,7 +17,7 @@ export default function DocumentViewerModal({ isOpen, onClose, document }) {
       {" "}
       <div className="flex flex-col h-[70vh]">
         {" "}
-        <div className="flex-1 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative">
+        <div className="flex-1 bg-gray-100 rounded-card border border-gray-200 overflow-hidden flex items-center justify-center relative">
           {" "}
           {isImage ? (
             <img

@@ -7,8 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // === ManageMyMarketing Tokens ===
+        primary: { DEFAULT: '#586EF0', hover: '#7084F4' },
+        danger: { DEFAULT: '#EF4444' },
+        gray: { border: '#E5E7EB', divider: '#D9DBE1', placeholder: '#9CA3AF' },
+        status: {
+          campaigns: '#10B981',
+          success: '#10B981',
+          expenses: '#F59E0B',
+          warning: '#F59E0B',
+          approvals: '#A855F7',
+          creative: '#A855F7',
+          information: '#3B82F6',
+          general: '#3B82F6'
+        },
+
         // === Core Brand Palette ===
-        bg: '#F8F9FB',          // warm off-white app background
+        bg: { main: '#F4F7FA' },          // warm off-white app background
         surface: '#FFFFFF',     // card/panel surface
         border: '#E7E5E2',      // hairline 1px border
         'border-strong': '#D4D1CE',
@@ -75,21 +90,25 @@ export default {
         mono:    ['"JetBrains Mono"', '"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
 
-      fontSize: {
-        '2xs': ['10px', { lineHeight: '14px' }],
-        'xs':  ['11px', { lineHeight: '16px' }],
-        'sm':  ['13px', { lineHeight: '20px' }],
-        'base': ['14px', { lineHeight: '22px' }],
-        'md':  ['15px', { lineHeight: '24px' }],
-        'lg':  ['16px', { lineHeight: '24px' }],
-        'xl':  ['18px', { lineHeight: '28px' }],
-        '2xl': ['20px', { lineHeight: '28px' }],
-        '3xl': ['24px', { lineHeight: '32px' }],
-        '4xl': ['30px', { lineHeight: '36px' }],
-        '5xl': ['36px', { lineHeight: '42px' }],
+            fontSize: {
+        'xxs': '8px',
+        'xs': '9px',
+        'xs-role': '10px',
+        'sm': '11px',
+        'sm-title': '12px',
+        'base': '13px',
+        'lg': '15px',
+        'xl': '17px',
+        '2xl': '21px',
+        '3xl': '33px',
+        '4xl': '35px',
       },
 
       borderRadius: {
+        'input': '10px',
+        'button': '10px', 'btn': '10px', 'form': '10px',
+        'card': '14px',
+
         none: '0',
         sm:   '4px',
         DEFAULT: '6px',   // buttons, inputs, chips
@@ -101,6 +120,8 @@ export default {
       },
 
       boxShadow: {
+        'card': '0 2px 10px rgba(15, 23, 42, 0.08)',
+
         none: 'none',
         sm:   '0 1px 2px rgba(28,27,26,0.05)',  // Flat cards, very subtle
         DEFAULT: '0 2px 4px rgba(28,27,26,0.06), 0 1px 2px rgba(28,27,26,0.04)', // Raised cards, inputs

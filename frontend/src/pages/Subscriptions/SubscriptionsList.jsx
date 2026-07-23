@@ -35,7 +35,7 @@ export default function SubscriptionsList() {
       header: "Subscription ID",
       cell: (row) => (
         <div
-          className="cursor-pointer hover:text-accent transition-colors"
+          className="cursor-pointer hover:text-primary transition-colors"
           onClick={() => navigate(`/subscriptions/${row.id}`)}
         >
           {" "}
@@ -78,7 +78,7 @@ export default function SubscriptionsList() {
       </div>{" "}
       <div className="px-8 py-6">
         {" "}
-        <div className="bg-surface rounded-lg border border-gray-200">
+        <div className="bg-surface rounded-card border border-gray-200">
           {" "}
           <div className="p-4 border-b border-gray-200 flex gap-4">
             {" "}

@@ -1,17 +1,34 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   headers: { "Content-Type": "application/json" },
   timeout: 15000,
 }); // Request interceptor — attach JWT
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("opz_token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    const adminSelectedTenant = localStorage.getItem("adminSelectedTenant");
-    if (adminSelectedTenant)
-      config.headers["X-Tenant-ID"] = adminSelectedTenant;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userTenantId = payload.tenantId;
+        const adminSelectedTenant = localStorage.getItem("adminSelectedTenant");
+        
+        if (adminSelectedTenant && adminSelectedTenant !== "PLATFORM") {
+          config.headers["X-Tenant-ID"] = adminSelectedTenant;
+        } else if (userTenantId && userTenantId !== "null") {
+          config.headers["X-Tenant-ID"] = userTenantId;
+        }
+      } catch (e) {
+        console.error("Failed to parse token payload", e);
+      }
+    } else {
+      const adminSelectedTenant = localStorage.getItem("adminSelectedTenant");
+      if (adminSelectedTenant && adminSelectedTenant !== "PLATFORM") {
+        config.headers["X-Tenant-ID"] = adminSelectedTenant;
+      }
+    }
     return config;
   },
   (error) => Promise.reject(error),

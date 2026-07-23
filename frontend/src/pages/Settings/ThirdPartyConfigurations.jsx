@@ -49,7 +49,7 @@ export default function ThirdPartyConfigurations() {
             className="card flex flex-col items-start gap-4 hover:shadow-md transition-shadow"
           >
             {" "}
-            <div className="w-12 h-12 rounded bg-stone-100 flex items-center justify-center text-muted">
+            <div className="w-12 h-12 rounded-card bg-bg-main flex items-center justify-center text-muted">
               {" "}
               <Blocks size={24} />{" "}
             </div>{" "}

@@ -24,12 +24,12 @@ export default function PriceTypeModal({
     >
       {" "}
       <div
-        className="bg-white rounded-xl border border-border shadow-lg w-full max-w-md overflow-hidden"
+        className="bg-white rounded-card border border-border shadow-lg w-full max-w-md overflow-hidden"
         style={{ animation: "scaleIn 0.15s ease-out" }}
       >
         {" "}
         {/* Header */}{" "}
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-stone-50">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-bg-main">
           {" "}
           <h2 className="text-sm font-semibold text-ink">
             {" "}
@@ -51,7 +51,7 @@ export default function PriceTypeModal({
           <label
             id="price-type-exclusive"
             htmlFor="pt-exclusive"
-            className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${selected === "exclusive" ? "border-accent bg-blue-50" : "border-border hover:border-border-strong hover:bg-stone-50"}`}
+            className={`flex items-start gap-3 p-4 rounded-input border cursor-pointer transition-all ${selected === "exclusive" ? "border-primary bg-blue-50" : "border-border hover:border-border-strong hover:bg-bg-main"}`}
           >
             {" "}
             <input
@@ -80,7 +80,7 @@ export default function PriceTypeModal({
           <label
             id="price-type-inclusive"
             htmlFor="pt-inclusive"
-            className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${selected === "inclusive" ? "border-accent bg-blue-50" : "border-border hover:border-border-strong hover:bg-stone-50"}`}
+            className={`flex items-start gap-3 p-4 rounded-input border cursor-pointer transition-all ${selected === "inclusive" ? "border-primary bg-blue-50" : "border-border hover:border-border-strong hover:bg-bg-main"}`}
           >
             {" "}
             <input
@@ -106,7 +106,7 @@ export default function PriceTypeModal({
           </label>{" "}
         </div>{" "}
         {/* Footer */}{" "}
-        <div className="px-6 py-4 border-t border-border bg-stone-50 flex justify-end gap-2">
+        <div className="px-6 py-4 border-t border-border bg-bg-main flex justify-end gap-2">
           {" "}
           <button
             id="price-type-cancel-btn"

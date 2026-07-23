@@ -1,3 +1,4 @@
+import jsPDF from "jspdf";
 import React, {
   useState,
   useEffect,
@@ -57,6 +58,7 @@ import {
   Minus,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import api from "../../services/api";
 import EmptyState from "../../components/common/EmptyState";
 const fmt = (v, cur = "USD") =>
   new Intl.NumberFormat("en-US", {
@@ -107,431 +109,7 @@ const mkItem = (desc, qty, price, tax = 18, disc = 0) => ({
   tax,
   disc,
 });
-const SEED_INVOICES = [
-  {
-    id: "INV-10001",
-    client: "Acme Corp",
-    company: "Acme Corporation",
-    email: "billing@acme.com",
-    phone: "+1-555-0101",
-    issueDate: "2024-05-01",
-    dueDate: "2024-05-31",
-    status: "paid",
-    currency: "USD",
-    payMethod: "Credit Card",
-    paidAmt: 12400,
-    subtotal: 12400,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 12400,
-    createdBy: "Alice Johnson",
-    notes: "Monthly retainer Q2",
-    items: [mkItem("Strategy Consulting", 40, 310)],
-  },
-  {
-    id: "INV-10002",
-    client: "Globex Solutions",
-    company: "Globex Inc.",
-    email: "ap@globex.io",
-    phone: "+1-555-0102",
-    issueDate: "2024-05-10",
-    dueDate: "2024-06-10",
-    status: "pending",
-    currency: "USD",
-    payMethod: "Bank Transfer",
-    paidAmt: 0,
-    subtotal: 5800,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 5800,
-    createdBy: "Bob Martinez",
-    notes: "",
-    items: [mkItem("API Integration", 20, 290)],
-  },
-  {
-    id: "INV-10003",
-    client: "Initech LLC",
-    company: "Initech Technologies",
-    email: "finance@initech.com",
-    phone: "+1-555-0103",
-    issueDate: "2024-04-15",
-    dueDate: "2024-05-15",
-    status: "overdue",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 3200,
-    tax: 576,
-    disc: 0,
-    shipping: 0,
-    total: 3776,
-    createdBy: "Alice Johnson",
-    notes: "",
-    items: [mkItem("Support Hours", 10, 320, 18)],
-  },
-  {
-    id: "INV-10004",
-    client: "Umbrella Inc",
-    company: "Umbrella Incorporated",
-    email: "billing@umbrella.co",
-    phone: "+1-555-0104",
-    issueDate: "2024-05-20",
-    dueDate: "2024-06-20",
-    status: "draft",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 8900,
-    tax: 0,
-    disc: 500,
-    shipping: 0,
-    total: 8400,
-    createdBy: "Carol White",
-    notes: "Q2 Services package",
-    items: [mkItem("Development", 40, 222.5)],
-  },
-  {
-    id: "INV-10005",
-    client: "Massive Dynamic",
-    company: "Massive Dynamic Ltd.",
-    email: "ap@massivedyn.com",
-    phone: "+1-555-0105",
-    issueDate: "2024-05-18",
-    dueDate: "2024-06-18",
-    status: "paid",
-    currency: "USD",
-    payMethod: "Wire",
-    paidAmt: 22750,
-    subtotal: 22750,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 22750,
-    createdBy: "Bob Martinez",
-    notes: "Enterprise deal",
-    items: [mkItem("Enterprise License", 1, 22750)],
-  },
-  {
-    id: "INV-10006",
-    client: "Vandelay Industries",
-    company: "Vandelay Ind.",
-    email: "v@vind.com",
-    phone: "+1-555-0106",
-    issueDate: "2024-03-01",
-    dueDate: "2024-04-01",
-    status: "overdue",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 1100,
-    tax: 198,
-    disc: 0,
-    shipping: 50,
-    total: 1348,
-    createdBy: "Alice Johnson",
-    notes: "",
-    items: [mkItem("Design Sprint", 4, 275, 18)],
-  },
-  {
-    id: "INV-10007",
-    client: "Dunder Mifflin",
-    company: "Dunder Mifflin Paper",
-    email: "michael@dm.com",
-    phone: "+1-555-0107",
-    issueDate: "2024-05-25",
-    dueDate: "2024-06-25",
-    status: "pending",
-    currency: "USD",
-    payMethod: "PayPal",
-    paidAmt: 0,
-    subtotal: 4500,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 4500,
-    createdBy: "Carol White",
-    notes: "",
-    items: [mkItem("Paper Supply SaaS", 12, 375)],
-  },
-  {
-    id: "INV-10008",
-    client: "Pied Piper",
-    company: "Pied Piper LLC",
-    email: "richard@pp.com",
-    phone: "+1-555-0108",
-    issueDate: "2024-05-22",
-    dueDate: "2024-06-22",
-    status: "paid",
-    currency: "USD",
-    payMethod: "Credit Card",
-    paidAmt: 16000,
-    subtotal: 16000,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 16000,
-    createdBy: "Bob Martinez",
-    notes: "Compression platform",
-    items: [mkItem("Platform Subscription", 1, 16000)],
-  },
-  {
-    id: "INV-10009",
-    client: "Hooli Inc",
-    company: "Hooli Technologies",
-    email: "accounts@hooli.com",
-    phone: "+1-555-0109",
-    issueDate: "2024-05-05",
-    dueDate: "2024-05-20",
-    status: "cancelled",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 9250,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 9250,
-    createdBy: "Alice Johnson",
-    notes: "Client requested cancel",
-    items: [mkItem("Analytics Module", 5, 1850)],
-  },
-  {
-    id: "INV-10010",
-    client: "Stark Industries",
-    company: "Stark Ind. Corp.",
-    email: "pepper@stark.io",
-    phone: "+1-555-0110",
-    issueDate: "2024-05-28",
-    dueDate: "2024-06-28",
-    status: "pending",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 34800,
-    tax: 6264,
-    disc: 1000,
-    shipping: 0,
-    total: 40064,
-    createdBy: "Carol White",
-    notes: "Iron Man Phase 2",
-    items: [mkItem("R&D Services", 120, 290, 18)],
-  },
-  {
-    id: "INV-10011",
-    client: "Wayne Enterprises",
-    company: "Wayne Ent.",
-    email: "lucius@wayne.com",
-    phone: "+1-555-0111",
-    issueDate: "2024-04-01",
-    dueDate: "2024-05-01",
-    status: "overdue",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 7600,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 7600,
-    createdBy: "Bob Martinez",
-    notes: "",
-    items: [mkItem("Security Audit", 8, 950)],
-  },
-  {
-    id: "INV-10012",
-    client: "Oscorp",
-    company: "Oscorp Industries",
-    email: "norman@oscorp.io",
-    phone: "+1-555-0112",
-    issueDate: "2024-05-15",
-    dueDate: "2024-06-15",
-    status: "paid",
-    currency: "USD",
-    payMethod: "Bank Transfer",
-    paidAmt: 2980,
-    subtotal: 2980,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 2980,
-    createdBy: "Alice Johnson",
-    notes: "",
-    items: [mkItem("Lab SaaS", 4, 745)],
-  },
-  {
-    id: "INV-10013",
-    client: "Cyberdyne Systems",
-    company: "Cyberdyne Sys.",
-    email: "miles@cyber.io",
-    phone: "+1-555-0113",
-    issueDate: "2024-06-01",
-    dueDate: "2024-06-30",
-    status: "draft",
-    currency: "EUR",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 18000,
-    tax: 3240,
-    disc: 500,
-    shipping: 200,
-    total: 20940,
-    createdBy: "Carol White",
-    notes: "AI research project",
-    items: [mkItem("AI Consulting", 60, 300, 18), mkItem("GPU Cluster", 1, 0)],
-  },
-  {
-    id: "INV-10014",
-    client: "Aperture Science",
-    company: "Aperture Science Inc.",
-    email: "glados@aperture.com",
-    phone: "+1-555-0114",
-    issueDate: "2024-05-30",
-    dueDate: "2024-06-29",
-    status: "pending",
-    currency: "USD",
-    payMethod: "Wire",
-    paidAmt: 5000,
-    subtotal: 15000,
-    tax: 2700,
-    disc: 0,
-    shipping: 0,
-    total: 17700,
-    createdBy: "Bob Martinez",
-    notes: "Portal tech license",
-    items: [mkItem("Portal Technology", 3, 5000, 18)],
-  },
-  {
-    id: "INV-10015",
-    client: "Rekall Corporation",
-    company: "Rekall Corp.",
-    email: "quaid@rekall.com",
-    phone: "+1-555-0115",
-    issueDate: "2024-04-20",
-    dueDate: "2024-05-20",
-    status: "void",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 4200,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 4200,
-    createdBy: "Alice Johnson",
-    notes: "Voided – duplicate",
-    items: [mkItem("Memory Implants", 7, 600)],
-  },
-  {
-    id: "INV-10016",
-    client: "Weyland Corp",
-    company: "Weyland Industries",
-    email: "vickers@weyland.co",
-    phone: "+1-555-0116",
-    issueDate: "2024-06-05",
-    dueDate: "2024-07-05",
-    status: "pending",
-    currency: "GBP",
-    payMethod: "Bank Transfer",
-    paidAmt: 0,
-    subtotal: 28000,
-    tax: 5600,
-    disc: 2000,
-    shipping: 500,
-    total: 32100,
-    createdBy: "Carol White",
-    notes: "Prometheus project",
-    items: [
-      mkItem("Deep Space Research", 40, 700, 20),
-      mkItem("Equipment Rental", 1, 0),
-    ],
-  },
-  {
-    id: "INV-10017",
-    client: "Tyrell Corporation",
-    company: "Tyrell Corp.",
-    email: "eldon@tyrell.corp",
-    phone: "+1-555-0117",
-    issueDate: "2024-05-12",
-    dueDate: "2024-06-12",
-    status: "paid",
-    currency: "USD",
-    payMethod: "Crypto",
-    paidAmt: 66000,
-    subtotal: 60000,
-    tax: 6000,
-    disc: 0,
-    shipping: 0,
-    total: 66000,
-    createdBy: "Bob Martinez",
-    notes: "Replicant order batch",
-    items: [mkItem("Nexus-6 Units", 6, 10000, 10)],
-  },
-  {
-    id: "INV-10018",
-    client: "OmniCorp",
-    company: "OmniCorp Global",
-    email: "ceo@omnicorp.com",
-    phone: "+1-555-0118",
-    issueDate: "2024-06-10",
-    dueDate: "2024-07-10",
-    status: "draft",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 9800,
-    tax: 1764,
-    disc: 800,
-    shipping: 0,
-    total: 10764,
-    createdBy: "Alice Johnson",
-    notes: "RoboCop maintenance",
-    items: [mkItem("Robotics Service", 14, 700, 18)],
-  },
-  {
-    id: "INV-10019",
-    client: "Soylent Corp",
-    company: "Soylent Corporation",
-    email: "ap@soylent.green",
-    phone: "+1-555-0119",
-    issueDate: "2024-03-15",
-    dueDate: "2024-04-15",
-    status: "overdue",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 3000,
-    subtotal: 8500,
-    tax: 0,
-    disc: 0,
-    shipping: 0,
-    total: 8500,
-    createdBy: "Carol White",
-    notes: "Partial payment received",
-    items: [mkItem("Food Processing", 17, 500)],
-  },
-  {
-    id: "INV-10020",
-    client: "Initech LLC",
-    company: "Initech Technologies",
-    email: "finance@initech.com",
-    phone: "+1-555-0103",
-    issueDate: "2024-06-15",
-    dueDate: "2024-07-15",
-    status: "pending",
-    currency: "USD",
-    payMethod: "—",
-    paidAmt: 0,
-    subtotal: 6400,
-    tax: 1152,
-    disc: 0,
-    shipping: 0,
-    total: 7552,
-    createdBy: "Bob Martinez",
-    notes: "Follow-up contract",
-    items: [mkItem("Extended Support", 20, 320, 18)],
-  },
-];
+
 function useCounter(target, duration = 900) {
   const [val, setVal] = useState(0);
   useEffect(() => {
@@ -594,7 +172,7 @@ function StatCard({
       <div className="flex items-center justify-between">
         {" "}
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+          className="w-10 h-10 rounded-card flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
           style={{ background: bg }}
         >
           {" "}
@@ -657,7 +235,7 @@ function ColVisMenu({ visible, onToggle, onClose }) {
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full mt-2 bg-white rounded-xl z-50 py-2"
+      className="absolute right-0 top-full mt-2 bg-white rounded-card z-50 py-2"
       style={{
         minWidth: 200,
         boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
@@ -677,7 +255,7 @@ function ColVisMenu({ visible, onToggle, onClose }) {
         >
           {" "}
           <div
-            className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-colors ${visible.has(col.key) ? "bg-indigo-600" : "border-2 border-gray-300"}`}
+            className={`w-4 h-4 rounded-card flex items-center justify-center flex-shrink-0 transition-colors ${visible.has(col.key) ? "bg-indigo-600" : "border-2 border-gray-300"}`}
           >
             {" "}
             {visible.has(col.key) && <Check size={11} color="white" />}{" "}
@@ -766,14 +344,14 @@ function ActionMenu({
       {" "}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+        className="w-8 h-8 flex items-center justify-center rounded-card text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
       >
         {" "}
         <MoreVertical size={16} />{" "}
       </button>{" "}
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 bg-white rounded-xl z-50 py-1.5"
+          className="absolute right-0 top-full mt-1 bg-white rounded-card z-50 py-1.5"
           style={{
             minWidth: 190,
             boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
@@ -821,14 +399,14 @@ function SortTh({ label, field, sort, onSort, className = "" }) {
           <ChevronUp
             size={9}
             style={{
-              color: active && sort.dir === "asc" ? "#4F46E5" : "#CBD5E1",
+              color: active && sort.dir === "asc" ? "#586EF0" : "#CBD5E1",
               display: "block",
             }}
           />{" "}
           <ChevronDown
             size={9}
             style={{
-              color: active && sort.dir === "desc" ? "#4F46E5" : "#CBD5E1",
+              color: active && sort.dir === "desc" ? "#586EF0" : "#CBD5E1",
               display: "block",
               marginTop: -2,
             }}
@@ -847,7 +425,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
     <tr style={{ borderTop: "1px solid #F1F5F9" }}>
       <td className="px-3 py-2" style={{ minWidth: 180 }}>
         <input
-          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full text-sm border border-gray-200 rounded-input px-3 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           value={item.desc}
           onChange={(e) => onChange(index, "desc", e.target.value)}
           placeholder="Item description"
@@ -857,7 +435,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
         <input
           type="number"
           min="1"
-          className="w-full text-sm text-right border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full text-sm text-right border border-gray-200 rounded-input px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           value={item.qty}
           onChange={(e) => onChange(index, "qty", e.target.value)}
         />{" "}
@@ -867,7 +445,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
           type="number"
           min="0"
           step="0.01"
-          className="w-full text-sm text-right border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full text-sm text-right border border-gray-200 rounded-input px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           value={item.price}
           onChange={(e) => onChange(index, "price", e.target.value)}
         />{" "}
@@ -877,7 +455,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
           type="number"
           min="0"
           max="100"
-          className="w-full text-sm text-right border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full text-sm text-right border border-gray-200 rounded-input px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           value={item.tax}
           onChange={(e) => onChange(index, "tax", e.target.value)}
         />{" "}
@@ -887,7 +465,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
           type="number"
           min="0"
           max="100"
-          className="w-full text-sm text-right border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          className="w-full text-sm text-right border border-gray-200 rounded-input px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           value={item.disc}
           onChange={(e) => onChange(index, "disc", e.target.value)}
         />{" "}
@@ -899,7 +477,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
         {canRemove && (
           <button
             onClick={() => onRemove(index)}
-            className="w-6 h-6 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all mx-auto"
+            className="w-6 h-6 flex items-center justify-center rounded-card text-red-400 hover:text-red-600 hover:bg-red-50 transition-all mx-auto"
           >
             <X size={13} />{" "}
           </button>
@@ -981,11 +559,26 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
       if (!it.desc?.trim()) e["item_" + i] = "Required";
     });
     setErrors(e);
-    return Object.keys(e).length === 0;
+    return e;
   };
   const handleSave = (asDraft) => {
-    if (!validate()) {
-      toast.error("Please fix validation errors");
+    const e = validate();
+    const errorKeys = Object.keys(e);
+
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0];
+      let targetTab = "client";
+
+      if (firstErrorKey === "client" || firstErrorKey === "email") {
+        targetTab = "client";
+      } else if (firstErrorKey === "issueDate" || firstErrorKey === "dueDate") {
+        targetTab = "invoice";
+      } else if (firstErrorKey.startsWith("item_")) {
+        targetTab = "items";
+      }
+
+      setActiveSection(targetTab);
+      toast.error(`Validation Error: ${e[firstErrorKey]}`, { id: "validation-error" });
       return;
     }
     onSave(
@@ -1049,7 +642,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
           </div>{" "}
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-button text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
           >
             {" "}
             <X size={18} />{" "}
@@ -1086,7 +679,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   </label>{" "}
                   <input
                     className={
-                      "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all " +
+                      "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none transition-all " +
                       (errors.client
                         ? "border-red-400 focus:ring-2 focus:ring-red-100"
                         : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1106,7 +699,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Company{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.company || ""}
                     onChange={(e) => set("company", e.target.value)}
                     placeholder="Company name"
@@ -1124,7 +717,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="email"
                     className={
-                      "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all " +
+                      "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none transition-all " +
                       (errors.email
                         ? "border-red-400 focus:ring-2 focus:ring-red-100"
                         : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1144,7 +737,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Phone{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.phone || ""}
                     onChange={(e) => set("phone", e.target.value)}
                     placeholder="+1-555-0000"
@@ -1161,7 +754,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   </label>{" "}
                   <textarea
                     rows={3}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
                     value={form.billingAddr || ""}
                     onChange={(e) => set("billingAddr", e.target.value)}
                     placeholder="Street, City, State, ZIP"
@@ -1175,7 +768,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   </label>{" "}
                   <textarea
                     rows={3}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
                     value={form.shippingAddr || ""}
                     onChange={(e) => set("shippingAddr", e.target.value)}
                     placeholder="Same as billing"
@@ -1191,7 +784,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     GST / VAT Number{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.gst || ""}
                     onChange={(e) => set("gst", e.target.value)}
                     placeholder="GST123456"
@@ -1204,7 +797,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Payment Terms{" "}
                   </label>{" "}
                   <select
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-white"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-white"
                     value={form.paymentTerms || "Net 30"}
                     onChange={(e) => set("paymentTerms", e.target.value)}
                   >
@@ -1228,7 +821,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Sales Representative{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.salesRep || ""}
                     onChange={(e) => set("salesRep", e.target.value)}
                     placeholder="Rep name"
@@ -1250,7 +843,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Invoice Number{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 font-mono"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 font-mono"
                     value={form.id || ""}
                     onChange={(e) => set("id", e.target.value)}
                   />{" "}
@@ -1264,7 +857,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="date"
                     className={
-                      "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all " +
+                      "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none transition-all " +
                       (errors.issueDate
                         ? "border-red-400"
                         : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1282,7 +875,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="date"
                     className={
-                      "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all " +
+                      "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none transition-all " +
                       (errors.dueDate
                         ? "border-red-400"
                         : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1301,7 +894,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Currency{" "}
                   </label>{" "}
                   <select
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                     value={form.currency || "USD"}
                     onChange={(e) => set("currency", e.target.value)}
                   >
@@ -1318,7 +911,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     Reference Number{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.refNum || ""}
                     onChange={(e) => set("refNum", e.target.value)}
                     placeholder="REF-001"
@@ -1331,7 +924,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                     PO Number{" "}
                   </label>{" "}
                   <input
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.poNum || ""}
                     onChange={(e) => set("poNum", e.target.value)}
                     placeholder="PO-2024-001"
@@ -1349,7 +942,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="number"
                     min="0"
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.shipping || 0}
                     onChange={(e) => set("shipping", e.target.value)}
                   />{" "}
@@ -1363,7 +956,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="number"
                     min="0"
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.extraCharge || 0}
                     onChange={(e) => set("extraCharge", e.target.value)}
                   />{" "}
@@ -1377,7 +970,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                     value={form.roundOff || 0}
                     onChange={(e) => set("roundOff", e.target.value)}
                   />{" "}
@@ -1388,7 +981,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
           {}{" "}
           {activeSection === "items" && (
             <div className="space-y-4">
-              <div className="rounded-xl overflow-hidden border border-gray-100">
+              <div className="rounded-card overflow-hidden border border-gray-100">
                 <table className="w-full">
                   <thead>
                     <tr style={{ background: "#F8FAFC" }}>
@@ -1471,7 +1064,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                 </label>{" "}
                 <textarea
                   rows={3}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+                  className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
                   value={form.notes || ""}
                   onChange={(e) => set("notes", e.target.value)}
                   placeholder="Notes visible to the customer…"
@@ -1485,7 +1078,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                 </label>{" "}
                 <textarea
                   rows={3}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+                  className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
                   value={form.internalNotes || ""}
                   onChange={(e) => set("internalNotes", e.target.value)}
                   placeholder="Internal team notes (not visible to client)…"
@@ -1499,7 +1092,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
                 </label>{" "}
                 <textarea
                   rows={4}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+                  className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
                   value={form.terms || ""}
                   onChange={(e) => set("terms", e.target.value)}
                   placeholder="Payment terms, late fees, etc."
@@ -1522,7 +1115,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
             {" "}
             <button
               onClick={() => handleSave(true)}
-              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all flex items-center gap-2"
               style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }}
             >
               {" "}
@@ -1532,7 +1125,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
               onClick={() => handleSave(false)}
               className="btn btn-primary gap-2"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
                 boxShadow: "0 4px 14px rgba(79,70,229,0.35)",
               }}
             >
@@ -1547,9 +1140,7 @@ function InvoiceFormModal({ open, initial, onClose, onSave }) {
   );
 }
 function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
-  if (!open || !inv) return null;
-  const balance = (inv.total || 0) - (inv.paidAmt || 0);
-  return (
+  const handleDownloadPDF = async () => { try { const response = await api.get(`/invoices/${inv.id}/download`, { responseType: `blob` }); const url = window.URL.createObjectURL(new Blob([response.data])); const link = document.createElement(`a`); link.href = url; link.setAttribute(`download`, `Invoice_${inv.id}.pdf`); document.body.appendChild(link); link.click(); link.parentNode.removeChild(link); } catch (error) { console.error("PDF download failed", error); toast.error("Failed to download PDF"); } }; if (!open || !inv) return null; const balance = (inv.total || 0) - (inv.paidAmt || 0); return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: "rgba(15,20,40,0.55)" }}
@@ -1569,7 +1160,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
           {" "}
           <div className="flex items-center gap-3">
             {" "}
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-card bg-indigo-50 flex items-center justify-center">
               {" "}
               <FileText size={20} className="text-indigo-600" />{" "}
             </div>{" "}
@@ -1584,7 +1175,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
           </div>{" "}
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-button text-gray-400 hover:bg-gray-100 transition-all"
           >
             {" "}
             <X size={18} />{" "}
@@ -1595,7 +1186,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
           {}{" "}
           <div className="grid grid-cols-2 gap-6">
             {" "}
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+            <div className="bg-gray-50 rounded-card p-4 space-y-3">
               {" "}
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 {" "}
@@ -1616,7 +1207,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
                 </div>
               ))}{" "}
             </div>{" "}
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+            <div className="bg-gray-50 rounded-card p-4 space-y-3">
               {" "}
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 {" "}
@@ -1645,7 +1236,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
                 Line Items{" "}
               </p>{" "}
-              <div className="rounded-xl overflow-hidden border border-gray-100">
+              <div className="rounded-card overflow-hidden border border-gray-100">
                 <table className="w-full text-sm">
                   <thead style={{ background: "#F8FAFC" }}>
                     <tr>
@@ -1759,21 +1350,21 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
           <div className="flex gap-2">
             {" "}
             <button
-              onClick={() => {
-                toast.success("PDF downloaded");
-                onClose();
-              }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
-            >
-              {" "}
-              <Download size={14} /> PDF{" "}
-            </button>{" "}
+                onClick={() => {
+                  handleDownloadPDF();
+                  onClose();
+                }}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
+              >
+                {" "}
+                <Download size={14} /> PDF{" "}
+              </button>{" "}
             <button
               onClick={() => {
                 toast.success("Sent to " + inv.email);
                 onClose();
               }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
             >
               {" "}
               <Mail size={14} /> Email{" "}
@@ -1787,7 +1378,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
                   onClose();
                   onRecordPayment();
                 }}
-                className="px-4 py-2 text-sm font-semibold text-white rounded-xl flex items-center gap-2 transition-all"
+                className="px-4 py-2 text-sm font-semibold text-white rounded-card flex items-center gap-2 transition-all"
                 style={{ background: "#16A34A" }}
               >
                 {" "}
@@ -1801,7 +1392,7 @@ function ViewModal({ open, invoice: inv, onClose, onEdit, onRecordPayment }) {
               }}
               className="btn btn-primary gap-2"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
               }}
             >
               {" "}
@@ -1846,7 +1437,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
           </h2>{" "}
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-button text-gray-400 hover:bg-gray-100 transition-all"
           >
             {" "}
             <X size={16} />{" "}
@@ -1855,7 +1446,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
         <div className="px-6 py-5 space-y-4">
           {" "}
           <div
-            className="rounded-xl p-4"
+            className="rounded-card p-4"
             style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}
           >
             {" "}
@@ -1898,7 +1489,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
                 min="0"
                 max={balance}
                 step="0.01"
-                className="w-full text-sm border border-gray-200 rounded-xl pl-8 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="w-full text-sm border border-gray-200 rounded-input pl-8 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />{" "}
@@ -1911,7 +1502,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
               Payment Method{" "}
             </label>{" "}
             <select
-              className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+              className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
               value={method}
               onChange={(e) => setMethod(e.target.value)}
             >
@@ -1929,7 +1520,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
             </label>{" "}
             <input
               type="date"
-              className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />{" "}
@@ -1941,7 +1532,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
               Transaction Reference{" "}
             </label>{" "}
             <input
-              className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               value={txRef}
               onChange={(e) => setTxRef(e.target.value)}
               placeholder="TXN-12345"
@@ -1961,7 +1552,7 @@ function PaymentModal({ open, invoice: inv, onClose, onConfirm }) {
             onClick={() =>
               onConfirm({ method, date, amount: Number(amount), ref: txRef })
             }
-            className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl flex items-center gap-2 hover:opacity-90 transition-all"
+            className="px-6 py-2.5 text-sm font-semibold text-white rounded-card flex items-center gap-2 hover:opacity-90 transition-all"
             style={{
               background: "#16A34A",
               boxShadow: "0 4px 14px rgba(22,163,74,0.3)",
@@ -2021,7 +1612,7 @@ function DeleteModal({ open, invoice: inv, onClose, onConfirm }) {
               confirm{" "}
             </label>{" "}
             <input
-              className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 font-mono"
+              className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 font-mono"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder={inv.id}
@@ -2040,7 +1631,7 @@ function DeleteModal({ open, invoice: inv, onClose, onConfirm }) {
           <button
             disabled={confirm !== inv.id}
             onClick={onConfirm}
-            className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 text-sm font-semibold text-white rounded-button transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: "#DC2626",
               boxShadow:
@@ -2124,7 +1715,7 @@ function SkeletonRows({ count = 8, cols = 10 }) {
 }
 const PAGE_SIZE = 10;
 export default function InvoiceManagement() {
-  const [invoices, setInvoices] = useState(SEED_INVOICES);
+  const [invoices, setInvoices] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -2145,9 +1736,34 @@ export default function InvoiceManagement() {
   const [payInvoice, setPayInvoice] = useState(null);
   const [deleteInvoice, setDeleteInvoice] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
+  
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(t);
+    api.get("/invoices")
+      .then(res => {
+        const raw = res.data.data.content || [];
+        setInvoices(raw.map(i => ({
+          id: i.id,
+          client: `Customer (${i.customerId})`,
+          company: `Company (${i.customerId})`,
+          email: "",
+          phone: "",
+          issueDate: i.createdAt ? i.createdAt.substring(0,10) : "",
+          dueDate: i.dueDate ? i.dueDate.substring(0,10) : "",
+          status: i.paymentStatus === "PAID" ? "paid" : i.paymentStatus === "OVERDUE" ? "overdue" : i.status === "DRAFT" ? "draft" : i.status === "VOIDED" ? "void" : "pending",
+          currency: i.currency || "USD",
+          payMethod: "—",
+          paidAmt: i.amountPaid || 0,
+          subtotal: i.total || 0,
+          tax: 0,
+          disc: 0,
+          total: i.total || 0,
+          balance: i.amountDue || 0,
+          createdBy: "System",
+          items: []
+        })));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => {
     setPage(0);
@@ -2373,7 +1989,7 @@ export default function InvoiceManagement() {
               <span
                 style={{
                   background:
-                    "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)",
+                    "linear-gradient(135deg, #586EF0 0%, #7C3AED 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -2393,7 +2009,7 @@ export default function InvoiceManagement() {
                 setLoading(true);
                 setTimeout(() => setLoading(false), 600);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-card text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-all"
               style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}
             >
               {" "}
@@ -2401,7 +2017,7 @@ export default function InvoiceManagement() {
             </button>{" "}
             <button
               onClick={() => exportCSV(sorted)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
               style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}
             >
               {" "}
@@ -2412,7 +2028,7 @@ export default function InvoiceManagement() {
               onClick={() => setCreateOpen(true)}
               className="btn btn-primary gap-2"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
                 boxShadow: "0 4px 14px rgba(79,70,229,0.40)",
               }}
             >
@@ -2434,7 +2050,7 @@ export default function InvoiceManagement() {
               rawValue: stats.total,
               displayValue: String(stats.total),
               icon: Layers,
-              color: "#4F46E5",
+              color: "#586EF0",
               bg: "#EEF2FF",
               trend: 12,
             },
@@ -2504,7 +2120,7 @@ export default function InvoiceManagement() {
               rawValue: Math.round(stats.avgValue),
               displayValue: "$" + (stats.avgValue / 1000).toFixed(1) + "k",
               icon: BarChart2,
-              color: "#4F46E5",
+              color: "#586EF0",
               bg: "#EEF2FF",
               trend: 4,
             },
@@ -2535,7 +2151,7 @@ export default function InvoiceManagement() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full text-sm pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full text-sm pl-10 pr-4 py-2.5 border border-gray-200 rounded-card focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
                 placeholder="Search invoices, clients, emails, phone…"
               />{" "}
               {search && (
@@ -2552,7 +2168,7 @@ export default function InvoiceManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+              className="text-sm border border-gray-200 rounded-card px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
               style={{ minWidth: 140 }}
             >
               {" "}
@@ -2566,7 +2182,7 @@ export default function InvoiceManagement() {
             {}{" "}
             <button
               onClick={() => setShowFilters((v) => !v)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border transition-all ${showFilters ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-card border transition-all ${showFilters ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
             >
               {" "}
               <SlidersHorizontal size={14} />
@@ -2590,7 +2206,7 @@ export default function InvoiceManagement() {
               {" "}
               <button
                 onClick={() => setShowColMenu((v) => !v)}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-card border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all"
               >
                 {" "}
                 <Columns size={14} />
@@ -2607,7 +2223,7 @@ export default function InvoiceManagement() {
             {hasFilters && (
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl text-red-600 bg-red-50 hover:bg-red-100 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-button text-red-600 bg-red-50 hover:bg-red-100 transition-all"
               >
                 {" "}
                 <XCircle size={14} />
@@ -2632,7 +2248,7 @@ export default function InvoiceManagement() {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 148 }}
                 />{" "}
               </div>{" "}
@@ -2645,14 +2261,14 @@ export default function InvoiceManagement() {
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 148 }}
                 />{" "}
               </div>{" "}
               <select
                 value={payMethodFilter}
                 onChange={(e) => setPayMethodFilter(e.target.value)}
-                className="text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+                className="text-sm border border-gray-200 rounded-card px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
                 style={{ minWidth: 160 }}
               >
                 {" "}
@@ -2664,7 +2280,7 @@ export default function InvoiceManagement() {
               <select
                 value={currencyFilter}
                 onChange={(e) => setCurrencyFilter(e.target.value)}
-                className="text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+                className="text-sm border border-gray-200 rounded-card px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
                 style={{ minWidth: 120 }}
               >
                 {" "}
@@ -2707,28 +2323,28 @@ export default function InvoiceManagement() {
                 <div className="w-px h-4 bg-gray-200" />{" "}
                 <button
                   onClick={handleBulkMarkPaid}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-50 rounded-button hover:bg-green-100 transition-all"
                 >
                   <CheckCircle size={12} />
                   Mark Paid
                 </button>{" "}
                 <button
                   onClick={handleBulkEmail}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 rounded-button hover:bg-blue-100 transition-all"
                 >
                   <Mail size={12} />
                   Email
                 </button>{" "}
                 <button
                   onClick={handleBulkExport}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-button hover:bg-gray-200 transition-all"
                 >
                   <FileDown size={12} />
                   Export
                 </button>{" "}
                 <button
                   onClick={handleBulkDelete}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 rounded-button hover:bg-red-100 transition-all"
                 >
                   <Trash2 size={12} />
                   Delete
@@ -2750,7 +2366,7 @@ export default function InvoiceManagement() {
                     style={{ background: "#F8FAFC" }}
                   >
                     <div
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${pageData.length > 0 && selected.size === pageData.length ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
+                      className={`w-4 h-4 rounded-input border-2 flex items-center justify-center cursor-pointer transition-all ${pageData.length > 0 && selected.size === pageData.length ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
                       onClick={toggleAll}
                     >
                       {" "}
@@ -2759,7 +2375,7 @@ export default function InvoiceManagement() {
                           <Check size={10} color="white" />
                         )}{" "}
                       {selected.size > 0 && selected.size < pageData.length && (
-                        <Minus size={10} color="#4F46E5" />
+                        <Minus size={10} color="#586EF0" />
                       )}{" "}
                     </div>{" "}
                   </th>{" "}
@@ -2928,7 +2544,7 @@ export default function InvoiceManagement() {
                             className="btn btn-primary gap-2 mt-2"
                             style={{
                               background:
-                                "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                                "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
                             }}
                           >
                             {" "}
@@ -2939,7 +2555,7 @@ export default function InvoiceManagement() {
                         {hasFilters && (
                           <button
                             onClick={resetFilters}
-                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all"
+                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-button hover:bg-indigo-100 transition-all"
                           >
                             {" "}
                             <RefreshCw size={14} />
@@ -2988,7 +2604,7 @@ export default function InvoiceManagement() {
                         >
                           {" "}
                           <div
-                            className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
+                            className={`w-4 h-4 rounded-input border-2 flex items-center justify-center cursor-pointer transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
                           >
                             {isSelected && (
                               <Check size={10} color="white" />
@@ -2997,7 +2613,7 @@ export default function InvoiceManagement() {
                         </td>{" "}
                         {colVisible("id") && (
                           <td className="px-4 py-3.5">
-                            <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">
+                            <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-card">
                               {row.id}
                             </span>{" "}
                           </td>
@@ -3053,7 +2669,7 @@ export default function InvoiceManagement() {
                         )}{" "}
                         {colVisible("currency") && (
                           <td className="px-4 py-3.5">
-                            <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                            <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-card">
                               {row.currency}
                             </span>
                           </td>
@@ -3133,7 +2749,7 @@ export default function InvoiceManagement() {
                               window.print();
                             }}
                             onEmail={() =>
-                              toast.success("Email sent to " + row.email)
+                              toast.success("Email simulated (test environment) — no real email sent to " + row.email)
                             }
                             onRecordPayment={() => setPayInvoice(row)}
                             onMarkPaid={() => handleMarkPaid(row)}
@@ -3163,7 +2779,7 @@ export default function InvoiceManagement() {
                 <button
                   disabled={page === 0}
                   onClick={() => setPage((p) => p - 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-card text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   {" "}
                   <ChevronLeft size={14} />{" "}
@@ -3181,9 +2797,9 @@ export default function InvoiceManagement() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all"
+                      className="w-8 h-8 flex items-center justify-center rounded-card text-sm font-medium transition-all"
                       style={{
-                        background: page === p ? "#4F46E5" : "transparent",
+                        background: page === p ? "#586EF0" : "transparent",
                         color: page === p ? "#fff" : "#6B7280",
                         border: page === p ? "none" : "1px solid #E5E7EB",
                       }}
@@ -3196,7 +2812,7 @@ export default function InvoiceManagement() {
                 <button
                   disabled={page >= totalPages - 1}
                   onClick={() => setPage((p) => p + 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-card text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   {" "}
                   <ChevronRight size={14} />{" "}
@@ -3246,3 +2862,6 @@ export default function InvoiceManagement() {
     </div>
   );
 }
+
+
+

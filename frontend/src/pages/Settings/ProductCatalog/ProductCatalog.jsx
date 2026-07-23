@@ -109,7 +109,7 @@ function BillingFrequencyManager({ onBack }) {
         {/* Frequency list */}{" "}
         <div className="card space-y-0 p-0 overflow-hidden">
           {" "}
-          <div className="px-5 py-3 border-b border-border bg-stone-50 flex items-center justify-between">
+          <div className="px-5 py-3 border-b border-border bg-bg-main flex items-center justify-between">
             {" "}
             <span className="text-2xs font-semibold text-muted uppercase tracking-wide">
               {" "}
@@ -126,14 +126,14 @@ function BillingFrequencyManager({ onBack }) {
               return (
                 <div
                   key={freq.id}
-                  className={`flex items-center justify-between px-5 py-3.5 transition-colors ${isSelected ? "bg-accent/[0.03]" : "hover:bg-stone-50"}`}
+                  className={`flex items-center justify-between px-5 py-3.5 transition-colors ${isSelected ? "bg-primary/[0.03]" : "hover:bg-bg-main"}`}
                 >
                   {" "}
                   <div className="flex items-center gap-3">
                     {" "}
                     <button
                       onClick={() => toggleSelect(freq.id)}
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "bg-accent border-accent text-white" : "border-border bg-surface hover:border-accent"}`}
+                      className={`w-5 h-5 rounded-input border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "bg-primary border-primary text-white" : "border-border bg-surface hover:border-primary"}`}
                     >
                       {" "}
                       {isSelected && <Check size={11} strokeWidth={3} />}{" "}
@@ -144,7 +144,7 @@ function BillingFrequencyManager({ onBack }) {
                         {freq.label}
                       </span>{" "}
                       {freq.isCustom && (
-                        <span className="ml-2 text-2xs bg-stone-100 text-muted border border-border px-1.5 py-0.5 rounded">
+                        <span className="ml-2 text-2xs bg-bg-main text-muted border border-border px-1.5 py-0.5 rounded-card">
                           {" "}
                           Custom{" "}
                         </span>
@@ -161,7 +161,7 @@ function BillingFrequencyManager({ onBack }) {
                     {freq.isCustom && (
                       <button
                         onClick={() => handleDeleteCustom(freq.id)}
-                        className="ml-2 p-1 text-muted hover:text-danger transition-colors rounded"
+                        className="ml-2 p-1 text-muted hover:text-danger transition-colors rounded-card"
                         title="Remove"
                       >
                         {" "}
@@ -174,12 +174,12 @@ function BillingFrequencyManager({ onBack }) {
             })}{" "}
           </div>{" "}
           {/* Add custom row */}{" "}
-          <div className="border-t border-border bg-stone-50 px-5 py-3">
+          <div className="border-t border-border bg-bg-main px-5 py-3">
             {" "}
             {!showAddForm ? (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="flex items-center gap-2 text-sm text-accent hover:text-accent-hover font-medium transition-colors"
+                className="flex items-center gap-2 text-sm text-primary hover:text-primary-hover font-medium transition-colors"
               >
                 {" "}
                 <Plus size={14} /> Add Custom Frequency{" "}
@@ -252,5 +252,5 @@ export default function ProductCatalog() {
   const [productFamilyEnabled, setProductFamilyEnabled] = useState(
     () => localStorage.getItem("product_family_enabled") === "true",
   );
-  const [page, setPage] = useState("main"); // 'main' | 'billing-frequency' const toggleProductFamily = () => { const next = !productFamilyEnabled; setProductFamilyEnabled(next); localStorage.setItem('product_family_enabled', String(next)); toast.success(`Product Family ${next ? 'enabled' : 'disabled'}`); }; if (page === 'billing-frequency') { return <BillingFrequencyManager onBack={() => setPage('main')} />; } return ( <div> {/* Header */} <div className="module-header"> <div className="breadcrumb"> <span>Settings</span> <ChevronRight size={12} className="breadcrumb-sep" /> <span className="breadcrumb-current">Product Catalog</span> </div> </div> <div className="px-8 py-8 max-w-3xl mx-auto space-y-6"> <div> <h1 className="page-title">Product Catalog</h1> <p className="page-subtitle"> Configure product families and billing frequencies for your plans. </p> </div> {/* Enable Product Family */} <div className="card"> <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-border"> <Package2 size={16} style={{ color: '#6B6863' }} /> <div className="section-label mb-0">Product Family</div> </div> <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"> <div> <h3 className="text-sm font-semibold text-ink">Enable Product Family</h3> <p className="text-xs text-muted mt-0.5 max-w-sm"> Group plans and add-ons under product families for better organization and reporting. </p> <div className="mt-2 flex items-center gap-1.5"> <span className={`w-1.5 h-1.5 rounded-full ${productFamilyEnabled ? 'bg-success' : 'bg-stone-300'}`} /> <span className={`text-xs font-medium ${productFamilyEnabled ? 'text-success' : 'text-muted'}`}> {productFamilyEnabled ? 'Enabled' : 'Disabled'} </span> </div> </div> <button onClick={toggleProductFamily} className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 ${ productFamilyEnabled ? 'bg-accent' : 'bg-stone-300' }`} role="switch" aria-checked={productFamilyEnabled} > <span className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${ productFamilyEnabled ? 'translate-x-5' : 'translate-x-0' }`} /> </button> </div> </div> {/* Setup Billing Frequency */} <div className="card"> <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-border"> <Calendar size={16} style={{ color: '#6B6863' }} /> <div className="section-label mb-0">Billing Frequency</div> </div> <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"> <div> <h3 className="text-sm font-semibold text-ink">Setup Billing Frequency</h3> <p className="text-xs text-muted mt-0.5 max-w-sm"> Define the billing cycles available for your plans — Daily, Weekly, Monthly, Yearly, or custom intervals. </p> <div className="mt-3 flex flex-wrap gap-1.5"> {['Daily', 'Weekly', 'Monthly', 'Yearly'].map(f => ( <span key={f} className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-medium bg-stone-100 text-muted border border-border" > {f} </span> ))} <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-medium bg-accent/10 text-accent border border-accent/20"> + Custom </span> </div> </div> <button onClick={() => setPage('billing-frequency')} className="btn-secondary btn-sm flex items-center gap-1.5 whitespace-nowrap" > Manage <ArrowRight size={13} /> </button> </div> </div> </div> </div> );
+  const [page, setPage] = useState("main"); // 'main' | 'billing-frequency' const toggleProductFamily = () => { const next = !productFamilyEnabled; setProductFamilyEnabled(next); localStorage.setItem('product_family_enabled', String(next)); toast.success(`Product Family ${next ? 'enabled' : 'disabled'}`); }; if (page === 'billing-frequency') { return <BillingFrequencyManager onBack={() => setPage('main')} />; } return ( <div> {/* Header */} <div className="module-header"> <div className="breadcrumb"> <span>Settings</span> <ChevronRight size={12} className="breadcrumb-sep" /> <span className="breadcrumb-current">Product Catalog</span> </div> </div> <div className="px-8 py-8 max-w-3xl mx-auto space-y-6"> <div> <h1 className="page-title">Product Catalog</h1> <p className="page-subtitle"> Configure product families and billing frequencies for your plans. </p> </div> {/* Enable Product Family */} <div className="card"> <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-border"> <Package2 size={16} style={{ color: '#6B6863' }} /> <div className="section-label mb-0">Product Family</div> </div> <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"> <div> <h3 className="text-sm font-semibold text-ink">Enable Product Family</h3> <p className="text-xs text-muted mt-0.5 max-w-sm"> Group plans and add-ons under product families for better organization and reporting. </p> <div className="mt-2 flex items-center gap-1.5"> <span className={`w-1.5 h-1.5 rounded-full ${productFamilyEnabled ? 'bg-success' : 'bg-stone-300'}`} /> <span className={`text-xs font-medium ${productFamilyEnabled ? 'text-success' : 'text-muted'}`}> {productFamilyEnabled ? 'Enabled' : 'Disabled'} </span> </div> </div> <button onClick={toggleProductFamily} className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 ${ productFamilyEnabled ? 'bg-primary' : 'bg-stone-300' }`} role="switch" aria-checked={productFamilyEnabled} > <span className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${ productFamilyEnabled ? 'translate-x-5' : 'translate-x-0' }`} /> </button> </div> </div> {/* Setup Billing Frequency */} <div className="card"> <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-border"> <Calendar size={16} style={{ color: '#6B6863' }} /> <div className="section-label mb-0">Billing Frequency</div> </div> <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"> <div> <h3 className="text-sm font-semibold text-ink">Setup Billing Frequency</h3> <p className="text-xs text-muted mt-0.5 max-w-sm"> Define the billing cycles available for your plans — Daily, Weekly, Monthly, Yearly, or custom intervals. </p> <div className="mt-3 flex flex-wrap gap-1.5"> {['Daily', 'Weekly', 'Monthly', 'Yearly'].map(f => ( <span key={f} className="inline-flex items-center px-2 py-0.5 rounded-button text-2xs font-medium bg-bg-main text-muted border border-border" > {f} </span> ))} <span className="inline-flex items-center px-2 py-0.5 rounded-button text-2xs font-medium bg-primary/10 text-primary border border-primary/20"> + Custom </span> </div> </div> <button onClick={() => setPage('billing-frequency')} className="btn-secondary btn-sm flex items-center gap-1.5 whitespace-nowrap" > Manage <ArrowRight size={13} /> </button> </div> </div> </div> </div> );
 }

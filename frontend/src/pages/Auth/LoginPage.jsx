@@ -126,7 +126,7 @@ export default function LoginPage() {
           </p>{" "}
           {/* Ledger sample decoration */}{" "}
           <div
-            className="mt-10 rounded-lg p-5 space-y-3"
+            className="mt-10 rounded-card p-5 space-y-3"
             style={{ background: "#1E1C17", border: "1px solid #2A2620" }}
           >
             {" "}
@@ -366,7 +366,7 @@ export default function LoginPage() {
                 <label className="label mb-0">Password</label>{" "}
                 <a
                   href="#"
-                  className="text-xs text-accent hover:text-accent-hover transition-colors"
+                  className="text-xs text-primary hover:text-primary-hover transition-colors"
                 >
                   {" "}
                   Forgot password?{" "}

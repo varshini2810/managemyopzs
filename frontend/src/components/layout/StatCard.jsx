@@ -6,8 +6,8 @@ export default function StatCard({
   value,
   label,
   trend, // e.g., { value: 12, label: 'vs last month' } or undefined
-  iconColor = "text-accent",
-  iconBg = "bg-accent-light",
+  iconColor = "text-primary",
+  iconBg = "bg-primary-light",
   className = "",
 }) {
   const isPositive = trend?.value >= 0;
@@ -16,7 +16,7 @@ export default function StatCard({
     <div className={`card flex flex-col gap-3 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`w-9 h-9 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center shrink-0`}>
+          <div className={`w-9 h-9 rounded-card ${iconBg} ${iconColor} flex items-center justify-center shrink-0`}>
             <Icon size={18} />
           </div>
           <span className="label !mb-0">{label}</span>

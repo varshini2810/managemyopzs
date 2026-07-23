@@ -34,7 +34,7 @@ export default function CustomersList() {
       header: "Name",
       cell: (row) => (
         <div
-          className="font-medium text-ink cursor-pointer hover:text-accent transition-colors"
+          className="font-medium text-ink cursor-pointer hover:text-primary transition-colors"
           onClick={() => navigate(`/customers/${row.id}`)}
         >
           {" "}
@@ -76,7 +76,7 @@ export default function CustomersList() {
       <div className="px-8 py-6">
         {" "}
         <div
-          className="bg-surface rounded-lg"
+          className="bg-surface rounded-card"
           style={{ border: "1px solid #E7E5E2" }}
         >
           {" "}

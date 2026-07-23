@@ -83,7 +83,7 @@ const STATUS_CONFIG = {
   },
   Inactive: {
     color: "text-stone-500",
-    bg: "bg-stone-100",
+    bg: "bg-bg-main",
     dot: "bg-stone-400",
   },
   Suspended: {
@@ -347,7 +347,7 @@ export default function ClientDetails() {
       {loading ? (
         <div className="flex justify-center py-20">
           {" "}
-          <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-lg animate-spin" />{" "}
+          <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-card animate-spin" />{" "}
         </div>
       ) : paginated.length === 0 ? (
         <div className="card mt-4 p-0">
@@ -425,7 +425,7 @@ export default function ClientDetails() {
                         </p>{" "}
                       </td>{" "}
                       <td className="px-4 py-3.5">
-                        <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200">
+                        <span className="px-2.5 py-1 rounded-card text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200">
                           {client.subscriptionPlan}{" "}
                         </span>{" "}
                       </td>{" "}
@@ -497,7 +497,7 @@ export default function ClientDetails() {
                 <button
                   disabled={page === 0}
                   onClick={() => setPage((p) => p - 1)}
-                  className="p-1.5 rounded-lg disabled:opacity-40 hover:bg-stone-100 transition-colors"
+                  className="p-1.5 rounded-card disabled:opacity-40 hover:bg-bg-main transition-colors"
                 >
                   {" "}
                   <ChevronLeft size={14} />{" "}
@@ -506,7 +506,7 @@ export default function ClientDetails() {
                   <button
                     key={i}
                     onClick={() => setPage(i)}
-                    className={`w-7 h-7 text-xs font-medium rounded-lg transition-colors ${i === page ? "bg-primary-600 text-white" : "hover:bg-stone-100 text-muted"}`}
+                    className={`w-7 h-7 text-xs font-medium rounded-card transition-colors ${i === page ? "bg-primary-600 text-white" : "hover:bg-bg-main text-muted"}`}
                   >
                     {" "}
                     {i + 1}{" "}
@@ -515,7 +515,7 @@ export default function ClientDetails() {
                 <button
                   disabled={page >= totalPages - 1}
                   onClick={() => setPage((p) => p + 1)}
-                  className="p-1.5 rounded-lg disabled:opacity-40 hover:bg-stone-100 transition-colors"
+                  className="p-1.5 rounded-card disabled:opacity-40 hover:bg-bg-main transition-colors"
                 >
                   {" "}
                   <ChevronRight size={14} />{" "}
@@ -541,13 +541,13 @@ function ClientAvatar({ client, size = "md" }) {
       <img
         src={client.logoUrl}
         alt={client.companyName}
-        className={`${dim} rounded-lg object-cover border border-border shrink-0`}
+        className={`${dim} rounded-card object-cover border border-border shrink-0`}
       />
     );
   }
   return (
     <div
-      className={`${dim} rounded-lg bg-slate-900 text-white font-bold flex items-center justify-center shrink-0`}
+      className={`${dim} rounded-card bg-slate-900 text-white font-bold flex items-center justify-center shrink-0`}
     >
       {" "}
       {initials}{" "}
@@ -559,7 +559,7 @@ function ActionBtn({ icon: Icon, title, onClick, color = "text-muted" }) {
     <button
       title={title}
       onClick={onClick}
-      className={`p-1.5 rounded-lg hover:bg-stone-100 ${color} transition-colors`}
+      className={`p-1.5 rounded-button hover:bg-bg-main ${color} transition-colors`}
     >
       {" "}
       <Icon size={14} />{" "}
@@ -653,7 +653,7 @@ function ClientForm({ client, onSave, onCancel }) {
             <button
               key={s.id}
               onClick={() => setActiveSection(s.id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors text-left ${activeSection === s.id ? "bg-primary-50 text-primary-700 border border-primary-200" : "text-muted hover:text-ink hover:bg-stone-50"}`}
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-card transition-colors text-left ${activeSection === s.id ? "bg-primary-50 text-primary-700 border border-primary-200" : "text-muted hover:text-ink hover:bg-bg-main"}`}
             >
               {" "}
               <s.icon size={15} /> {s.label}{" "}
@@ -675,7 +675,7 @@ function ClientForm({ client, onSave, onCancel }) {
                 <label className="label">Company Logo</label>{" "}
                 <div className="flex items-center gap-4 mt-1">
                   {" "}
-                  <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-surface-50 overflow-hidden">
+                  <div className="w-16 h-16 rounded-card border-2 border-dashed border-border flex items-center justify-center bg-surface-50 overflow-hidden">
                     {" "}
                     {form.logoUrl ? (
                       <img
@@ -1082,7 +1082,7 @@ function ClientForm({ client, onSave, onCancel }) {
                           key={s}
                           type="button"
                           onClick={() => set("subscriptionStatus", s)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${sel ? `${cfg.bg} ${cfg.color} border-current` : "border-border text-muted hover:bg-stone-50"}`}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-card border text-sm font-medium transition-all ${sel ? `${cfg.bg} ${cfg.color} border-current` : "border-border text-muted hover:bg-bg-main"}`}
                         >
                           {" "}
                           {sel && <Check size={13} />} {s}{" "}
@@ -1179,7 +1179,7 @@ function ClientViewDetail({ client, onBack, onEdit }) {
                 {client.subscriptionStatus} Subscription{" "}
               </span>{" "}
               {client.subscriptionPlan && (
-                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200">
+                <span className="px-2.5 py-1 rounded-card text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200">
                   {" "}
                   {client.subscriptionPlan} Plan{" "}
                 </span>

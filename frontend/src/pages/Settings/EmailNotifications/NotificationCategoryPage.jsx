@@ -104,7 +104,7 @@ export default function NotificationCategoryPage({
           </h1>{" "}
         </div>{" "}
         <button
-          className="flex items-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium shadow-sm transition-colors"
+          className="flex items-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-button font-medium shadow-sm transition-colors"
           onClick={() =>
             onEdit({
               name: "New Notification",
@@ -132,7 +132,7 @@ export default function NotificationCategoryPage({
             placeholder="Search notifications..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+            className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-card outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
           />{" "}
         </div>{" "}
         <div className="relative">
@@ -144,7 +144,7 @@ export default function NotificationCategoryPage({
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="appearance-none pl-9 pr-8 py-2 border border-stone-300 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm bg-white cursor-pointer"
+            className="appearance-none pl-9 pr-8 py-2 border border-stone-300 rounded-card outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm bg-white cursor-pointer"
           >
             {" "}
             <option value="all">All Status</option>{" "}
@@ -154,10 +154,10 @@ export default function NotificationCategoryPage({
         </div>{" "}
       </div>{" "}
       {/* Data Table */}{" "}
-      <div className="bg-white rounded-lg shadow-sm border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-card shadow-sm border border-stone-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-stone-50 border-b border-stone-200 text-stone-600">
+            <thead className="bg-bg-main border-b border-stone-200 text-stone-600">
               <tr>
                 <th className="px-6 py-3 font-medium">
                   Notification Name
@@ -172,7 +172,7 @@ export default function NotificationCategoryPage({
               {filtered.map((notif) => (
                 <tr
                   key={notif.id}
-                  className="hover:bg-stone-50 transition-colors"
+                  className="hover:bg-bg-main transition-colors"
                 >
                   <td className="px-6 py-4 font-medium">{notif.name}</td>{" "}
                   <td className="px-6 py-4">{notif.subject}</td>{" "}

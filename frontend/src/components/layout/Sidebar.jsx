@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { hasMinRole } from "../../utils/rbac";
 import {
   ChevronLeft,
   ChevronRight,
@@ -71,8 +72,8 @@ export default function Sidebar({ collapsed, onToggle, env }) {
       >
         {" "}
         <div
-          className="shrink-0 flex items-center justify-center rounded-lg overflow-hidden shadow-sm"
-          style={{ width: 32, height: 32, background: "#1E293B" }}
+          className="shrink-0 flex items-center justify-center rounded-card overflow-hidden shadow-sm bg-primary"
+          style={{ width: 32, height: 32 }}
         >
           {" "}
           <svg
@@ -101,7 +102,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
             {" "}
             Opz Billing OS{" "}
             {env === "live" && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
+              <span className="px-1.5 py-0.5 rounded-card text-[10px] font-bold bg-green-100 text-green-700">
                 LIVE
               </span>
             )}{" "}
@@ -119,7 +120,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
       >
         {" "}
         {/* Platform Console (ULTRASUPERADMIN ONLY) */}{" "}
-        {user?.role === "ULTRASUPERADMIN" && (
+        {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
           <div className="mb-8">
             {" "}
             {!collapsed && (
@@ -131,13 +132,13 @@ export default function Sidebar({ collapsed, onToggle, env }) {
               to="/platform-console/clients"
               title={collapsed ? "Client Management" : undefined}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all relative overflow-hidden ${isActive ? "bg-accent/10 text-accent font-semibold" : "text-muted hover:bg-stone-50 hover:text-ink"}`
+                `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-card transition-all relative overflow-hidden ${isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted hover:bg-bg-main hover:text-ink"}`
               }
               style={{ justifyContent: collapsed ? "center" : "flex-start" }}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-accent rounded-r-full" />}
+                  {isActive && <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-r-full" />}
                   <ActivitySquare size={18} className="shrink-0" />
                   {!collapsed && (
                     <span className="truncate">Client Management</span>
@@ -165,7 +166,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
                     {" "}
                     <button
                       onClick={() => toggleGroup(item.label)}
-                      className={`flex w-full items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isChildActive && !isExpanded ? "bg-accent text-white shadow-sm" : "text-muted hover:bg-stone-50 hover:text-ink"}`}
+                      className={`flex w-full items-center gap-3 px-3 py-2 text-sm font-medium rounded-card transition-colors ${isChildActive && !isExpanded ? "bg-primary text-white shadow-sm" : "text-muted hover:bg-bg-main hover:text-ink"}`}
                       style={{
                         justifyContent: collapsed ? "center" : "flex-start",
                       }}
@@ -200,7 +201,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
                             key={sub.to}
                             to={sub.to}
                             className={({ isActive }) =>
-                              `block px-3 py-1.5 text-xs font-medium rounded transition-colors ${isActive ? "text-accent bg-accent-light" : "text-muted hover:text-ink hover:bg-stone-50"}`
+                              `block px-3 py-1.5 text-xs font-medium rounded-card transition-colors ${isActive ? "text-primary bg-primary/10" : "text-muted hover:text-ink hover:bg-bg-main"}`
                             }
                           >
                             {" "}
@@ -219,7 +220,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
                   end={item.end}
                   title={collapsed ? item.label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all relative overflow-hidden ${isActive ? "bg-accent/10 text-accent font-semibold" : "text-muted hover:bg-stone-50 hover:text-ink"}`
+                    `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-card transition-all relative overflow-hidden ${isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted hover:bg-bg-main hover:text-ink"}`
                   }
                   style={{
                     justifyContent: collapsed ? "center" : "flex-start",
@@ -227,7 +228,7 @@ export default function Sidebar({ collapsed, onToggle, env }) {
                 >
                   {({ isActive }) => (
                     <>
-                      {isActive && <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-accent rounded-r-full" />}
+                      {isActive && <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-r-full" />}
                       <item.icon size={18} className="shrink-0" />
                       {!collapsed && (
                         <span className="truncate">{item.label}</span>
@@ -276,7 +277,7 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
       <div ref={ref} className="p-4 border-t border-border relative">
         {" "}
         {open && !collapsed && (
-          <div className="absolute bottom-full left-4 right-4 mb-2 bg-surface border border-border rounded-xl shadow-tooltip overflow-hidden z-50 animate-fade-in">
+          <div className="absolute bottom-full left-4 right-4 mb-2 bg-surface border border-border rounded-card shadow-tooltip overflow-hidden z-50 animate-fade-in">
             {" "}
             <div className="py-1">
               {" "}
@@ -296,7 +297,7 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
                   navigate("/settings/security");
                 }}
               />{" "}
-              {user?.role === "ULTRASUPERADMIN" && (
+              {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
                 <MenuItem
                   icon={ArrowRightLeft}
                   label="Change Portal"
@@ -323,12 +324,12 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
           </div>
         )}{" "}
         <div
-          className={`flex items-center gap-3 cursor-pointer select-none rounded-xl transition-colors hover:bg-stone-50 ${collapsed ? "justify-center p-2" : "p-2 -mx-2"}`}
+          className={`flex items-center gap-3 cursor-pointer select-none rounded-input transition-colors hover:bg-bg-main ${collapsed ? "justify-center p-2" : "p-2 -mx-2"}`}
           onClick={() => setOpen((v) => !v)}
           title={collapsed ? user?.name || "Profile" : undefined}
         >
           {" "}
-          <div className="shrink-0 flex items-center justify-center rounded-full text-xs font-semibold text-white bg-accent w-8 h-8 shadow-sm">
+          <div className="shrink-0 flex items-center justify-center rounded-full text-xs font-semibold text-white bg-primary w-8 h-8 shadow-sm">
             {" "}
             {initial}{" "}
           </div>{" "}
@@ -348,7 +349,7 @@ function ProfileFooter({ user, initial, collapsed, logout, navigate }) {
           )}{" "}
         </div>{" "}
       </div>{" "}
-      {user?.role === "ULTRASUPERADMIN" && (
+      {hasMinRole(user?.role, "ULTRASUPERADMIN") && (
         <ChangePortalModal
           isOpen={changePortalOpen}
           onClose={() => setChangePortalOpen(false)}
@@ -361,18 +362,18 @@ function MenuItem({ icon: Icon, label, onClick, danger, highlight }) {
   const color = danger
     ? "text-danger"
     : highlight
-      ? "text-accent"
+      ? "text-primary"
       : "text-muted";
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2 text-left text-sm font-medium transition-colors hover:bg-stone-50 ${color} hover:text-ink`}
+      className={`w-full flex items-center gap-3 px-4 py-2 text-left text-sm font-medium transition-colors hover:bg-bg-main ${color} hover:text-ink`}
     >
       {" "}
       <Icon
         size={14}
         className={
-          danger ? "text-danger" : highlight ? "text-accent" : "text-muted"
+          danger ? "text-danger" : highlight ? "text-primary" : "text-muted"
         }
       />{" "}
       {label}{" "}

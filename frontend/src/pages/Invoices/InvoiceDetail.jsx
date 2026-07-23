@@ -84,26 +84,7 @@ export default function InvoiceDetail() {
       setMarkingPaid(false);
     }
   };
-  const handleDownloadPDF = async () => {
-    try {
-      setPdfLoading(true);
-      let customer = null;
-      if (invoice.customerId) {
-        try {
-          const custRes = await api.get(`/customers/${invoice.customerId}`);
-          customer = custRes.data.data || custRes.data;
-        } catch {}
-      }
-      const filename = await generateInvoicePdf(invoice, customer);
-      toast.success(`Downloaded ${filename}`);
-    } catch (error) {
-      console.error("PDF generation error:", error);
-      toast.error("Failed to generate PDF");
-    } finally {
-      setPdfLoading(false);
-    }
-  };
-  const handleDownloadAttachment = () => {
+  const handleDownloadPDF = async () => { try { setPdfLoading(true); const response = await api.get(`/invoices/${invoice.id}/download`, { responseType: `blob` }); const url = window.URL.createObjectURL(new Blob([response.data])); const link = document.createElement(`a`); link.href = url; link.setAttribute(`download`, `Invoice_${invoice.id}.pdf`); document.body.appendChild(link); link.click(); link.parentNode.removeChild(link); toast.success(`Downloaded Invoice_${invoice.id}.pdf`); } catch (error) { console.error("PDF download failed", error); toast.error("Failed to download PDF"); } finally { setPdfLoading(false); } }; const handleDownloadAttachment = () => {
     const blob = new Blob(["Simulated attachment content"], {
       type: "application/pdf",
     });
@@ -304,17 +285,17 @@ export default function InvoiceDetail() {
               {" "}
               <Paperclip size={16} /> Attached Documents{" "}
             </h3>{" "}
-            <button className="text-sm text-accent hover:underline font-medium">
+            <button className="text-sm text-primary hover:underline font-medium">
               Upload File
             </button>{" "}
           </div>{" "}
           <div className="p-6">
             {" "}
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
+            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-card hover:bg-gray-50 transition-colors">
               {" "}
               <div className="flex items-center gap-3">
                 {" "}
-                <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded flex items-center justify-center">
+                <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-card flex items-center justify-center">
                   {" "}
                   <FileText size={16} />{" "}
                 </div>{" "}
@@ -331,7 +312,7 @@ export default function InvoiceDetail() {
               <div className="flex items-center gap-2">
                 {" "}
                 <button
-                  className="p-2 text-slate-500 hover:text-accent hover:bg-blue-50 rounded transition-colors"
+                  className="p-2 text-slate-500 hover:text-primary hover:bg-blue-50 rounded-button transition-colors"
                   onClick={() =>
                     setViewDocument({ name: "PO_Document_4590.pdf", url: "#" })
                   }
@@ -341,7 +322,7 @@ export default function InvoiceDetail() {
                   <Eye size={16} />{" "}
                 </button>{" "}
                 <button
-                  className="p-2 text-slate-500 hover:text-ink hover:bg-gray-100 rounded transition-colors"
+                  className="p-2 text-slate-500 hover:text-ink hover:bg-gray-100 rounded-button transition-colors"
                   title="Download"
                   onClick={handleDownloadAttachment}
                 >
@@ -376,7 +357,7 @@ export default function InvoiceDetail() {
                     className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
                   >
                     {" "}
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg border border-white bg-slate-100 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-card border border-white bg-slate-100 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                       {" "}
                       {notif.status === "SENT" ? (
                         <CheckCircle size={14} className="text-green-500" />
@@ -384,7 +365,7 @@ export default function InvoiceDetail() {
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
                       )}{" "}
                     </div>{" "}
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded border border-gray-200 shadow-sm">
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-card border border-gray-200 shadow-sm">
                       {" "}
                       <div className="flex items-center justify-between mb-1">
                         {" "}
@@ -409,7 +390,7 @@ export default function InvoiceDetail() {
                         {notif.status === "FAILED" && (
                           <button
                             onClick={() => handleResendNotification(notif.id)}
-                            className="text-accent hover:underline"
+                            className="text-primary hover:underline"
                           >
                             Resend
                           </button>
@@ -443,3 +424,5 @@ export default function InvoiceDetail() {
     </div>
   );
 }
+
+

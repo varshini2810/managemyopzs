@@ -121,11 +121,11 @@ export default function Taxes() {
             <div className="space-y-4">
               {" "}
               <div
-                className="skeleton h-32 rounded-lg"
+                className="skeleton h-32 rounded-card"
                 style={{ background: "#E7E5E2" }}
               />{" "}
               <div
-                className="skeleton h-64 rounded-lg"
+                className="skeleton h-64 rounded-card"
                 style={{ background: "#E7E5E2" }}
               />{" "}
             </div>
@@ -195,12 +195,12 @@ export default function Taxes() {
                 </div>{" "}
                 {regions.length === 0 ? (
                   <div
-                    className="bg-surface rounded-lg flex flex-col items-center justify-center py-16"
+                    className="bg-surface rounded-card flex flex-col items-center justify-center py-16"
                     style={{ border: "1px solid #E7E5E2" }}
                   >
                     {" "}
                     <div
-                      className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                      className="w-12 h-12 rounded-card flex items-center justify-center mb-4"
                       style={{ background: "#EEF2FF" }}
                     >
                       {" "}

@@ -49,7 +49,7 @@ export default function CheckoutPortalDashboard() {
         {" "}
         <div className="flex flex-col items-center">
           {" "}
-          <div className="w-8 h-8 border-4 border-[#6D28D9]/30 border-t-[#6D28D9] rounded-lg animate-spin mb-4"></div>{" "}
+          <div className="w-8 h-8 border-4 border-[#6D28D9]/30 border-t-[#6D28D9] rounded-card animate-spin mb-4"></div>{" "}
           <p className="text-gray-500 text-sm font-medium">
             {" "}
             Loading Checkout Settings...{" "}
@@ -111,7 +111,7 @@ export default function CheckoutPortalDashboard() {
                   {" "}
                   <button
                     onClick={() => setActiveMenu(item)}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${activeMenu === item ? "bg-[#F3E8FF] text-[#6D28D9] font-medium" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
+                    className={`w-full text-left px-3 py-2 text-sm rounded-card transition-colors ${activeMenu === item ? "bg-[#F3E8FF] text-[#6D28D9] font-medium" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
                   >
                     {" "}
                     {item}{" "}
@@ -121,7 +121,7 @@ export default function CheckoutPortalDashboard() {
             </ul>{" "}
           </nav>{" "}
           {/* Preview Card */}{" "}
-          <div className="p-4 border-t border-gray-200 bg-white m-3 rounded-lg shadow-sm">
+          <div className="p-4 border-t border-gray-200 bg-white m-3 rounded-card shadow-sm">
             {" "}
             <p className="text-xs text-gray-600 mb-4 text-center">
               {" "}
@@ -129,11 +129,11 @@ export default function CheckoutPortalDashboard() {
             </p>{" "}
             <div className="space-y-2">
               {" "}
-              <button className="w-full text-[#6D28D9] bg-white border border-[#6D28D9] hover:bg-[#F3E8FF] py-1.5 px-3 rounded text-sm font-medium transition-colors">
+              <button className="w-full text-[#6D28D9] bg-white border border-[#6D28D9] hover:bg-[#F3E8FF] py-1.5 px-3 rounded-button text-sm font-medium transition-colors">
                 {" "}
                 Preview Checkout/Portal{" "}
               </button>{" "}
-              <button className="w-full text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 py-1.5 px-3 rounded text-sm font-medium transition-colors">
+              <button className="w-full text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 py-1.5 px-3 rounded-button text-sm font-medium transition-colors">
                 {" "}
                 Preview Action Pages{" "}
               </button>{" "}
@@ -146,7 +146,7 @@ export default function CheckoutPortalDashboard() {
           <div className="max-w-3xl mx-auto space-y-8">
             {" "}
             {activeTab === "Integrate with Chargebee" ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm text-center">
+              <div className="bg-white border border-gray-200 rounded-card p-8 shadow-sm text-center">
                 {" "}
                 <div className="mx-auto w-16 h-16 bg-[#F3E8FF] rounded-2xl flex items-center justify-center mb-4">
                   {" "}
@@ -163,7 +163,7 @@ export default function CheckoutPortalDashboard() {
                 </p>{" "}
                 <button
                   onClick={() => setIsIntegrationModalOpen(true)}
-                  className="bg-[#6D28D9] hover:bg-[#5b21b6] text-white px-6 py-2.5 rounded-md text-sm font-medium shadow-md transition-colors"
+                  className="bg-[#6D28D9] hover:bg-[#5b21b6] text-white px-6 py-2.5 rounded-card text-sm font-medium shadow-md transition-colors"
                 >
                   {" "}
                   Configure Integration{" "}
@@ -173,11 +173,11 @@ export default function CheckoutPortalDashboard() {
               <>
                 {" "}
                 {/* Branding Banner */}{" "}
-                <div className="bg-slate-900 rounded-lg p-6 text-white flex items-center justify-between shadow-sm">
+                <div className="bg-slate-900 rounded-card p-6 text-white flex items-center justify-between shadow-sm">
                   {" "}
                   <div className="flex items-center gap-4">
                     {" "}
-                    <div className="bg-white/20 p-3 rounded-lg">
+                    <div className="bg-white/20 p-3 rounded-card">
                       {" "}
                       <ImageIcon size={24} className="text-white" />{" "}
                     </div>{" "}
@@ -187,7 +187,7 @@ export default function CheckoutPortalDashboard() {
                       to customers{" "}
                     </p>{" "}
                   </div>{" "}
-                  <button className="bg-white text-[#6D28D9] px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm">
+                  <button className="bg-white text-[#6D28D9] px-4 py-2 rounded-button text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm">
                     {" "}
                     Add Logo & Color{" "}
                   </button>{" "}
@@ -205,7 +205,7 @@ export default function CheckoutPortalDashboard() {
                     subscriptions through the checkout experience.{" "}
                   </p>{" "}
                   {/* Material Design Settings Card */}{" "}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                  <div className="bg-white border border-gray-200 rounded-card shadow-sm overflow-hidden">
                     {" "}
                     {/* Dropdown Row */}{" "}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -215,7 +215,7 @@ export default function CheckoutPortalDashboard() {
                         Customers can access the checkout{" "}
                       </div>{" "}
                       <select
-                        className="border border-gray-300 rounded-md text-sm py-1.5 px-3 text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white cursor-pointer"
+                        className="border border-gray-300 rounded-input text-sm py-1.5 px-3 text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#6D28D9] focus:border-[#6D28D9] bg-white cursor-pointer"
                         value={settings.accessCheckout}
                         onChange={(e) =>
                           setSettings({
@@ -278,7 +278,7 @@ export default function CheckoutPortalDashboard() {
         {" "}
         <button
           onClick={handleSave}
-          className="bg-[#6D28D9] hover:bg-[#5b21b6] text-white px-6 py-2.5 rounded-md text-sm font-medium shadow-md transition-colors"
+          className="bg-[#6D28D9] hover:bg-[#5b21b6] text-white px-6 py-2.5 rounded-button text-sm font-medium shadow-md transition-colors"
         >
           {" "}
           Save Changes{" "}

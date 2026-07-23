@@ -5,7 +5,7 @@ const PRESET_SWATCHES = [
   "#DC2626",
   "#E11D48",
   "#7E22CE",
-  "#4F46E5",
+  "#586EF0",
   "#2563EB",
   "#0891B2",
   "#16A34A",
@@ -16,7 +16,7 @@ export default function ColorPickerSection({ accentColor, setAccentColor }) {
     setAccentColor(e.target.value);
   };
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-6 mb-8 shadow-sm">
+    <div className="bg-white border border-stone-200 rounded-card p-6 mb-8 shadow-sm">
       {" "}
       <h3 className="text-lg font-semibold text-stone-900 mb-1">
         Pick an accent color
@@ -28,7 +28,7 @@ export default function ColorPickerSection({ accentColor, setAccentColor }) {
         {" "}
         {/* Large Color Preview Box */}{" "}
         <div
-          className="w-24 h-24 rounded-lg shadow-inner flex-shrink-0 border border-stone-200"
+          className="w-24 h-24 rounded-card shadow-inner flex-shrink-0 border border-stone-200"
           style={{ backgroundColor: accentColor || "#2196F3" }}
         />{" "}
         <div className="flex flex-col flex-1 gap-4">
@@ -46,7 +46,7 @@ export default function ColorPickerSection({ accentColor, setAccentColor }) {
                   type="text"
                   value={accentColor}
                   onChange={handleHexChange}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-input text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
                 />{" "}
               </div>{" "}
             </div>{" "}
@@ -55,7 +55,7 @@ export default function ColorPickerSection({ accentColor, setAccentColor }) {
               <label className="text-xs font-medium text-stone-700 uppercase tracking-wider">
                 Visual
               </label>{" "}
-              <div className="relative overflow-hidden w-10 h-10 rounded-md border border-stone-300">
+              <div className="relative overflow-hidden w-10 h-10 rounded-card border border-stone-300">
                 {" "}
                 <input
                   type="color"
@@ -77,7 +77,7 @@ export default function ColorPickerSection({ accentColor, setAccentColor }) {
                 <button
                   key={color}
                   onClick={() => setAccentColor(color)}
-                  className={`w-8 h-8 rounded-lg border-2 transition-transform hover:scale-110 ${accentColor === color ? "border-stone-900 ring-2 ring-offset-1 ring-stone-900" : "border-transparent shadow-sm"}`}
+                  className={`w-8 h-8 rounded-card border-2 transition-transform hover:scale-110 ${accentColor === color ? "border-stone-900 ring-2 ring-offset-1 ring-stone-900" : "border-transparent shadow-sm"}`}
                   style={{ backgroundColor: color }}
                   title={color}
                 />

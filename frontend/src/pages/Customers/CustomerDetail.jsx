@@ -1,4 +1,5 @@
 import { useAuth } from "../../store/AuthContext";
+import { hasMinRole } from '../../utils/rbac';
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -112,7 +113,7 @@ export default function CustomerDetail() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === t.id ? "border-accent text-ink" : "border-transparent text-muted hover:text-ink"}`}
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === t.id ? "border-primary text-ink" : "border-transparent text-muted hover:text-ink"}`}
             >
               {" "}
               {t.label}{" "}
@@ -216,7 +217,7 @@ export default function CustomerDetail() {
               <h3 className="text-lg font-semibold text-ink">
                 Payment Methods
               </h3>{" "}
-              {user?.role !== "USER" && (
+              {hasMinRole(user?.role, "ADMIN") && (
                 <button className="btn-primary btn-sm">
                   Add Payment Method
                 </button>
@@ -243,7 +244,7 @@ export default function CustomerDetail() {
                   {" "}
                   <div className="flex items-center gap-4">
                     {" "}
-                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-card bg-gray-100 flex items-center justify-center">
                       {" "}
                       <CreditCard size={18} className="text-gray-600" />{" "}
                     </div>{" "}
@@ -254,12 +255,12 @@ export default function CustomerDetail() {
                         {pm.type} ••••{" "}
                         {pm.details ? JSON.parse(pm.details).last4 : "XXXX"}{" "}
                         {pm.primary && (
-                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-semibold">
+                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-card font-semibold">
                             Primary
                           </span>
                         )}{" "}
                         {pm.backup && (
-                          <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded font-semibold">
+                          <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-card font-semibold">
                             Backup
                           </span>
                         )}{" "}
@@ -271,7 +272,7 @@ export default function CustomerDetail() {
                       </div>{" "}
                     </div>{" "}
                   </div>{" "}
-                  {!pm.primary && user?.role !== "USER" && (
+                  {!pm.primary && hasMinRole(user?.role, "ADMIN") && (
                     <button
                       className="btn-ghost btn-sm"
                       onClick={() => handleSetPrimary(pm.id)}
@@ -292,7 +293,7 @@ export default function CustomerDetail() {
               <h3 className="text-lg font-semibold text-ink">
                 Additional Contacts
               </h3>{" "}
-              {user?.role !== "USER" && (
+              {hasMinRole(user?.role, "ADMIN") && (
                 <button className="btn-primary btn-sm">Add Contact</button>
               )}{" "}
             </div>{" "}
@@ -337,7 +338,7 @@ export default function CustomerDetail() {
                     </div>{" "}
                   </div>{" "}
                   {ct.tag && (
-                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded font-semibold">
+                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-card font-semibold">
                       {ct.tag}
                     </span>
                   )}{" "}

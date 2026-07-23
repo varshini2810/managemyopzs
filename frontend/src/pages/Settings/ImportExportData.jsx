@@ -21,13 +21,13 @@ export default function ImportExportData() {
             {" "}
             <div className="flex items-center gap-3 text-lg font-semibold text-ink">
               {" "}
-              <UploadCloud className="text-accent" /> Bulk Import{" "}
+              <UploadCloud className="text-primary" /> Bulk Import{" "}
             </div>{" "}
             <p className="text-sm text-muted mt-2">
               Import customers, subscriptions, or plans via CSV.
             </p>{" "}
           </div>{" "}
-          <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded p-8 text-center bg-stone-50">
+          <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-card p-8 text-center bg-bg-main">
             {" "}
             <UploadCloud size={32} className="text-stone-300 mb-3" />{" "}
             <p className="text-sm font-medium text-ink">
@@ -45,7 +45,7 @@ export default function ImportExportData() {
             {" "}
             <div className="flex items-center gap-3 text-lg font-semibold text-ink">
               {" "}
-              <Download className="text-accent" /> Bulk Export{" "}
+              <Download className="text-primary" /> Bulk Export{" "}
             </div>{" "}
             <p className="text-sm text-muted mt-2">
               Export your platform data securely.

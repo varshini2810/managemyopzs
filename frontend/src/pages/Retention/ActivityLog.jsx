@@ -17,7 +17,7 @@ export default function ActivityLog() {
         {" "}
         <h1 className="page-title">Activity Log</h1>{" "}
         <p className="page-subtitle">Manage your activity log</p>{" "}
-        <div className="mt-8 bg-surface border border-border rounded-lg p-10 text-center">
+        <div className="mt-8 bg-surface border border-border rounded-card p-10 text-center">
           {" "}
           <p className="text-muted">
             This module is part of the new Chargebee Retention suite.

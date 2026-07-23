@@ -33,13 +33,13 @@ export default function MetricChart({ title, metricType }) {
       <div className="flex justify-between items-center mb-6">
         {" "}
         <h3 className="font-semibold text-slate-900">{title}</h3>{" "}
-        <div className="flex bg-slate-100 p-1 rounded-lg">
+        <div className="flex bg-slate-100 p-1 rounded-card">
           {" "}
           {RANGES.map((r) => (
             <button
               key={r.value}
               onClick={() => setRange(r.value)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${range === r.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`px-3 py-1 text-xs font-medium rounded-card transition-colors ${range === r.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
             >
               {" "}
               {r.label}{" "}
@@ -72,8 +72,8 @@ export default function MetricChart({ title, metricType }) {
                 y2="1"
               >
                 {" "}
-                <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.2} />{" "}
-                <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />{" "}
+                <stop offset="5%" stopColor="#586EF0" stopOpacity={0.2} />{" "}
+                <stop offset="95%" stopColor="#586EF0" stopOpacity={0} />{" "}
               </linearGradient>{" "}
             </defs>{" "}
             <CartesianGrid
@@ -107,7 +107,7 @@ export default function MetricChart({ title, metricType }) {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#4F46E5"
+              stroke="#586EF0"
               strokeWidth={2}
               fillOpacity={1}
               fill={`url(#color-${metricType})`}

@@ -22,7 +22,7 @@ export default function UploadCard({
     fileInputRef.current?.click();
   };
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+    <div className="bg-white border border-stone-200 rounded-card p-4 flex flex-col items-center justify-center text-center">
       {" "}
       <div className="font-medium text-sm text-stone-800 mb-1">
         {" "}
@@ -39,7 +39,7 @@ export default function UploadCard({
         <div className="text-xs text-stone-500 mb-4">Support: {support}</div>
       )}{" "}
       <div
-        className="w-full h-32 border-2 border-dashed border-stone-300 rounded-lg flex flex-col items-center justify-center bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors relative"
+        className="w-full h-32 border-2 border-dashed border-stone-300 rounded-card flex flex-col items-center justify-center bg-bg-main cursor-pointer hover:bg-bg-main transition-colors relative"
         onClick={!fileUrl ? handleClick : undefined}
       >
         {" "}
@@ -58,14 +58,14 @@ export default function UploadCard({
               alt={label}
               className="max-w-full max-h-full object-contain"
             />{" "}
-            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg gap-2">
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-card gap-2">
               {" "}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClick();
                 }}
-                className="p-1.5 bg-white rounded text-stone-700 hover:text-stone-900 shadow"
+                className="p-1.5 bg-white rounded-card text-stone-700 hover:text-stone-900 shadow"
                 title="Replace"
               >
                 {" "}
@@ -76,7 +76,7 @@ export default function UploadCard({
                   e.stopPropagation();
                   onRemove();
                 }}
-                className="p-1.5 bg-white rounded text-red-600 hover:text-red-700 shadow"
+                className="p-1.5 bg-white rounded-card text-red-600 hover:text-red-700 shadow"
                 title="Delete"
               >
                 {" "}

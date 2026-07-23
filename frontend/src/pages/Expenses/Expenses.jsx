@@ -1,3 +1,4 @@
+import jsPDF from "jspdf";
 import React, {
   useState,
   useEffect,
@@ -64,7 +65,58 @@ import {
   PieChart,
   Activity,
 } from "lucide-react";
+import api from "../../services/api";
+import GlobalTenantGuard from "../../components/common/GlobalTenantGuard";
 import toast from "react-hot-toast";
+
+const generateExpensePDF = (exp) => {
+  try {
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text("EXPENSE REPORT", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.text(`Expense #: ${exp.id}`, 14, 30);
+    doc.text(`Status: ${exp.status.toUpperCase()}`, 14, 36);
+    doc.text(`Date: ${exp.date}`, 14, 42);
+    
+    doc.setFontSize(12);
+    doc.text("Details:", 120, 30);
+    doc.setFontSize(10);
+    doc.text(`Employee: ${exp.employee || 'N/A'}`, 120, 36);
+    doc.text(`Department: ${exp.department || 'N/A'}`, 120, 42);
+    doc.text(`Vendor: ${exp.vendor || 'N/A'}`, 120, 48);
+    
+    let y = 65;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.text("Category", 14, y);
+    doc.text("Description", 60, y);
+    doc.text("Payment", 130, y);
+    doc.text("Amount", 170, y);
+    
+    doc.setFont(undefined, 'normal');
+    y += 8;
+    doc.text(exp.category || "N/A", 14, y);
+    doc.text(exp.description || "N/A", 60, y);
+    doc.text(exp.paymentMethod || "N/A", 130, y);
+    doc.text(`$${(exp.amount || 0).toFixed(2)}`, 170, y);
+    
+    y += 20;
+    doc.setFont(undefined, 'bold');
+    doc.text(`Tax: $${(exp.tax || 0).toFixed(2)}`, 130, y);
+    y += 8;
+    doc.setFontSize(14);
+    doc.text(`Total: $${(exp.amount || 0).toFixed(2)}`, 130, y);
+    
+    doc.save(`Expense_${exp.id}.pdf`);
+    toast.success("PDF downloaded");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to generate PDF");
+  }
+};
+
 const fmt = (v, cur = "USD") =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -115,7 +167,7 @@ const CATEGORIES = [
     id: "office",
     label: "Office Supplies",
     icon: ShoppingBag,
-    color: "#4F46E5",
+    color: "#586EF0",
     bg: "#EEF2FF",
   },
   { id: "travel", label: "Travel", icon: Car, color: "#0891B2", bg: "#ECFEFF" },
@@ -611,7 +663,7 @@ function CatBadge({ categoryId }) {
   const Icon = cat.icon;
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold whitespace-nowrap"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-card text-xs font-semibold whitespace-nowrap"
       style={{ background: cat.bg, color: cat.color }}
     >
       {" "}
@@ -642,7 +694,7 @@ function SummaryMetric({ label, value, color, icon: Icon }) {
     </div>
   );
 }
-function MiniBarChart({ data, color = "#4F46E5", height = 60 }) {
+function MiniBarChart({ data, color = "#586EF0", height = 60 }) {
   if (!data || data.length === 0) return null;
   const max = Math.max(...data.map((d) => d.value), 1);
   const w = 100 / data.length;
@@ -691,7 +743,7 @@ function SortTh({ label, field, sort, onSort, align = "left" }) {
             size={9}
             style={{
               display: "block",
-              color: active && sort.dir === "asc" ? "#4F46E5" : "#CBD5E1",
+              color: active && sort.dir === "asc" ? "#586EF0" : "#CBD5E1",
             }}
           />{" "}
           <ChevronDown
@@ -699,7 +751,7 @@ function SortTh({ label, field, sort, onSort, align = "left" }) {
             style={{
               display: "block",
               marginTop: -2,
-              color: active && sort.dir === "desc" ? "#4F46E5" : "#CBD5E1",
+              color: active && sort.dir === "desc" ? "#586EF0" : "#CBD5E1",
             }}
           />{" "}
         </span>{" "}
@@ -742,7 +794,7 @@ function ActionMenu({
     {
       label: "Download PDF",
       icon: Download,
-      fn: () => toast.success("PDF downloaded"),
+      fn: () => generateExpensePDF(row),
       cls: "text-gray-700",
     },
     {
@@ -759,14 +811,14 @@ function ActionMenu({
       {" "}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+        className="w-8 h-8 flex items-center justify-center rounded-card text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
       >
         {" "}
         <MoreVertical size={15} />{" "}
       </button>{" "}
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 bg-white rounded-xl z-50 py-1.5"
+          className="absolute right-0 top-full mt-1 bg-white rounded-card z-50 py-1.5"
           style={{
             minWidth: 180,
             boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
@@ -902,9 +954,9 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
           <div className="flex items-center gap-3">
             {" "}
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-10 h-10 rounded-card flex items-center justify-center"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
               }}
             >
               {" "}
@@ -926,7 +978,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
           </div>{" "}
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-button text-gray-400 hover:bg-gray-100 transition-all"
           >
             {" "}
             <X size={18} />{" "}
@@ -946,7 +998,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
               </label>{" "}
               <select
                 className={
-                  "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none bg-white transition-all " +
+                  "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none bg-white transition-all " +
                   (errors.category
                     ? "border-red-400"
                     : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -974,7 +1026,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Vendor / Merchant{" "}
               </label>{" "}
               <input
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 value={form.vendor || ""}
                 onChange={(e) => set("vendor", e.target.value)}
                 placeholder="Vendor name"
@@ -988,7 +1040,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Employee{" "}
               </label>{" "}
               <select
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                 value={form.employee || ""}
                 onChange={(e) => set("employee", e.target.value)}
               >
@@ -1006,7 +1058,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Department{" "}
               </label>{" "}
               <select
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                 value={form.department || ""}
                 onChange={(e) => set("department", e.target.value)}
               >
@@ -1034,7 +1086,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                   min="0"
                   step="0.01"
                   className={
-                    "w-full text-sm border rounded-xl pl-8 pr-3.5 py-2.5 focus:outline-none transition-all " +
+                    "w-full text-sm border rounded-input pl-8 pr-3.5 py-2.5 focus:outline-none transition-all " +
                     (errors.amount
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1065,7 +1117,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                   type="number"
                   min="0"
                   step="0.01"
-                  className="w-full text-sm border border-gray-200 rounded-xl pl-8 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full text-sm border border-gray-200 rounded-input pl-8 pr-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   value={form.tax || ""}
                   onChange={(e) => set("tax", e.target.value)}
                   placeholder="0.00"
@@ -1080,7 +1132,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Currency{" "}
               </label>{" "}
               <select
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                 value={form.currency || "USD"}
                 onChange={(e) => set("currency", e.target.value)}
               >
@@ -1098,7 +1150,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Payment Method{" "}
               </label>{" "}
               <select
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                 value={form.paymentMethod || ""}
                 onChange={(e) => set("paymentMethod", e.target.value)}
               >
@@ -1118,7 +1170,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
               <input
                 type="date"
                 className={
-                  "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none transition-all " +
+                  "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none transition-all " +
                   (errors.date
                     ? "border-red-400"
                     : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1138,7 +1190,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Invoice Number{" "}
               </label>{" "}
               <input
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 value={form.invoiceNum || ""}
                 onChange={(e) => set("invoiceNum", e.target.value)}
                 placeholder="INV-001"
@@ -1152,7 +1204,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Status{" "}
               </label>{" "}
               <select
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white"
                 value={form.status || "pending"}
                 onChange={(e) => set("status", e.target.value)}
               >
@@ -1173,7 +1225,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 Tags (comma-separated){" "}
               </label>{" "}
               <input
-                className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 value={form.tags || ""}
                 onChange={(e) => set("tags", e.target.value)}
                 placeholder="q2, marketing, travel"
@@ -1190,7 +1242,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
             <textarea
               rows={2}
               className={
-                "w-full text-sm border rounded-xl px-3.5 py-2.5 focus:outline-none resize-none transition-all " +
+                "w-full text-sm border rounded-input px-3.5 py-2.5 focus:outline-none resize-none transition-all " +
                 (errors.description
                   ? "border-red-400 focus:ring-2 focus:ring-red-100"
                   : "border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100")
@@ -1212,7 +1264,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
             </label>{" "}
             <textarea
               rows={2}
-              className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
+              className="w-full text-sm border border-gray-200 rounded-input px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
               value={form.notes || ""}
               onChange={(e) => set("notes", e.target.value)}
               placeholder="Notes for internal use only…"
@@ -1226,7 +1278,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
               Receipt / Attachment{" "}
             </label>{" "}
             <div
-              className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
+              className="border-2 border-dashed border-gray-200 rounded-card p-5 text-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
@@ -1244,7 +1296,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
               {receiptPreview ? (
                 <div className="flex items-center justify-center gap-3">
                   {" "}
-                  <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-card bg-green-50 flex items-center justify-center">
                     {" "}
                     <CheckCircle size={20} className="text-green-600" />{" "}
                   </div>{" "}
@@ -1263,7 +1315,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
               ) : form.receipt ? (
                 <div className="flex items-center justify-center gap-3">
                   {" "}
-                  <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-card bg-indigo-50 flex items-center justify-center">
                     {" "}
                     <Paperclip size={20} className="text-indigo-600" />{" "}
                   </div>{" "}
@@ -1361,7 +1413,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                   if (!validate()) return;
                   onSaveAnother(buildExpense(true));
                 }}
-                className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
                 style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }}
               >
                 {" "}
@@ -1373,7 +1425,7 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 if (!validate()) return;
                 onSave(buildExpense(true));
               }}
-              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
               style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }}
             >
               {" "}
@@ -1384,9 +1436,9 @@ function ExpenseModal({ open, initial, onClose, onSave, onSaveAnother }) {
                 if (!validate()) return;
                 onSave(buildExpense(false));
               }}
-              className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl flex items-center gap-2 transition-all hover:opacity-90"
+              className="px-6 py-2.5 text-sm font-semibold text-white rounded-card flex items-center gap-2 transition-all hover:opacity-90"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
                 boxShadow: "0 4px 14px rgba(79,70,229,0.35)",
               }}
             >
@@ -1413,6 +1465,7 @@ function ViewModal({
     CATEGORIES.find((c) => c.id === exp.category) ||
     CATEGORIES[CATEGORIES.length - 1];
   const Icon = cat.icon;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -1434,7 +1487,7 @@ function ViewModal({
           <div className="flex items-center gap-3">
             {" "}
             <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              className="w-11 h-11 rounded-card flex items-center justify-center"
               style={{ background: cat.bg }}
             >
               {" "}
@@ -1455,7 +1508,7 @@ function ViewModal({
           </div>{" "}
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-button text-gray-400 hover:bg-gray-100 transition-all"
           >
             {" "}
             <X size={18} />{" "}
@@ -1503,7 +1556,7 @@ function ViewModal({
               ["Invoice #", exp.invoiceNum || "—"],
               ["Approved By", exp.approvedBy || "—"],
             ].map(([k, v]) => (
-              <div key={k} className="bg-gray-50 rounded-xl p-3">
+              <div key={k} className="bg-gray-50 rounded-card p-3">
                 {" "}
                 <p className="text-xs text-gray-400 font-medium mb-0.5">
                   {" "}
@@ -1515,7 +1568,7 @@ function ViewModal({
           </div>{" "}
           {}{" "}
           <div
-            className="flex items-center gap-3 p-3 rounded-xl"
+            className="flex items-center gap-3 p-3 rounded-card"
             style={{
               background: exp.receipt ? "#F0FDF4" : "#F9FAFB",
               border: "1px solid " + (exp.receipt ? "#BBF7D0" : "#E5E7EB"),
@@ -1568,7 +1621,7 @@ function ViewModal({
                 {exp.tags.map((t) => (
                   <span
                     key={t}
-                    className="px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700"
+                    className="px-2.5 py-1 rounded-card text-xs font-medium bg-indigo-50 text-indigo-700"
                   >
                     {" "}
                     #{t}{" "}
@@ -1585,7 +1638,7 @@ function ViewModal({
                 {" "}
                 Internal Notes{" "}
               </p>{" "}
-              <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3">
+              <p className="text-sm text-gray-600 bg-gray-50 rounded-card p-3">
                 {" "}
                 {exp.notes}{" "}
               </p>{" "}
@@ -1638,7 +1691,7 @@ function ViewModal({
                     onApprove(exp);
                     onClose();
                   }}
-                  className="px-4 py-2 text-sm font-semibold text-green-700 bg-green-50 rounded-xl hover:bg-green-100 flex items-center gap-1.5 transition-all"
+                  className="px-4 py-2 text-sm font-semibold text-green-700 bg-green-50 rounded-card hover:bg-green-100 flex items-center gap-1.5 transition-all"
                 >
                   {" "}
                   <CheckCircle size={14} /> Approve{" "}
@@ -1648,7 +1701,7 @@ function ViewModal({
                     onReject(exp);
                     onClose();
                   }}
-                  className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 flex items-center gap-1.5 transition-all"
+                  className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-card hover:bg-red-100 flex items-center gap-1.5 transition-all"
                 >
                   {" "}
                   <Ban size={14} /> Reject{" "}
@@ -1659,8 +1712,8 @@ function ViewModal({
           <div className="flex gap-2">
             {" "}
             <button
-              onClick={() => toast.success("PDF downloaded")}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center gap-1.5 transition-all"
+              onClick={() => generateExpensePDF(exp)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 flex items-center gap-1.5 transition-all"
             >
               {" "}
               <Download size={14} /> PDF{" "}
@@ -1670,9 +1723,9 @@ function ViewModal({
                 onClose();
                 onEdit(exp);
               }}
-              className="px-5 py-2 text-sm font-semibold text-white rounded-xl flex items-center gap-2"
+              className="px-5 py-2 text-sm font-semibold text-white rounded-card flex items-center gap-2"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #6366F1 100%)",
               }}
             >
               {" "}
@@ -1723,7 +1776,7 @@ function DeleteModal({ open, expense: exp, onClose, onConfirm }) {
             {" "}
             {exp.description}{" "}
           </p>{" "}
-          <div className="bg-red-50 rounded-xl p-3 text-sm text-red-700 mb-4 font-medium">
+          <div className="bg-red-50 rounded-card p-3 text-sm text-red-700 mb-4 font-medium">
             {" "}
             Amount: {fmt(exp.amount, exp.currency)} · {fmtDate(exp.date)}{" "}
           </div>{" "}
@@ -1743,7 +1796,7 @@ function DeleteModal({ open, expense: exp, onClose, onConfirm }) {
           </button>{" "}
           <button
             onClick={onConfirm}
-            className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl hover:opacity-90 transition-all"
+            className="px-6 py-2.5 text-sm font-semibold text-white rounded-button hover:opacity-90 transition-all"
             style={{
               background: "#DC2626",
               boxShadow: "0 4px 14px rgba(220,38,38,0.3)",
@@ -1823,8 +1876,20 @@ function SkeletonRows({ count = 8 }) {
   ));
 }
 const PAGE_SIZE = 10;
-export default function ExpenseManagement() {
-  const [expenses, setExpenses] = useState(SEED);
+function ExpenseManagement() {
+  const [expenses, setExpenses] = useState([]);
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const res = await api.get('/expenses');
+        setExpenses(res.data);
+      } catch (err) {
+        console.error(err);
+        toast.error('Failed to load expenses');
+      }
+    };
+    fetchExpenses();
+  }, []);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -1965,87 +2030,65 @@ export default function ExpenseManagement() {
     }));
     return { byCat, byMonth };
   }, [expenses]);
-  const handleSave = (exp) => {
-    setExpenses((prev) => {
-      const idx = prev.findIndex((x) => x.id === exp.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = exp;
-        return next;
+  const handleSave = async (exp) => {
+    try {
+      if (exp.id && expenses.find(e => e.id === exp.id)) {
+        const res = await api.put(`/expenses/${exp.id}`, exp);
+        setExpenses((prev) => prev.map(e => e.id === exp.id ? res.data : e));
+      } else {
+        const res = await api.post("/expenses", exp);
+        setExpenses((prev) => [res.data, ...prev]);
       }
-      return [exp, ...prev];
-    });
-    setAddOpen(false);
-    setEditExp(null);
-    toast.success(
-      exp.status === "draft"
-        ? "📋 Draft saved"
-        : "✅ Expense " + exp.id + " recorded",
-    );
+      setAddOpen(false);
+      setEditExp(null);
+      toast.success(exp.status === "draft" ? "📋 Draft saved" : "✅ Expense " + exp.id + " recorded");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to save expense");
+    }
   };
-  const handleSaveAndAdd = (exp) => {
-    setExpenses((prev) => [exp, ...prev]);
-    toast.success("✅ Saved! Add another expense.");
-    setTimeout(() => setAddOpen(true), 50);
+  const handleSaveAndAdd = async (exp) => {
+    try {
+      const res = await api.post("/expenses", exp);
+      setExpenses((prev) => [res.data, ...prev]);
+      toast.success("✅ Saved! Add another expense.");
+      setTimeout(() => setAddOpen(true), 50);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to save expense");
+    }
   };
-  const handleDelete = () => {
-    const id = deleteExp.id;
-    setExpenses((prev) => prev.filter((e) => e.id !== id));
-    toast.success("🗑️ Expense " + id + " deleted");
-    setDeleteExp(null);
-    const undoTimer = setTimeout(() => {}, 4000);
-    toast("Undo?", {
-      duration: 4000,
-      icon: "↩️",
-      onClick: () => {
-        clearTimeout(undoTimer);
-      },
-    });
+  const handleDelete = async () => {
+    try {
+      const id = deleteExp.id;
+      await api.delete(`/expenses/${id}`);
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      toast.success("🗑️ Expense " + id + " deleted");
+      setDeleteExp(null);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to delete expense");
+    }
   };
-  const handleApprove = (exp) => {
-    setExpenses((prev) =>
-      prev.map((e) =>
-        e.id === exp.id
-          ? {
-              ...e,
-              status: "approved",
-              approvedBy: "Finance Manager",
-              auditLog: [
-                ...(e.auditLog || []),
-                {
-                  action: "Approved",
-                  by: "Finance Manager",
-                  at: today(),
-                  note: "Expense approved",
-                },
-              ],
-            }
-          : e,
-      ),
-    );
-    toast.success("✅ Expense approved: " + exp.id);
+  const handleApprove = async (exp) => {
+    try {
+      const res = await api.put(`/expenses/${exp.id}`, { ...exp, status: "approved" });
+      setExpenses((prev) => prev.map((e) => (e.id === exp.id ? res.data : e)));
+      toast.success("✅ Expense approved: " + exp.id);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to approve expense");
+    }
   };
-  const handleReject = (exp) => {
-    setExpenses((prev) =>
-      prev.map((e) =>
-        e.id === exp.id
-          ? {
-              ...e,
-              status: "rejected",
-              auditLog: [
-                ...(e.auditLog || []),
-                {
-                  action: "Rejected",
-                  by: "Finance Manager",
-                  at: today(),
-                  note: "Expense rejected",
-                },
-              ],
-            }
-          : e,
-      ),
-    );
-    toast.error("Expense rejected: " + exp.id);
+  const handleReject = async (exp) => {
+    try {
+      const res = await api.put(`/expenses/${exp.id}`, { ...exp, status: "rejected" });
+      setExpenses((prev) => prev.map((e) => (e.id === exp.id ? res.data : e)));
+      toast.error("Expense rejected: " + exp.id);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to reject expense");
+    }
   };
   const handleDuplicate = (exp) => {
     const dup = {
@@ -2141,7 +2184,7 @@ export default function ExpenseManagement() {
               <span
                 style={{
                   background:
-                    "linear-gradient(135deg, #4F46E5 0%, #0891B2 100%)",
+                    "linear-gradient(135deg, #586EF0 0%, #0891B2 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -2159,7 +2202,7 @@ export default function ExpenseManagement() {
             {" "}
             <button
               onClick={() => setShowAnalytics((v) => !v)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all ${showAnalytics ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-card border transition-all ${showAnalytics ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
               style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}
             >
               {" "}
@@ -2170,7 +2213,7 @@ export default function ExpenseManagement() {
                 setLoading(true);
                 setTimeout(() => setLoading(false), 500);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-card text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-all"
               style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}
             >
               {" "}
@@ -2178,7 +2221,7 @@ export default function ExpenseManagement() {
             </button>{" "}
             <button
               onClick={() => exportCSV(sorted)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-card hover:bg-gray-50 transition-all"
               style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.07)" }}
             >
               {" "}
@@ -2186,9 +2229,9 @@ export default function ExpenseManagement() {
             </button>{" "}
             <button
               onClick={() => setAddOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-90 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-card transition-all hover:opacity-90 active:scale-95"
               style={{
-                background: "linear-gradient(135deg, #4F46E5 0%, #0891B2 100%)",
+                background: "linear-gradient(135deg, #586EF0 0%, #0891B2 100%)",
                 boxShadow: "0 4px 14px rgba(79,70,229,0.40)",
               }}
             >
@@ -2215,7 +2258,7 @@ export default function ExpenseManagement() {
             <SummaryMetric
               label="Total Expenses"
               value={"$" + stats.total.toFixed(2)}
-              color="#4F46E5"
+              color="#586EF0"
               icon={DollarSign}
             />{" "}
             <div className="w-px bg-gray-100 self-stretch hidden sm:block" />{" "}
@@ -2330,7 +2373,7 @@ export default function ExpenseManagement() {
                             height: h + "%",
                             minHeight: m.value > 0 ? 4 : 0,
                             background:
-                              "linear-gradient(180deg, #4F46E5 0%, #6366F1 100%)",
+                              "linear-gradient(180deg, #586EF0 0%, #6366F1 100%)",
                           }}
                         />{" "}
                         <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
@@ -2416,7 +2459,7 @@ export default function ExpenseManagement() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full text-sm pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full text-sm pl-10 pr-4 py-2.5 border border-gray-200 rounded-card focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
                 placeholder="Search expenses, vendors, descriptions…"
               />{" "}
               {search && (
@@ -2432,7 +2475,7 @@ export default function ExpenseManagement() {
             <select
               value={catFilter}
               onChange={(e) => setCatFilter(e.target.value)}
-              className="text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+              className="text-sm border border-gray-200 rounded-card px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
               style={{ minWidth: 160 }}
             >
               {" "}
@@ -2447,7 +2490,7 @@ export default function ExpenseManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+              className="text-sm border border-gray-200 rounded-card px-3.5 py-2.5 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
               style={{ minWidth: 140 }}
             >
               {" "}
@@ -2461,7 +2504,7 @@ export default function ExpenseManagement() {
             </select>{" "}
             <button
               onClick={() => setShowFilters((v) => !v)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border transition-all ${showFilters ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-card border transition-all ${showFilters ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
             >
               {" "}
               <SlidersHorizontal size={14} /> More Filters{" "}
@@ -2492,7 +2535,7 @@ export default function ExpenseManagement() {
             {hasFilters && (
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl text-red-600 bg-red-50 hover:bg-red-100 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-button text-red-600 bg-red-50 hover:bg-red-100 transition-all"
               >
                 {" "}
                 <XCircle size={14} /> Reset{" "}
@@ -2516,7 +2559,7 @@ export default function ExpenseManagement() {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 148 }}
                 />{" "}
               </div>{" "}
@@ -2530,7 +2573,7 @@ export default function ExpenseManagement() {
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 148 }}
                 />{" "}
               </div>{" "}
@@ -2544,7 +2587,7 @@ export default function ExpenseManagement() {
                   type="number"
                   value={amountMin}
                   onChange={(e) => setAmountMin(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 100 }}
                   placeholder="0"
                 />{" "}
@@ -2559,7 +2602,7 @@ export default function ExpenseManagement() {
                   type="number"
                   value={amountMax}
                   onChange={(e) => setAmountMax(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="text-sm border border-gray-200 rounded-card px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   style={{ width: 100 }}
                   placeholder="∞"
                 />{" "}
@@ -2567,7 +2610,7 @@ export default function ExpenseManagement() {
               <select
                 value={pmFilter}
                 onChange={(e) => setPmFilter(e.target.value)}
-                className="text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+                className="text-sm border border-gray-200 rounded-card px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
                 style={{ minWidth: 160 }}
               >
                 {" "}
@@ -2579,7 +2622,7 @@ export default function ExpenseManagement() {
               <select
                 value={empFilter}
                 onChange={(e) => setEmpFilter(e.target.value)}
-                className="text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
+                className="text-sm border border-gray-200 rounded-card px-3.5 py-2 focus:outline-none focus:border-indigo-400 bg-white cursor-pointer"
                 style={{ minWidth: 160 }}
               >
                 {" "}
@@ -2625,21 +2668,21 @@ export default function ExpenseManagement() {
                 <div className="w-px h-4 bg-gray-200" />{" "}
                 <button
                   onClick={bulkApprove}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-50 rounded-button hover:bg-green-100 transition-all"
                 >
                   {" "}
                   <CheckCircle size={12} /> Approve{" "}
                 </button>{" "}
                 <button
                   onClick={bulkExport}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-button hover:bg-gray-200 transition-all"
                 >
                   {" "}
                   <FileDown size={12} /> Export{" "}
                 </button>{" "}
                 <button
                   onClick={bulkDelete}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 rounded-button hover:bg-red-100 transition-all"
                 >
                   {" "}
                   <Trash2 size={12} /> Delete{" "}
@@ -2656,7 +2699,7 @@ export default function ExpenseManagement() {
                     style={{ background: "#F8FAFC" }}
                   >
                     <div
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${pageData.length > 0 && selected.size === pageData.length ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
+                      className={`w-4 h-4 rounded-input border-2 flex items-center justify-center cursor-pointer transition-all ${pageData.length > 0 && selected.size === pageData.length ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
                       onClick={toggleAll}
                     >
                       {" "}
@@ -2665,7 +2708,7 @@ export default function ExpenseManagement() {
                           <Check size={10} color="white" />
                         )}{" "}
                       {selected.size > 0 && selected.size < pageData.length && (
-                        <Minus size={10} color="#4F46E5" />
+                        <Minus size={10} color="#586EF0" />
                       )}{" "}
                     </div>{" "}
                   </th>{" "}
@@ -2754,10 +2797,10 @@ export default function ExpenseManagement() {
                         {!hasFilters && (
                           <button
                             onClick={() => setAddOpen(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-xl"
+                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-card"
                             style={{
                               background:
-                                "linear-gradient(135deg, #4F46E5 0%, #0891B2 100%)",
+                                "linear-gradient(135deg, #586EF0 0%, #0891B2 100%)",
                             }}
                           >
                             <Plus size={15} /> Add Expense{" "}
@@ -2801,7 +2844,7 @@ export default function ExpenseManagement() {
                         >
                           {" "}
                           <div
-                            className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
+                            className={`w-4 h-4 rounded-input border-2 flex items-center justify-center cursor-pointer transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "border-gray-300 hover:border-indigo-400"}`}
                           >
                             {isSelected && (
                               <Check size={10} color="white" />
@@ -2809,7 +2852,7 @@ export default function ExpenseManagement() {
                           </div>{" "}
                         </td>{" "}
                         <td className="px-4 py-3.5">
-                          <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">
+                          <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-card">
                             {row.id}{" "}
                           </span>{" "}
                         </td>{" "}
@@ -2910,7 +2953,7 @@ export default function ExpenseManagement() {
                 <button
                   disabled={page === 0}
                   onClick={() => setPage((p) => p - 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-card text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   {" "}
                   <ChevronLeft size={14} />{" "}
@@ -2928,9 +2971,9 @@ export default function ExpenseManagement() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all"
+                      className="w-8 h-8 flex items-center justify-center rounded-card text-sm font-medium transition-all"
                       style={{
-                        background: page === p ? "#4F46E5" : "transparent",
+                        background: page === p ? "#586EF0" : "transparent",
                         color: page === p ? "#fff" : "#6B7280",
                         border: page === p ? "none" : "1px solid #E5E7EB",
                       }}
@@ -2943,7 +2986,7 @@ export default function ExpenseManagement() {
                 <button
                   disabled={page >= totalPages - 1}
                   onClick={() => setPage((p) => p + 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-card text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   {" "}
                   <ChevronRight size={14} />{" "}
@@ -2982,5 +3025,12 @@ export default function ExpenseManagement() {
         onConfirm={handleDelete}
       />{" "}
     </div>
+  );
+}
+export default function ExpenseManagementWithGuard() {
+  return (
+    <GlobalTenantGuard>
+      <ExpenseManagement />
+    </GlobalTenantGuard>
   );
 }

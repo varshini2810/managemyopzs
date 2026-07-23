@@ -279,12 +279,12 @@ export default function AddRegionModal({
     >
       {" "}
       <div
-        className="bg-white rounded-xl border border-border shadow-lg w-full max-w-sm flex flex-col overflow-hidden"
+        className="bg-white rounded-card border border-border shadow-lg w-full max-w-sm flex flex-col overflow-hidden"
         style={{ maxHeight: "80vh", animation: "scaleIn 0.15s ease-out" }}
       >
         {" "}
         {/* Header */}{" "}
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0 bg-stone-50">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0 bg-bg-main">
           {" "}
           <h2 className="text-sm font-semibold text-ink">Add Region</h2>{" "}
           <button
@@ -333,20 +333,20 @@ export default function AddRegionModal({
                   id={`region-option-${country.code}`}
                   disabled={alreadyAdded}
                   onClick={() => !alreadyAdded && setSelected(country)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-2.5 transition-colors ${alreadyAdded ? "opacity-40 cursor-not-allowed" : "hover:bg-stone-50 cursor-pointer"} ${isSelected ? "bg-blue-50" : ""} `}
+                  className={`w-full text-left flex items-center gap-3 px-4 py-2.5 transition-colors ${alreadyAdded ? "opacity-40 cursor-not-allowed" : "hover:bg-bg-main cursor-pointer"} ${isSelected ? "bg-blue-50" : ""} `}
                 >
                   {" "}
                   <span className="text-lg leading-none">
                     {country.flag}
                   </span>{" "}
                   <span
-                    className={`text-sm flex-1 ${isSelected ? "font-medium text-accent" : "text-ink"}`}
+                    className={`text-sm flex-1 ${isSelected ? "font-medium text-primary" : "text-ink"}`}
                   >
                     {" "}
                     {country.name}{" "}
                   </span>{" "}
                   {alreadyAdded && (
-                    <span className="text-2xs text-muted bg-stone-100 px-1.5 py-0.5 rounded">
+                    <span className="text-2xs text-muted bg-bg-main px-1.5 py-0.5 rounded-card">
                       Added
                     </span>
                   )}{" "}
@@ -359,7 +359,7 @@ export default function AddRegionModal({
           )}{" "}
         </div>{" "}
         {/* Footer */}{" "}
-        <div className="px-4 py-3 border-t border-border shrink-0 bg-stone-50 flex justify-end gap-2">
+        <div className="px-4 py-3 border-t border-border shrink-0 bg-bg-main flex justify-end gap-2">
           {" "}
           <button
             id="add-region-cancel-btn"

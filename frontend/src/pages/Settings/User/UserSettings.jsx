@@ -62,7 +62,7 @@ export default function UserSettings() {
         {" "}
         <div className="flex items-center gap-2 border-b border-border pb-4 mb-6">
           {" "}
-          <User className="text-accent" size={20} />{" "}
+          <User className="text-primary" size={20} />{" "}
           <h2 className="font-semibold text-ink text-lg tracking-tight">
             Add New Employee
           </h2>{" "}

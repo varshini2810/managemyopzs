@@ -22,7 +22,7 @@ export default function CustomerInsights() {
       </div>{" "}
       <div className="card p-0">
         {" "}
-        <div className="p-4 border-b border-border flex items-center gap-4 bg-stone-50">
+        <div className="p-4 border-b border-border flex items-center gap-4 bg-bg-main">
           {" "}
           <input
             type="text"
@@ -46,7 +46,7 @@ export default function CustomerInsights() {
                 <th className="text-right">LTV</th></tr></thead>{" "}
             <tbody>
               <tr>
-                <td className="font-medium text-accent">Acme Corp</td>{" "}
+                <td className="font-medium text-primary">Acme Corp</td>{" "}
                 <td>Enterprise Annual</td>{" "}
                 <td>
                   <span className="status-dot active">Active</span>
@@ -54,7 +54,7 @@ export default function CustomerInsights() {
                 <td>Good</td> <td className="num">$1,200.00</td>{" "}
                 <td className="num">$14,400.00</td></tr>{" "}
               <tr>
-                <td className="font-medium text-accent">Globex</td>{" "}
+                <td className="font-medium text-primary">Globex</td>{" "}
                 <td>Pro Monthly</td>{" "}
                 <td>
                   <span className="status-dot expired">At-risk</span>

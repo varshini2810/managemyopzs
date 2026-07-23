@@ -65,7 +65,7 @@ export default function InvoicesList() {
       header: "Invoice ID",
       cell: (row) => (
         <div
-          className="cursor-pointer hover:text-accent transition-colors"
+          className="cursor-pointer hover:text-primary transition-colors"
           onClick={() => navigate(`/invoices/${row.id}`)}
         >
           {" "}
@@ -103,11 +103,11 @@ export default function InvoicesList() {
       cell: (row) => (
         <div className="relative group text-right flex justify-end">
           {" "}
-          <button className="p-1 hover:bg-gray-100 rounded text-muted">
+          <button className="p-1 hover:bg-gray-100 rounded-button text-muted">
             {" "}
             <MoreVertical size={14} />{" "}
           </button>{" "}
-          <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 shadow-sm rounded-md py-1 min-w-[140px] hidden group-hover:block z-10 text-left">
+          <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 shadow-sm rounded-card py-1 min-w-[140px] hidden group-hover:block z-10 text-left">
             {" "}
             <button
               className="w-full text-left px-4 py-2 text-sm text-ink hover:bg-gray-50 flex items-center gap-2"
@@ -190,12 +190,12 @@ export default function InvoicesList() {
       </div>{" "}
       <div className="px-8 py-6">
         {" "}
-        <div className="bg-surface rounded-lg border border-gray-200">
+        <div className="bg-surface rounded-card border border-gray-200">
           {" "}
           <div className="flex border-b border-gray-200">
             {" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "invoices" ? "border-b-2 border-accent text-ink" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "invoices" ? "border-b-2 border-primary text-ink" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("invoices");
                 setPage(0);
@@ -207,7 +207,7 @@ export default function InvoicesList() {
               Invoices{" "}
             </button>{" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "credit-notes" ? "border-b-2 border-accent text-ink" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "credit-notes" ? "border-b-2 border-primary text-ink" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("credit-notes");
                 setPage(0);
@@ -219,7 +219,7 @@ export default function InvoicesList() {
               Credit Notes{" "}
             </button>{" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "finance" ? "border-b-2 border-accent text-ink font-semibold" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "finance" ? "border-b-2 border-primary text-ink font-semibold" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("finance");
               }}
@@ -228,7 +228,7 @@ export default function InvoicesList() {
               Finance{" "}
             </button>{" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "reports" ? "border-b-2 border-accent text-ink" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "reports" ? "border-b-2 border-primary text-ink" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("reports");
               }}
@@ -237,7 +237,7 @@ export default function InvoicesList() {
               All Invoices & Reports{" "}
             </button>{" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "analytics" ? "border-b-2 border-accent text-ink" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "analytics" ? "border-b-2 border-primary text-ink" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("analytics");
               }}
@@ -246,7 +246,7 @@ export default function InvoicesList() {
               Analytics{" "}
             </button>{" "}
             <button
-              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "payment-statement" ? "border-b-2 border-accent text-ink" : "text-muted hover:text-ink"}`}
+              className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === "payment-statement" ? "border-b-2 border-primary text-ink" : "text-muted hover:text-ink"}`}
               onClick={() => {
                 setActiveTab("payment-statement");
               }}

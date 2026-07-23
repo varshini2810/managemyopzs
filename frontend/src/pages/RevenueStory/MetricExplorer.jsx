@@ -161,7 +161,7 @@ export default function MetricExplorer() {
           </button>{" "}
         </div>{" "}
       </div>{" "}
-      <div className="card p-4 flex items-end gap-4 bg-stone-50">
+      <div className="card p-4 flex items-end gap-4 bg-bg-main">
         {" "}
         <div className="flex-1">
           {" "}
@@ -225,7 +225,7 @@ export default function MetricExplorer() {
           </div>{" "}
         </div>{" "}
         <div
-          className={`flex-1 flex items-center justify-center ${!data ? "text-muted border border-dashed border-border rounded" : ""} min-h-[300px]`}
+          className={`flex-1 flex items-center justify-center ${!data ? "text-muted border border-dashed border-border rounded-card" : ""} min-h-[300px]`}
         >
           {" "}
           {renderChart()}{" "}
