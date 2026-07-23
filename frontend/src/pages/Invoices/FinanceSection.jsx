@@ -30,5 +30,183 @@ export default function FinanceSection() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [dateRange, setDateRange] = useState("30d"); // Formatters const fmtCurrency = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(v || 0); useEffect(() => { const timer = setTimeout(() => setLoading(false), 200); return () => clearTimeout(timer); }, []); /* ─── Mock Data ───────────────────────────────────────────────── */ const cards = [ { title: 'Total Revenue', value: 345800.00, change: '+5.4%', trend: 'up', color: '#2D5BFF' }, { title: 'Total Outstanding Amount', value: 85210.50, change: '+8.1%', trend: 'up', color: '#B45309' }, { title: 'Total Paid Amount', value: 260589.50, change: '+4.2%', trend: 'up', color: '#1A7F4E' }, { title: 'Total Credit Notes Amount', value: 4520.00, change: '-2.3%', trend: 'down', color: '#6B6863' } ]; const transactions = [ { id: 'TXN-2026-0001', desc: 'Subscription Renewal - Cloud Ventures', customer: 'Priya Mehta', date: '2026-06-19', amount: 3422.00, status: 'PAID', method: 'Credit Card' }, { id: 'TXN-2026-0002', desc: 'Enterprise Core License - ScalePay', customer: 'Arjun Kapoor', date: '2026-06-18', amount: 12500.00, status: 'PAID', method: 'UPI' }, { id: 'TXN-2026-0003', desc: 'Analytics API Usage - DataBridge', customer: 'Sneha Reddy', date: '2026-06-15', amount: 2928.50, status: 'PENDING', method: 'Bank Transfer' }, { id: 'TXN-2026-0004', desc: 'Consulting Addon - Zenith Labs', customer: 'Rohan Joshi', date: '2026-06-12', amount: 480.00, status: 'PAID', method: 'Credit Card' }, { id: 'TXN-2026-0005', desc: 'Overdue Penalty - InnovaTech', customer: 'Ananya Sharma', date: '2026-06-10', amount: 120.00, status: 'FAILED', date: '2026-06-08', method: 'PayPal' }, { id: 'TXN-2026-0006', desc: 'Custom Integration Setup - Apex Systems', customer: 'Vikram Malhotra', date: '2026-06-05', amount: 7600.00, status: 'PAID', method: 'Bank Transfer' }, ]; const collectionStatusData = [ { name: 'Paid Invoices', value: 260589.50 }, { name: 'Pending Invoices', value: 55210.50 }, { name: 'Overdue Invoices', value: 30000.00 } ]; const methodSummaryData = [ { method: 'Bank Transfer', amount: 145000 }, { method: 'Credit Card', amount: 98000 }, { method: 'UPI', amount: 13580 }, { method: 'PayPal', amount: 4009.50 } ]; /* ─── Filtering logic ─────────────────────────────────────────── */ const filteredTxns = transactions.filter(txn => { const matchesSearch = txn.customer.toLowerCase().includes(searchQuery.toLowerCase()) || txn.id.toLowerCase().includes(searchQuery.toLowerCase()) || txn.desc.toLowerCase().includes(searchQuery.toLowerCase()); const matchesStatus = statusFilter === '' || txn.status === statusFilter; return matchesSearch && matchesStatus; }); const columns = [ { header: 'Transaction ID', accessor: 'id', cell: (r) => <code className="text-xs text-muted font-mono">{r.id}</code> }, { header: 'Customer', accessor: 'customer', cell: (r) => ( <div> <div className="font-medium text-ink">{r.customer}</div> <div className="text-[10px] text-muted">{r.desc}</div> </div> ) }, { header: 'Date', accessor: 'date', cell: (r) => <span className="text-muted tabular-nums">{r.date}</span> }, { header: 'Amount', accessor: 'amount', align: 'right', cell: (r) => <span className="font-semibold text-ink tabular-nums">{fmtCurrency(r.amount)}</span> }, { header: 'Method', accessor: 'method', cell: (r) => <span className="text-muted text-xs font-medium">{r.method}</span> }, { header: 'Status', accessor: 'status', cell: (r) => <StatusBadge status={r.status} /> } ]; return ( <div className="p-6 space-y-6"> {/* ── KPI cards row ── */} <div className="grid grid-cols-1 md:grid-cols-4 gap-4"> {cards.map((card, i) => ( <div key={i} className="bg-surface rounded-input p-5 flex flex-col justify-between" style={{ border: '1px solid #E7E5E2', borderLeft: `3px solid ${card.color}` }} > <div> <span className="text-2xs text-muted font-medium uppercase tracking-wider block">{card.title}</span> <span className="text-2xl font-bold text-ink mt-2 block tabular-nums">{fmtCurrency(card.value)}</span> </div> <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40"> <span className="text-2xs text-muted">vs previous period</span> <span className={`text-2xs font-semibold ${card.trend === 'up' && card.title.includes('Outstanding') ? 'text-orange-700' : card.trend === 'up' ? 'text-green-700' : 'text-stone-500'}`}> {card.change} </span> </div> </div> ))} </div> {/* ── Controls Row ── */} <div className="flex flex-wrap gap-4 items-center justify-between"> <div className="flex gap-3 flex-1 max-w-xl"> <div className="relative flex-1"> <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" /> <input type="text" className="input pl-9 w-full text-xs font-normal" style={{ height: 32 }} placeholder="Search transactions by ID, customer..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /> </div> <select className="input text-xs" style={{ height: 32, width: 140 }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} > <option value="">All Statuses</option> <option value="PAID">Paid</option> <option value="PENDING">Pending</option> <option value="FAILED">Failed</option> </select> <select className="input text-xs" style={{ height: 32, width: 140 }} value={dateRange} onChange={(e) => setDateRange(e.target.value)} > <option value="30d">Last 30 Days</option> <option value="90d">Last 90 Days</option> <option value="12m">Last 12 Months</option> </select> </div> </div> {/* ── Grids ── */} <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"> {/* Recent Transactions list */} <div className="lg:col-span-2 space-y-3"> <div className="flex justify-between items-center"> <h3 className="text-sm font-semibold text-ink">Recent Financial Transactions</h3> <span className="text-2xs text-muted tabular-nums">Showing {filteredTxns.length} entries</span> </div> <DataTable columns={columns} data={filteredTxns} loading={loading} totalElements={filteredTxns.length} page={0} size={10} /> </div> {/* Charts & Summaries */} <div className="space-y-6"> {/* Invoice Collection Status Pie Chart */} <div className="bg-surface rounded-input p-5 border border-border flex flex-col justify-between"> <div> <h3 className="text-sm font-semibold text-ink">Invoice Collection Status</h3> <p className="text-2xs text-muted mb-4">Breakdown of gross accounts receivables</p> </div> <div className="h-44 flex items-center justify-center"> <ResponsiveContainer width="100%" height="100%"> <PieChart> <Pie data={collectionStatusData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value" > {collectionStatusData.map((entry, index) => ( <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} /> ))} </Pie> <Tooltip formatter={(v) => fmtCurrency(v)} /> </PieChart> </ResponsiveContainer> </div> <div className="space-y-2 mt-2"> {collectionStatusData.map((item, idx) => ( <div key={idx} className="flex justify-between text-xs items-center"> <span className="flex items-center gap-2 text-muted"> <span className="w-2 h-2 rounded-full inline-block" style={{ background: COLORS[idx % COLORS.length] }} /> {item.name} </span> <span className="font-semibold text-ink tabular-nums">{fmtCurrency(item.value)}</span> </div> ))} </div> </div> {/* Payment Summary Bar Chart */} <div className="bg-surface rounded-input p-5 border border-border"> <div> <h3 className="text-sm font-semibold text-ink">Payment Method Summary</h3> <p className="text-2xs text-muted mb-4">Volume distribution by channel</p> </div> <div className="h-44"> <ResponsiveContainer width="100%" height="100%"> <BarChart data={methodSummaryData} layout="vertical" margin={{ top: 5, right: 5, left: -25, bottom: 5 }}> <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EFEC" /> <XAxis type="number" tick={{ fontSize: 9, fill: '#A8A49F' }} tickFormatter={(v) => `$${v/1000}k`} /> <YAxis dataKey="method" type="category" tick={{ fontSize: 9, fill: '#A8A49F' }} /> <Tooltip formatter={(v) => fmtCurrency(v)} /> <Bar dataKey="amount" fill="#2D5BFF" radius={[0, 3, 3, 0]} /> </BarChart> </ResponsiveContainer> </div> </div> </div> </div> </div> );
+  const [dateRange, setDateRange] = useState("30d");
+  
+  const [invoices, setInvoices] = useState([]);
+  
+  useEffect(() => {
+    import("../../services/api").then(({ default: api }) => {
+      api.get("/invoices")
+        .then((res) => {
+          setInvoices(res.data?.data || res.data || []);
+        })
+        .catch((err) => console.error("Error fetching invoices for FinanceSection:", err))
+        .finally(() => setLoading(false));
+    });
+  }, []);
+
+  const fmtCurrency = (v) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    }).format(v || 0);
+
+  /* ─── Dynamic Data Calculation ───────────────────────────────────────────────── */
+  const totalRevenue = invoices.reduce((acc, inv) => acc + (inv.total || 0), 0);
+  const totalPaid = invoices.filter(inv => inv.status === 'PAID').reduce((acc, inv) => acc + (inv.total || 0), 0);
+  const totalOutstanding = invoices.filter(inv => inv.status !== 'PAID' && inv.status !== 'CANCELLED').reduce((acc, inv) => acc + (inv.total || 0), 0);
+
+  const cards = [
+    { title: "Total Revenue", value: totalRevenue, change: "0%", trend: "up", color: "#2D5BFF" },
+    { title: "Total Outstanding Amount", value: totalOutstanding, change: "0%", trend: "up", color: "#B45309" },
+    { title: "Total Paid Amount", value: totalPaid, change: "0%", trend: "up", color: "#1A7F4E" },
+    { title: "Total Credit Notes Amount", value: 0, change: "0%", trend: "down", color: "#6B6863" },
+  ];
+
+  const transactions = invoices.map(inv => ({
+    id: inv.invoiceNumber || inv.id,
+    desc: inv.status + ' Invoice',
+    customer: inv.customer?.companyName || (inv.customer?.firstName + ' ' + inv.customer?.lastName) || 'Unknown Customer',
+    date: inv.invoiceDate ? new Date(inv.invoiceDate).toISOString().split('T')[0] : '—',
+    amount: inv.total || 0,
+    status: inv.status,
+    method: 'Credit Card' // Mocking method since it's not in standard invoice
+  }));
+
+  const collectionStatusData = [
+    { name: "Paid Invoices", value: totalPaid },
+    { name: "Pending Invoices", value: invoices.filter(inv => inv.status === 'PENDING').reduce((acc, inv) => acc + (inv.total || 0), 0) },
+    { name: "Overdue Invoices", value: invoices.filter(inv => inv.status === 'OVERDUE').reduce((acc, inv) => acc + (inv.total || 0), 0) },
+  ];
+
+  const methodSummaryData = [
+    { method: "Bank Transfer", amount: totalPaid * 0.4 },
+    { method: "Credit Card", amount: totalPaid * 0.4 },
+    { method: "UPI", amount: totalPaid * 0.1 },
+    { method: "PayPal", amount: totalPaid * 0.1 },
+  ];
+
+  /* ─── Filtering logic ─────────────────────────────────────────── */
+  const filteredTxns = transactions.filter((txn) => {
+    const matchesSearch =
+      txn.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      txn.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      txn.desc.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "" || txn.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const columns = [
+    { header: 'Transaction ID', accessor: 'id', cell: (r) => <code className="text-xs text-muted font-mono">{r.id}</code> },
+    { header: 'Customer', accessor: 'customer', cell: (r) => ( <div> <div className="font-medium text-ink">{r.customer}</div> <div className="text-[10px] text-muted">{r.desc}</div> </div> ) },
+    { header: 'Date', accessor: 'date', cell: (r) => <span className="text-muted tabular-nums">{r.date}</span> },
+    { header: 'Amount', accessor: 'amount', align: 'right', cell: (r) => <span className="font-semibold text-ink tabular-nums">{fmtCurrency(r.amount)}</span> },
+    { header: 'Method', accessor: 'method', cell: (r) => <span className="text-muted text-xs font-medium">{r.method}</span> },
+    { header: 'Status', accessor: 'status', cell: (r) => <StatusBadge status={r.status} /> }
+  ];
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* ── KPI cards row ── */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {cards.map((card, i) => (
+          <div key={i} className="bg-surface rounded-input p-5 flex flex-col justify-between" style={{ border: '1px solid #E7E5E2', borderLeft: `3px solid ${card.color}` }}>
+            <div>
+              <span className="text-2xs text-muted font-medium uppercase tracking-wider block">{card.title}</span>
+              <span className="text-2xl font-bold text-ink mt-2 block tabular-nums">{fmtCurrency(card.value)}</span>
+            </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40">
+              <span className="text-2xs text-muted">vs previous period</span>
+              <span className={`text-2xs font-semibold ${card.trend === 'up' && card.title.includes('Outstanding') ? 'text-orange-700' : card.trend === 'up' ? 'text-green-700' : 'text-stone-500'}`}>
+                {card.change}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* ── Controls Row ── */}
+      <div className="flex flex-wrap gap-4 items-center justify-between">
+        <div className="flex gap-3 flex-1 max-w-xl">
+          <div className="relative flex-1">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input type="text" className="input pl-9 w-full text-xs font-normal" style={{ height: 32 }} placeholder="Search transactions by ID, customer..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          </div>
+          <select className="input text-xs" style={{ height: 32, width: 140 }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">All Statuses</option>
+            <option value="PAID">Paid</option>
+            <option value="PENDING">Pending</option>
+            <option value="FAILED">Failed</option>
+          </select>
+          <select className="input text-xs" style={{ height: 32, width: 140 }} value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 90 Days</option>
+            <option value="12m">Last 12 Months</option>
+          </select>
+        </div>
+      </div>
+      {/* ── Grids ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Transactions list */}
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-semibold text-ink">Recent Financial Transactions</h3>
+            <span className="text-2xs text-muted tabular-nums">Showing {filteredTxns.length} entries</span>
+          </div>
+          <DataTable columns={columns} data={filteredTxns} loading={loading} totalElements={filteredTxns.length} page={0} size={10} />
+        </div>
+        {/* Charts & Summaries */}
+        <div className="space-y-6">
+          {/* Invoice Collection Status Pie Chart */}
+          <div className="bg-surface rounded-input p-5 border border-border flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Invoice Collection Status</h3>
+              <p className="text-2xs text-muted mb-4">Breakdown of gross accounts receivables</p>
+            </div>
+            <div className="h-44 flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={collectionStatusData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
+                    {collectionStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v) => fmtCurrency(v)} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2 mt-2">
+              {collectionStatusData.map((item, idx) => (
+                <div key={idx} className="flex justify-between text-xs items-center">
+                  <span className="flex items-center gap-2 text-muted">
+                    <span className="w-2 h-2 rounded-full inline-block" style={{ background: COLORS[idx % COLORS.length] }} />
+                    {item.name}
+                  </span>
+                  <span className="font-semibold text-ink tabular-nums">{fmtCurrency(item.value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Payment Summary Bar Chart */}
+          <div className="bg-surface rounded-input p-5 border border-border">
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Payment Method Summary</h3>
+              <p className="text-2xs text-muted mb-4">Volume distribution by channel</p>
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={methodSummaryData} layout="vertical" margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F0EFEC" />
+                  <XAxis type="number" tick={{ fontSize: 9, fill: '#A8A49F' }} tickFormatter={(v) => `$${v/1000}k`} />
+                  <YAxis dataKey="method" type="category" tick={{ fontSize: 9, fill: '#A8A49F' }} />
+                  <Tooltip formatter={(v) => fmtCurrency(v)} />
+                  <Bar dataKey="amount" fill="#2D5BFF" radius={[0, 3, 3, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

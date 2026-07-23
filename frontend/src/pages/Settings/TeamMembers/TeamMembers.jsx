@@ -17,8 +17,11 @@ export default function TeamMembers() {
   const fetchMembers = () => {
     api
       .get("/tenant/team-members")
-      .then((res) => setMembers(res.data.data))
-      .catch(console.error)
+      .then((res) => setMembers(res.data?.data || []))
+      .catch((err) => {
+        console.error(err);
+        setMembers([]);
+      })
       .finally(() => setLoading(false));
   };
   useEffect(() => {
